@@ -1,0 +1,3 @@
+LPC11XX_MODEL := lpc1114_301
+F_CPU         := 48000000L
+HSE_Val       := 12000000L

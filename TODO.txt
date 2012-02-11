@@ -1,0 +1,7 @@
+TODO:
+
+- Analog power stuff in syscon
+- Check into best sizes of parameters for passing to different functions
+- Set up to use separate PSP/MSP stack pointers?
+- Get compilation to work again
+

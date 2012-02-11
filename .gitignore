@@ -1,0 +1,11 @@
+*.o
+*.a
+*.elf
+*.hex
+*.srec
+*.bin
+*.prg
+*.map
+*~
+.DS_Store
+._DS_Store
