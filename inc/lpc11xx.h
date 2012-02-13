@@ -1,10 +1,10 @@
-/******************************************************************************
- * @file:    lpc11xx.h
- * @purpose: Base header file for using NXP LPC11xx microcontrollers.
- * @version: V1.0
- * @author:  Tymm Twillman
- * @date:    1. January 2012
- * @license: Simplified BSD License
+/** ***************************************************************************
+ * @file     lpc11xx.h
+ * @brief    Base header file for using NXP LPC11xx/LPC11Cxx microcontrollers.
+ * @version  V1.0
+ * @author   Tymm Twillman
+ * @date     1. January 2012
+ * @license  Simplified BSD License
  ******************************************************************************
  * Copyright (c) 2012, Timothy Twillman
  * All rights reserved.
@@ -44,7 +44,7 @@ extern "C" {
 
 /* Defines --------------------------------------------------------------------------------------*/
 
-#define IRC_Val                 (12000000UL)    /*! Speed of internal RC Oscillator (12 Mhz)     */
+#define IRC_Val                 (12000000UL)    /*!< Speed of internal RC Oscillator (12 Mhz)    */
 
 
 /** @defgroup LPC11xx_Cortex_M0_Configuration LPC11xx Cortex-M0 MCU Configuration
@@ -551,7 +551,7 @@ typedef struct {
   * @{
   */
 
-#define I2C_CONSET_Mask                (0x7e)              /*!< Usable bits in CONSET register   */
+#define I2C_CONSET_Mask                (0x7c)              /*!< Usable bits in CONSET register   */
 
 #define I2C_AA                         (1 << 2)            /*!< Assert Acknowledge Set Bit       */
 #define I2C_SI                         (1 << 3)            /*!< I2C Interrupt Enable Bit         */
@@ -565,7 +565,7 @@ typedef struct {
   * @{
   */
 
-#define I2C_CONCLR_Mask                (0x6e)              /*!< Usable bits in CONCLR register   */
+#define I2C_CONCLR_Mask                (0x6c)              /*!< Usable bits in CONCLR register   */
 
 #define I2C_AAC                        (1 << 2)            /*!< Assert Acknowledge Clear Bit     */
 #define I2C_SIC                        (1 << 3)            /*!< I2C Interrupt Disable Flag       */
@@ -2538,6 +2538,7 @@ typedef struct {
 /** @} */
 
 /** @defgroup CAN_IF_DA1_Bit_Definitions IFxDA1: Message Interface Data A1 Registers
+  * @{
   */
 
 #define CAN_IF_DA1_Mask                (0xffff)            /*!< Usable bits in IFxDA1 registers  */
@@ -2551,6 +2552,7 @@ typedef struct {
 /** @} */
 
 /** @defgroup CAN_IF_DA2_Bit_Definitions IFxDA2: Message Interface Data A2 Registers
+  * @{
   */
 
 #define CAN_IF_DB2_Mask                (0xffff)            /*!< Usable bits in IFxDA2 registers  */
@@ -2564,6 +2566,7 @@ typedef struct {
 /** @} */
 
 /** @defgroup CAN_IF_DB1_Bit_Definitions IFxDB1: Message Interface Data B1 Registers
+  * @{
   */
 
 #define CAN_IF_DB1_Mask                (0xffff)            /*!< Usable bits in IFxDB1 registers  */
@@ -2578,6 +2581,7 @@ typedef struct {
 /** @} */
 
 /** @defgroup CAN_IF_DB2_Bit_Definitions IFxDB2: Message Interface Data B2 Registers
+  * @{
   */
 
 #define CAN_DB2_Mask                   (0xffff)            /*!< Usable bits in IFxDB2 registers  */
@@ -2800,11 +2804,11 @@ typedef struct {
 
 /** @} */
 
-#endif /* #if defined(LPC11CXX) */
-
 /**
   * @}
   */
+
+#endif /* #if defined(LPC11CXX) */
 
 
 /* Peripheral Memory Locations ------------------------------------------------------------------*/

@@ -1,9 +1,39 @@
-/*****************************************************************************
- * @file:    ssp.h
- * @purpose: SSP Serial Interface Header for NXP LPC Microcontrollers
- * @version: V1.0
- * @author:  Tymm Twillman
- * @date:    1. January 2012
+/** ***************************************************************************
+ * @file     ssp.h
+ * @brief    SSP Serial Interface Header for NXP LPC Microcontrollers
+ * @version  V1.0
+ * @author   Tymm Twillman
+ * @date     1. January 2012
+ * @license  Simplified BSD License
+ ******************************************************************************
+ * Copyright (c) 2012, Timothy Twillman
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ *  modification, are permitted provided that the following conditions are met:
+ *
+ *    1. Redistributions of source code must retain the above copyright notice,
+ *        this list of conditions and the following disclaimer.
+ *
+ *    2. Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED ''AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES,
+ * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+ * AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+ * TIMOTHY TWILLMAN OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * The views and conclusions contained in the software and documentation are
+ * those of the authors and should not be interpreted as representing official
+ * policies, either expressed or implied, of Timothy Twillman.
+ ******************************************************************************
  *
  * NOTE: Pin Modes need to be configured in the PINCONFIG/IOCON block
  *       separately.
@@ -27,7 +57,7 @@ extern "C" {
 
 
 /**
-  * @defgroup SSP_Access_Interface Synchronous Serial Peripheral Access-layer Interface
+  * @defgroup SSP_Access_Interface SSP (Synchronous Serial Peripheral) Access-layer Interface
   * @ingroup  LPC_Peripheral_Access_Layer
   * @{
   */
@@ -99,9 +129,11 @@ typedef enum {
 
 /** @} */
 
-/** @defgroup SSP_ClockPhases SSP Clock Phases                               */
+/** @defgroup SSP_ClockPhases SSP Clock Phases
+  * @{
+  */
 
-/** @brief SSP Clock Phase Configurations          */
+/** @brief SSP Clock Phase Configurations                                    */
 typedef enum {
    SSP_ClockPhase_A = 0x00,            /*!< Data latched on 1st clock change */
    SSP_ClockPhase_B = 0x80             /*!< Data latched on 2nd clock change */
@@ -148,23 +180,6 @@ typedef enum {
                            || ((Interrupt) == SSP_IT_RxTimeout)   \
                            || ((Interrupt) == SSP_IT_RxHalfFull)  \
                            || ((Interrupt) == SSP_IT_TxHalfEmpty))
-
-/** @} */
-
-/** @defgroup SSP_Initialization SSP Initialization
-  * @{
-  */
-
-/*! @brief Synchronous Serial Peripheral Simple Initialization Structure */
-typedef struct {
-    uint8_t Mode;
-    uint8_t WordLength;
-    uint8_t FrameFormat;
-    uint8_t ClockPolarity;
-    uint8_t ClockPhase;
-    uint8_t ClockPrescaler;
-    uint8_t ClockRate;
-} __attribute__((packed)) SSP_Init_Type;
 
 /** @} */
 
@@ -465,63 +480,6 @@ __INLINE static uint16_t SSP_Xfer(SSP_Type *SSP, uint16_t WordOut)
 
     while (!SSP_RxIsAvailable(SSP));
     return SSP->DR;
-}
-
-#if 0
-/** @brief Initialize SSP for Communications
-  * @param  SSP         The SSP device to initialize
-  * @param  Init        The set of configuration parameters to set on SSP
-  * @return None.
-  */
-void SSP_Init(SSP_Type *SSP, SSP_InitType *Init)
-{
-    /* Validate Parameters */
-    lpclib_assert(SSP_IS_WORD_LENGTH(Init->WordLength));
-    lpclib_assert(SSP_IS_FRAME_FORMAT(Init->FrameFormat));
-    lpclib_assert(SSP_IS_CLOCK_POLARITY(Init->ClockPolarity));
-    lpclib_assert(SSP_IS_CLOCK_PHASE(Init->ClockPhase));
-    lpclib_assert(SSP_IS_MODE(Init->Mode));
-    lpclib_assert(SSP_IS_CLOCK_RATE(Init->ClockRate));
-    lpclib_assert(Init->ClockPrescaler <= 254);
-    lpclib_assert((Init->ClockPrescaler & 0x01) == 0);
-
-    if (SSP == SSP0) {
-        SYSCON_EnableAHBClockLines(SYSCON_AHBClockLine_SSP0);
-        SYSCON_SetSSP0ClockDivider(Init->AHBClockDivisor);
-        SYSCON_AssertPeripheralResets(SYSCON_PeripheralReset_SSP0);
-        SYSCON_DeassertPeripheralResets(SYSCON_PeripheralReset_SSP0);
-    } else {
-        SYSCON_EnableAHBClockLines(SYSCON_AHBClockLine_SSP1);
-        SYSCON_SetSSP1ClockDivider(Init->AHBClockDivisor);
-        SYSCON_AssertPeripheralResets(SYSCON_ResetPeriph_SSP1);
-        SYSCON_DeassertPeripheralResets(SYSCON_ResetPeriph_SSP1);
-    }
-
-    /* Set Clock Prescaler */
-    SSP->CPSR = (Init->ClockPrescaler);
-
-    /* Set line control parameters */
-    SSP->CR0 = ((Init->WordLength - 1) | Init->FrameFormat
-               | Init->ClockPolarity | Init->ClockPhase
-               | (Init->ClockRate << 8));
-
-    /* Set Master/Slave Mode and Enable the SSP */
-    SSP->CR1 = Init->Mode;
-    SSP->CR1 |= SSP_SSE;
-}
-#endif
-
-/** @brief De-Initialize SSP (reset the SSP, which will clear config bits)
-  * @param  SSP         The SSP device to de-initialize
-  * @return None.
-  */
-__INLINE static void SSP_DeInit(SSP_Type *SSP)
-{
-    if (SSP == SSP0) {
-        SYSCON_AssertPeripheralResets(SYSCON_PeripheralReset_SSP0);
-    } else if (SSP == SSP1) {
-        SYSCON_AssertPeripheralResets(SYSCON_PeripheralReset_SSP1);
-    }
 }
 
 /**

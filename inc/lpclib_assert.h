@@ -1,10 +1,9 @@
-/****************************************************************************
- * @file:    lpclib_assert.h
- * @purpose: Header file for microcontrololer assert debugging
- * @version: V1.0
- * @author:  Tymm Twillman
- * @date:    1. June 2010
- *--------------------------------------------------------------------------
+/** ***************************************************************************
+ * @file     lpclib_assert.h
+ * @brief    Header file for library assert debugging
+ * @version  V1.0
+ * @author   Tymm Twillman
+ * @date     1. January 2012
  *
  * lpclib_assert() is a wrapper that calls lpclib_assert_failed()
  * on an assertion failure (when the passed in value is 0), if library
@@ -16,13 +15,13 @@
  *
  * To use: Define LPCLIB_DEBUG when compiling & using the library.
  *
- ****************************************************************************/
+ *****************************************************************************/
 
 #ifndef LPCLIB_ASSERT_H_
 #define LPCLIB_ASSERT_H_
 
 
-/* Defines -----------------------------------------------------------------*/
+/* Defines ------------------------------------------------------------------*/
 
 /** @defgroup LIB_DEBUG Library Debugging Interface
   * @{
@@ -36,7 +35,7 @@
 #endif
 
 
-/* Exported Functions ------------------------------------------------------*/
+/* Exported Functions -------------------------------------------------------*/
 
 /** @brief  Infinite loop function to trap assertion failures.
   * @return Does not return (infinite loop)

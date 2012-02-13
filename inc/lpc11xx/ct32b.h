@@ -1,10 +1,10 @@
-/*****************************************************************************
- * @file:    ct32b.h
- * @purpose: 32-Bit Counter/Timer Interface Header for NXP LPC Microcontrollers
- * @version: V1.0
- * @author:  Tymm Twillman
- * @date:    1. January 2012
- * @license: Simplified BSD License
+/** ***************************************************************************
+ * @file     ct32b.h
+ * @brief    32-Bit Counter/Timer Interface Header for NXP LPC Microcontrollers
+ * @version  V1.0
+ * @author   Tymm Twillman
+ * @date     1. January 2012
+ * @license  Simplified BSD License
  ******************************************************************************
  * Copyright (c) 2012, Timothy Twillman
  * All rights reserved.
@@ -52,7 +52,7 @@ extern "C" {
 
 
 /**
-  * @defgroup CT32B_Access_Interface Counter/Timer (32-bit) Access-level Interface
+  * @defgroup CT32B_Access_Interface CT16B (32-bit Counter/Timer) Access-level Interface
   * @ingroup  LPC_Peripheral_Access_Layer
   * @{
   */

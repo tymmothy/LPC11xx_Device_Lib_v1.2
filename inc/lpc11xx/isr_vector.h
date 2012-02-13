@@ -1,9 +1,9 @@
-/******************************************************************************
- * @file:    isr_vector.h
- * @purpose: ISR/Exception Handler declarations for NXP LPC11xx MCUs
- * @version: V1.0
- * @date:    1. January 2012
- * @license: Simplified BSD License
+/** ***************************************************************************
+ * @file     isr_vector.h
+ * @brief    ISR/Exception Handler declarations for NXP LPC11xx MCUs
+ * @version  V1.0
+ * @date     1. January 2012
+ * @license  Simplified BSD License
  ******************************************************************************
  * Copyright (c) 2012, Timothy Twillman
  * All rights reserved.

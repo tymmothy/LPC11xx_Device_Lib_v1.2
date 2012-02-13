@@ -1,10 +1,10 @@
-/*****************************************************************************
- * @file:    gpio.h
- * @purpose: General Purpose IO Interface Header File for NXP LPC11xx MCU's
- * @version: V1.0
- * @author:  Tymm Twillman
- * @date:    1. January 2012
- * @license: Simplified BSD License
+/** ***************************************************************************
+ * @file     gpio.h
+ * @brief    General Purpose IO Interface Header File for NXP LPC11xx MCU's.
+ * @version  V1.0
+ * @author   Tymm Twillman
+ * @date     1. January 2012
+ * @license  Simplified BSD License
  ******************************************************************************
  * Copyright (c) 2012, Timothy Twillman
  * All rights reserved.
@@ -33,11 +33,6 @@
  * The views and conclusions contained in the software and documentation are
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Timothy Twillman.
- *****************************************************************************
- *
- * This implementation uses bit representations for pin numbers which allows
- *  functions to work on multiple pins at the same time.
- *
  *****************************************************************************/
 
 #ifndef NXP_LPC_GPIO_H_
@@ -57,7 +52,7 @@ extern "C" {
 
 
 /**
-  * @defgroup GPIO_Access_Interface General Purpose IO Access-level Interface
+  * @defgroup GPIO_Access_Interface GPIO (General Purpose IO) Access-level Interface
   * @ingroup  LPC_Peripheral_Access_Layer
   * @{
   */
@@ -68,36 +63,36 @@ extern "C" {
   * @{
   */
 
-/** @defgroup GPIO_Directions General Purpose IO Direction Types
+/** @defgroup GPIO_Directions GPIO Direction Types
   * @{
   */
 
-/*! GPIO Pin Direction configurations */
+/*! GPIO pin direction configurations */
 typedef enum {
-    GPIO_Direction_In  = 0,            /*!< GPIO Pin configured for input    */
-    GPIO_Direction_Out = 1             /*!< GPIO Pin configured for output   */
+    GPIO_Direction_In  = 0,            /*!< GPIO pin configured for input    */
+    GPIO_Direction_Out = 1             /*!< GPIO pin configured for output   */
 } GPIO_DirectionType;
 
-/*! Macro to test whether parameter is a valid GPIO Pin Direction value */
+/*! Macro to test whether parameter is a valid GPIO pin direction value */
 #define GPIO_IS_DIRECTION_TYPE(Direction)  (((Direction) == GPIO_Direction_In) \
                                          || ((Direction) == GPIO_Direction_Out))
 
 /** @} */
 
-/** @defgroup GPIO_SenseConditions General Purpose IO Sense Conditions
+/** @defgroup GPIO_SenseConditions GPIO Sense Conditions
   * @{
   */
 
-/*! GPIO Pin Sense Condition Configurations */
+/*! GPIO pin sense condition configurations */
 typedef enum {
-    GPIO_Sense_FallingEdge  = 0,      /*!< Sense GPIO Signal Falling Edge    */
-    GPIO_Sense_Low          = 1,      /*!< Sense GPIO Signal Low Level       */
-    GPIO_Sense_RisingEdge   = 2,      /*!< Sense GPIO Signal Rising Edge     */
-    GPIO_Sense_High         = 3,      /*!< Sense GPIO Signal High Level      */
-    GPIO_Sense_BothEdges    = 4       /*!< Sense GPIO Signal Both Edges      */
+    GPIO_Sense_FallingEdge  = 0,      /*!< Sense GPIO signal falling edge    */
+    GPIO_Sense_Low          = 1,      /*!< Sense GPIO signal low level       */
+    GPIO_Sense_RisingEdge   = 2,      /*!< Sense GPIO signal rising edge     */
+    GPIO_Sense_High         = 3,      /*!< Sense GPIO signal high level      */
+    GPIO_Sense_BothEdges    = 4       /*!< Sense GPIO signal both edges      */
 } GPIO_SenseType;
 
-/*! Macro to test whether the parameter is a valid Pin Sense Configuration */
+/*! Macro to test whether the parameter is a valid pin sense configuration */
 #define GPIO_IS_SENSE_TYPE(Sense)  (((Sense) == GPIO_Sense_FallingEdge) \
                                  || ((Sense) == GPIO_Sense_Level)       \
                                  || ((Sense) == GPIO_Sense_RisingEdge)  \
@@ -105,7 +100,7 @@ typedef enum {
 
 /** @} */
 
-/** @defgroup GPIO_Pins General Purpose IO Pins
+/** @defgroup GPIO_Pins GPIO pins
   * @{
   */
 
@@ -122,7 +117,7 @@ typedef enum {
 #define GPIO_Pin_10      (1 << 10)     /*!< GPIO Pin 10                      */
 #define GPIO_Pin_11      (1 << 11)     /*!< GPIO Pin 11                      */
 
-/*! Macro to test whether the parameter is a valid GPIO Pin value */
+/*! Macro to test whether the parameter is a valid GPIO pin value */
 #define GPIO_IS_PIN_TYPE(Pin)    (((Pin) == GPIO_Pin_0)  \
                                || ((Pin) == GPIO_Pin_1)  \
                                || ((Pin) == GPIO_Pin_2)  \
@@ -136,10 +131,10 @@ typedef enum {
                                || ((Pin) == GPIO_Pin_10) \
                                || ((Pin) == GPIO_Pin_11))
 
-/*! No GPIO Pins (NOTE: Not a valid "pin" for GPIO_IS_PIN_TYPE checking)     */
+/*! No GPIO pins (NOTE: Not a valid "pin" for GPIO_IS_PIN_TYPE checking)     */
 #define GPIO_Pin_NONE    (0x0000)
 
-/*! All GPIO Pins (NOTE: Not a valid "pin" for GPIO_IS_PIN_TYPE checking)    */
+/*! All GPIO pins (NOTE: Not a valid "pin" for GPIO_IS_PIN_TYPE checking)    */
 #define GPIO_Pin_ALL     (0x0fff)
 
 /*! Mask of all valid GPIO lines                                             */
@@ -160,11 +155,11 @@ typedef enum {
   * @{
   */
 
-/** @brief Write the given bits to the given pins
-  * @param  GPIO      The GPIO port to write to
-  * @param  Pins      The pins on the GPIO port to affect
-  * @param  PinValues The bit values to apply to those pins
-  * @return None.
+/** @brief Write the given bits to the given GPIO port's pins
+  * @param  GPIO        The GPIO port
+  * @param  Pins        A bitmask of pins on the GPIO port
+  * @param  PinValues   A bitmask of values to apply to those pins
+  * @return             None.
   *
   * Bits will be essentially ANDed with Pins in hardware, and written to those
   * pins.
@@ -179,10 +174,10 @@ __INLINE static void GPIO_WritePins(GPIO_Type *GPIO, uint16_t Pins, uint16_t Pin
     GPIO->SELDATA[Pins] = PinValues;
 }
 
-/** @brief Read the logic state of the given pins
-  * @param  GPIO      The GPIO port to write to
-  * @param  Pins      The pins on the GPIO port to affect
-  * @return None.
+/** @brief Read the logic state of the given pins.
+  * @param  GPIO        The GPIO port to write to
+  * @param  Pins        The pins on the GPIO port to read
+  * @return             None.
   *
   * The return value will have the states of the pins as individual bits.
   *  e.g. if Pins == GPIO_Pin_3 and pin 3 on that port is high, it will

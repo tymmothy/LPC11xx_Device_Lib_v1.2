@@ -1,10 +1,10 @@
-/*****************************************************************************
- * @file:    adc.h
- * @purpose: A to D Converter Interface Header for NXP LPC Microcontrollers
- * @version: V1.0
- * @author:  Tymm Twillman
- * @date:    1. June 2010
- * @license: Simplified BSD License
+/** ***************************************************************************
+ * @file     adc.h
+ * @brief    A to D Converter Interface Header for NXP LPC Microcontrollers
+ * @version  V1.0
+ * @author   Tymm Twillman
+ * @date     1. June 2010
+ * @license  Simplified BSD License
  ******************************************************************************
  * Copyright (c) 2012, Timothy Twillman
  * All rights reserved.
@@ -55,7 +55,7 @@ extern "C" {
 
 
 /**
-  * @defgroup ADC_Access_Interface Analog-to-Digital Converter Access-level Interface
+  * @defgroup ADC_Access_Interface ADC (Analog-to-Digital Converter) Access-level Interface
   * @ingroup  LPC_Peripheral_Access_Layer
   * @{
   */

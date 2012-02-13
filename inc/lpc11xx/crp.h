@@ -1,10 +1,10 @@
-/******************************************************************************
- * @file:    crp.h
- * @purpose: Code Protection Interface Header for NXP LPC Microcontrollers.
- * @version: V1.0
- * @author:  Tymm Twillman
- * @date:    3. January 2012
- * @license: Simplified BSD License
+/** ***************************************************************************
+ * @file     crp.h
+ * @brief    Code Protection Interface Header for NXP LPC Microcontrollers.
+ * @version  V1.0
+ * @author   Tymm Twillman
+ * @date     3. January 2012
+ * @license  Simplified BSD License
  ******************************************************************************
  * Copyright (c) 2012, Timothy Twillman
  * All rights reserved.
@@ -49,7 +49,7 @@ extern "C" {
 
 
 /**
-  * @defgroup CRP_Access_Interface Code Read Protection Access-level Interface
+  * @defgroup CRP_Access_Interface CRP (Code Read Protection) Access-level Interface
   * @ingroup  LPC_Peripheral_Access_Layer
   * @{
   */

@@ -1,10 +1,9 @@
-/******************************************************************************
- * @file:    lpc11uxx.h
- * @purpose: Header File for using LPC11Uxx USB-enabled Cortex-M0 CPUs
- * @version: V1.0
- * @author:  Tymm Twillman
- * @date:    1. June 2010
- *-----------------------------------------------------------------------------
+/** ***************************************************************************
+ * @file     lpc11uxx.h
+ * @brief    Header File for using LPC11Uxx USB-enabled Cortex-M0 CPUs
+ * @version  V1.0
+ * @author   Tymm Twillman
+ * @date     1. June 2010
  *
  * This ties together different files for core Cortex-M0 registers &
  *  peripherals for using LPC11Uxx USB microcontrollers.

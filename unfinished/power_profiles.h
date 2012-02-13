@@ -1,10 +1,10 @@
-/*****************************************************************************
- * @file:    power_api.h
- * @purpose: Power Profile API Interface Header for LPC11xxL Microcontrollers
- * @version: V1.0
- * @author:  Tymm Twillman
- * @date:    1. June 2010
- * @license: Simplified BSD License
+/** ***************************************************************************
+ * @file     power_api.h
+ * @brief    Power Profile API Interface Header for LPC11xxL Microcontrollers
+ * @version  V1.0
+ * @author   Tymm Twillman
+ * @date     1. June 2010
+ * @license  Simplified BSD License
  ******************************************************************************
  * Copyright (c) 2012, Timothy Twillman
  * All rights reserved.

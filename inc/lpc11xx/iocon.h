@@ -1,10 +1,10 @@
-/*****************************************************************************
- * @file:    iocon.h
- * @purpose: IO Configuration Interface Header for LPC11xx Microcontrollers
- * @version: V1.0
- * @author:  Tymm Twillman
- * @date:    1. June 2010
- * @license: Simplified BSD License
+/** ***************************************************************************
+ * @file     iocon.h
+ * @brief    IO Configuration Interface Header for LPC11xx Microcontrollers
+ * @version  V1.0
+ * @author   Tymm Twillman
+ * @date     1. June 2010
+ * @license  Simplified BSD License
  ******************************************************************************
  * Copyright (c) 2012, Timothy Twillman
  * All rights reserved.
@@ -52,7 +52,7 @@ extern "C" {
 
 
 /**
-  * @defgroup IOCON_Access_Interface IOCON Access-level Interface
+  * @defgroup IOCON_Access_Interface IOCON (IO Configuration Block) Access-level Interface
   * @ingroup  LPC_Peripheral_Access_Layer
   * @{
   */

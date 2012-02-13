@@ -1,10 +1,10 @@
-/******************************************************************************
- * @file:    flash.h
- * @purpose: Flash Memory Interface Header for NXP LPC11xx Microcontrollers
- * @version: V1.0
- * @author:  Tymm Twillman
- * @date:    1. January 2012
- * @license: Simplified BSD License
+/** ***************************************************************************
+ * @file     flash.h
+ * @brief    Flash Memory Interface Header for NXP LPC11xx Microcontrollers
+ * @version  V1.0
+ * @author   Tymm Twillman
+ * @date     1. January 2012
+ * @license  Simplified BSD License
  ******************************************************************************
  * Copyright (c) 2012, Timothy Twillman
  * All rights reserved.
@@ -70,7 +70,7 @@ extern "C" {
 
 /*! Flash Control Latency (wait-state) Configuration Settings */
 typedef enum {
-    FLASH_Latency_0 = 0x00,            /*!< No Latency on Flash accesses     */
+    FLASH_Latency_0 = 0x00,            /*!< No latency on Flash accesses     */
     FLASH_Latency_1,                   /*!< 1-cycle Flash access latency     */
     FLASH_Latency_2                    /*!< 2-cycle Flash access latency     */
 } FLASH_Latency_Type;
@@ -93,9 +93,11 @@ typedef enum {
   * @{
   */
 
-/** @brief Set Flash latency (must be 1 if chip @ >=20Mhz, 2 if >=40Mhz)
-  * @param  Latency   Number of wait states per Flash access
-  * @return None.
+/** @brief Set the Flash fetch latency.
+  * @param  Latency     The new number of wait states per Flash access
+  * @return             None.
+  *
+  * Note: Must be 1 or 2 if chip @ >=20Mhz, 2 if >=40Mhz
   */
 __INLINE static void FLASH_SetLatency(FLASH_Latency_Type Latency)
 {
@@ -104,19 +106,19 @@ __INLINE static void FLASH_SetLatency(FLASH_Latency_Type Latency)
     FLASH->FLASHCFG = (FLASH->FLASHCFG & ~FLASH_FLASHTIM_Mask) | Latency;
 }
 
-/** @brief Get currently configured Flash latency
-  * @return  Number of configured wait states per Flash access
+/** @brief Get the currently configured Flash fetch latency.
+  * @return             The number of configured wait states per Flash access.
   */
 __INLINE static uint16_t FLASH_GetLatency(void)
 {
     return FLASH->FLASHCFG & (FLASH_FLASHTIM_Mask);
 }
 
-/** @brief Generate a signature for flash memory
-  * @param  start_addr  The (16-byte aligned) start address of memory block
-  * @param  start_addr  The (16-byte aligned) end address of memory block
+/** @brief Generate a signature for a (16-byte aligned) range of flash memory.
+  * @param  start_addr  The (16-byte aligned) start address of the flash memory
+  * @param  end_addr    The (16-byte aligned) end address of the flash memory
   * @param  result      Where the (128-bit / 4 word) resulting signature is put
-  * @return  None.
+  * @return             None.
   */
 __INLINE static void FLASH_GenerateSignature(uint32_t start_addr,
                                              uint32_t end_addr,

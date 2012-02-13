@@ -1,10 +1,10 @@
-/*****************************************************************************
- * @file:    syscon.h
- * @purpose: System Control Block Interface Header for LPC11xx Microcontrollers
- * @version: V1.0
- * @author:  Tymm Twillman
- * @date:    1. June 2010
- * @license: Simplified BSD License
+/** ***************************************************************************
+ * @file     syscon.h
+ * @brief    System Control Block Interface Header for LPC11xx Microcontrollers
+ * @version  V1.0
+ * @author   Tymm Twillman
+ * @date     1. June 2010
+ * @license  Simplified BSD License
  ******************************************************************************
  * Copyright (c) 2012, Timothy Twillman
  * All rights reserved.
@@ -61,7 +61,7 @@ extern "C" {
 
 
 /**
-  * @defgroup SYSCON_Access_Interface System Control Block Access-level Interface
+  * @defgroup SYSCON_Access_Interface SYSCON (System Control Block) Access-level Interface
   * @ingroup  LPC_Peripheral_Access_Layer
   * @{
   */

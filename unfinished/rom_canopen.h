@@ -1,10 +1,10 @@
-/*****************************************************************************
- * @file:    rom_canopen.h
- * @purpose: Rom-based CAN Open driver interface for LPC11CXX Microcontrollers
- * @version: V1.0
- * @author:  Tymm Twillman
- * @date:    1. January 2012
- * @license: Simplified BSD License
+/** ***************************************************************************
+ * @file     rom_canopen.h
+ * @brief    Rom-based CAN Open driver interface for LPC11CXX Microcontrollers
+ * @version  V1.0
+ * @author   Tymm Twillman
+ * @date     1. January 2012
+ * @license  Simplified BSD License
  ******************************************************************************
  * Copyright (c) 2012, Timothy Twillman
  * All rights reserved.

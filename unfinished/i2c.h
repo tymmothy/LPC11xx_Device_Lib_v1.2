@@ -1,4 +1,4 @@
-/*****************************************************************************
+/** ***************************************************************************
  * @file:    i2c.h
  * @purpose: I2C Interface Header File for NXP LPC Microcontrollers
  * @version: V1.0
@@ -51,7 +51,7 @@ extern "C" {
 
 
 /**
-  * @defgroup I2C_Access_Interface I2C Access-level Interface
+  * @defgroup I2C_Access_Interface I2C (Inter-Integreated Circuit) Access-level Interface
   * @ingroup  LPC_Peripheral_Access_Layer
   * @{
   */

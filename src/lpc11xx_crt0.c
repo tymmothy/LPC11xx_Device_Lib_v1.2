@@ -1,10 +1,10 @@
-/******************************************************************************
- * @file:    lpc11xx_crt0.c
- * @purpose: Low-level memory initialization code for LPC11xx CPUs
- * @version: V1.0
- * @author:  Tymm Twillman
- * @date:    3. January 2012
- * @license: Simplified BSD License
+/** ***************************************************************************
+ * @file     lpc11xx_crt0.c
+ * @brief    Low-level memory initialization code for LPC11xx CPUs
+ * @version  V1.0
+ * @author   Tymm Twillman
+ * @date     3. January 2012
+ * @license  Simplified BSD License
  ******************************************************************************
  * Copyright (c) 2012, Timothy Twillman
  * All rights reserved.

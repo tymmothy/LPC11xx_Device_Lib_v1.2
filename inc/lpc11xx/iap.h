@@ -1,10 +1,10 @@
-/*****************************************************************************
- * @file:    iap.h
- * @purpose: Self-Programming Interface Header for NXP LPC Microcontrollers
- * @version: V1.0
- * @author:  Tymm Twillman
- * @date:    1. January 2012
- * @license: Simplified BSD License
+/** ***************************************************************************
+ * @file     iap.h
+ * @brief    Self-Programming Interface Header for NXP LPC Microcontrollers
+ * @version  V1.0
+ * @author   Tymm Twillman
+ * @date     1. January 2012
+ * @license  Simplified BSD License
  ******************************************************************************
  * Copyright (c) 2012, Timothy Twillman
  * All rights reserved.
@@ -61,7 +61,7 @@ extern "C" {
 /* Defines ------------------------------------------------------------------*/
 
 /**
-  * @defgroup IAP_Access_Definitions Flash Programming Access-level Interface Definitions
+  * @defgroup IAP_Access_Definitions IAP (Flash Programming) Access-level Interface Definitions
   * @{
   */
 

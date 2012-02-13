@@ -1,10 +1,10 @@
-/******************************************************************************
- * @file:    pmu.h
- * @purpose: Header File for LPC11xx MCU Power Control Unit
- * @version: V1.0
- * @author:  Tymm Twillman
- * @date:    1. June 2010
- * @license: Simplified BSD License
+/** ***************************************************************************
+ * @file     pmu.h
+ * @brief    Header File for LPC11xx MCU Power Control Unit
+ * @version  V1.0
+ * @author   Tymm Twillman
+ * @date     1. January 2012
+ * @license  Simplified BSD License
  ******************************************************************************
  * Copyright (c) 2012, Timothy Twillman
  * All rights reserved.
@@ -49,7 +49,7 @@ extern "C" {
 #include "lpc11xx.h"
 
 /**
-  * @defgroup PMU_Access_Interface PMU Access-level Interface
+  * @defgroup PMU_Access_Interface PMU (Power Management Unit) Access-level Interface
   * @ingroup  LPC_Peripheral_Access_Layer
   * @{
   */
