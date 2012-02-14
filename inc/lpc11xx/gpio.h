@@ -1,11 +1,13 @@
-/** ***************************************************************************
+/**************************************************************************//**
  * @file     gpio.h
  * @brief    General Purpose IO Interface Header File for NXP LPC11xx MCU's.
  * @version  V1.0
  * @author   Tymm Twillman
  * @date     1. January 2012
- * @license  Simplified BSD License
  ******************************************************************************
+ * @section License License
+ * Licensed under a Simplified BSD License:
+ *
  * Copyright (c) 2012, Timothy Twillman
  * All rights reserved.
  *
@@ -52,14 +54,14 @@ extern "C" {
 
 
 /**
-  * @defgroup GPIO_Access_Interface GPIO (General Purpose IO) Access-level Interface
-  * @ingroup  LPC_Peripheral_Access_Layer
+  * @defgroup GPIO_AbstractionLayer GPIO (General Purpose IO) Abstraction Layer
+  * @ingroup  LPC_Peripheral_AbstractionLayer
   * @{
   */
 
 /* Types & Type-Related Definitions -----------------------------------------*/
 
-/** @defgroup GPIO_Access_Types GPIO Access-level Types & Definitions
+/** @defgroup GPIO_Types GPIO Interface Types and Type-Related Definitions
   * @{
   */
 
@@ -67,15 +69,15 @@ extern "C" {
   * @{
   */
 
-/*! GPIO pin direction configurations */
+/*! @brief GPIO pin direction settings */
 typedef enum {
     GPIO_Direction_In  = 0,            /*!< GPIO pin configured for input    */
     GPIO_Direction_Out = 1             /*!< GPIO pin configured for output   */
 } GPIO_DirectionType;
 
-/*! Macro to test whether parameter is a valid GPIO pin direction value */
-#define GPIO_IS_DIRECTION_TYPE(Direction)  (((Direction) == GPIO_Direction_In) \
-                                         || ((Direction) == GPIO_Direction_Out))
+/*! @brief Macro to test whether parameter is valid GPIO pin direction value */
+#define GPIO_IS_DIRECTION_TYPE(Direction) (((Direction) == GPIO_Direction_In) \
+                                        || ((Direction) == GPIO_Direction_Out))
 
 /** @} */
 
@@ -83,7 +85,9 @@ typedef enum {
   * @{
   */
 
-/*! GPIO pin sense condition configurations */
+/** @brief GPIO pin sense condition configurations
+  * These are the types of possible interrupt triggers.
+  */
 typedef enum {
     GPIO_Sense_FallingEdge  = 0,      /*!< Sense GPIO signal falling edge    */
     GPIO_Sense_Low          = 1,      /*!< Sense GPIO signal low level       */
@@ -92,7 +96,7 @@ typedef enum {
     GPIO_Sense_BothEdges    = 4       /*!< Sense GPIO signal both edges      */
 } GPIO_SenseType;
 
-/*! Macro to test whether the parameter is a valid pin sense configuration */
+/*! @brief Macro to test whether the parameter is a valid pin sense config */
 #define GPIO_IS_SENSE_TYPE(Sense)  (((Sense) == GPIO_Sense_FallingEdge) \
                                  || ((Sense) == GPIO_Sense_Level)       \
                                  || ((Sense) == GPIO_Sense_RisingEdge)  \
@@ -104,40 +108,26 @@ typedef enum {
   * @{
   */
 
-#define GPIO_Pin_0       (1 << 0)      /*!< GPIO Pin 0                       */
-#define GPIO_Pin_1       (1 << 1)      /*!< GPIO Pin 1                       */
-#define GPIO_Pin_2       (1 << 2)      /*!< GPIO Pin 2                       */
-#define GPIO_Pin_3       (1 << 3)      /*!< GPIO Pin 3                       */
-#define GPIO_Pin_4       (1 << 4)      /*!< GPIO Pin 4                       */
-#define GPIO_Pin_5       (1 << 5)      /*!< GPIO Pin 5                       */
-#define GPIO_Pin_6       (1 << 6)      /*!< GPIO Pin 6                       */
-#define GPIO_Pin_7       (1 << 7)      /*!< GPIO Pin 7                       */
-#define GPIO_Pin_8       (1 << 8)      /*!< GPIO Pin 8                       */
-#define GPIO_Pin_9       (1 << 9)      /*!< GPIO Pin 9                       */
-#define GPIO_Pin_10      (1 << 10)     /*!< GPIO Pin 10                      */
-#define GPIO_Pin_11      (1 << 11)     /*!< GPIO Pin 11                      */
+#define GPIO_PinMask_Pin0    (1 << 0)      /*!< GPIO Pin 0                       */
+#define GPIO_PinMask_Pin1    (1 << 1)      /*!< GPIO Pin 1                       */
+#define GPIO_PinMask_Pin2    (1 << 2)      /*!< GPIO Pin 2                       */
+#define GPIO_PinMask_Pin3    (1 << 3)      /*!< GPIO Pin 3                       */
+#define GPIO_PinMask_Pin4    (1 << 4)      /*!< GPIO Pin 4                       */
+#define GPIO_PinMask_Pin5    (1 << 5)      /*!< GPIO Pin 5                       */
+#define GPIO_PinMask_Pin6    (1 << 6)      /*!< GPIO Pin 6                       */
+#define GPIO_PinMask_Pin7    (1 << 7)      /*!< GPIO Pin 7                       */
+#define GPIO_PinMask_Pin8    (1 << 8)      /*!< GPIO Pin 8                       */
+#define GPIO_PinMask_Pin9    (1 << 9)      /*!< GPIO Pin 9                       */
+#define GPIO_PinMask_Pin10   (1 << 10)     /*!< GPIO Pin 10                      */
+#define GPIO_PinMask_Pin11   (1 << 11)     /*!< GPIO Pin 11                      */
 
-/*! Macro to test whether the parameter is a valid GPIO pin value */
-#define GPIO_IS_PIN_TYPE(Pin)    (((Pin) == GPIO_Pin_0)  \
-                               || ((Pin) == GPIO_Pin_1)  \
-                               || ((Pin) == GPIO_Pin_2)  \
-                               || ((Pin) == GPIO_Pin_3)  \
-                               || ((Pin) == GPIO_Pin_4)  \
-                               || ((Pin) == GPIO_Pin_5)  \
-                               || ((Pin) == GPIO_Pin_6)  \
-                               || ((Pin) == GPIO_Pin_7)  \
-                               || ((Pin) == GPIO_Pin_8)  \
-                               || ((Pin) == GPIO_Pin_9)  \
-                               || ((Pin) == GPIO_Pin_10) \
-                               || ((Pin) == GPIO_Pin_11))
+/*! @brief Mask of no GPIO pins */
+#define GPIO_PinMask_NONE    (0x0000)
 
-/*! No GPIO pins (NOTE: Not a valid "pin" for GPIO_IS_PIN_TYPE checking)     */
-#define GPIO_Pin_NONE    (0x0000)
+/*! @brief Mask of all GPIO pins */
+#define GPIO_PinMask_ALL     (0x0fff)
 
-/*! All GPIO pins (NOTE: Not a valid "pin" for GPIO_IS_PIN_TYPE checking)    */
-#define GPIO_Pin_ALL     (0x0fff)
-
-/*! Mask of all valid GPIO lines                                             */
+/*! @brief Mask of all valid GPIO lines */
 #define GPIO_Pin_Mask    (0x00000fffUL)
 
 /** @} */
@@ -150,7 +140,7 @@ typedef enum {
 /* Inline Functions ---------------------------------------------------------*/
 
 /**
-  * @defgroup GPIO_Inline_Functions General Purpose IO Inline Functions
+  * @defgroup GPIO_InlineFunctions GPIO Interface Inline Functions
   *
   * @{
   */
@@ -250,9 +240,9 @@ __INLINE static void GPIO_SetPinDirections(GPIO_Type *GPIO, uint16_t Pins,
   * @param  Pin    The pin for which to get the direction
   * @return None.
   */
-__INLINE static uint16_t GPIO_GetPinDirection(GPIO_Type *GPIO, uint16_t Pin)
+__INLINE static uint16_t GPIO_GetPinDirection(GPIO_Type *GPIO, unsigned int Pin)
 {
-    lpclib_assert(GPIO_IS_PIN_TYPE(Pin));
+    lpclib_assert(Pin < GPIO_NUM_PINS);
 
     return (GPIO->DIR & Pin) ? GPIO_Direction_In:GPIO_Direction_Out;
 }

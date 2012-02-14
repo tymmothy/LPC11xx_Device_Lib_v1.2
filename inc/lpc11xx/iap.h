@@ -1,11 +1,13 @@
-/** ***************************************************************************
+/**************************************************************************//**
  * @file     iap.h
  * @brief    Self-Programming Interface Header for NXP LPC Microcontrollers
  * @version  V1.0
  * @author   Tymm Twillman
  * @date     1. January 2012
- * @license  Simplified BSD License
  ******************************************************************************
+ * @section License License
+ * Licensed under a Simplified BSD License:
+ *
  * Copyright (c) 2012, Timothy Twillman
  * All rights reserved.
  *
@@ -53,15 +55,15 @@ extern "C" {
 
 
 /**
-  * @defgroup IAP_Access_Interface Flash Programming Access-level Interface
-  * @ingroup  LPC_Peripheral_Access_Layer
+  * @defgroup IAP_AbstractionLayer IAP (Flash Programming) Abstraction Layer
+  * @ingroup  LPC_Peripheral_AbstractionLayer
   * @{
   */
 
 /* Defines ------------------------------------------------------------------*/
 
 /**
-  * @defgroup IAP_Access_Definitions IAP (Flash Programming) Access-level Interface Definitions
+  * @defgroup IAP_Definitions IAP Interface Definitions
   * @{
   */
 
@@ -78,7 +80,7 @@ extern "C" {
 /* Types & Type-Related Definitions -----------------------------------------*/
 
 /**
-  * @defgroup IAP_Access_Types Flash Programming Access-level Interface Types
+  * @defgroup IAP_Types IAP Interface Types and Type-Related Definitions
   * @{
   */
 
@@ -86,7 +88,7 @@ extern "C" {
   * @{
   */
 
-/*! IAP Command Byte Values */
+/*! @brief IAP Command Byte Values */
 typedef enum {
     IAP_Command_PrepareSectors = 50,                       /*!< Prepare Sectors for Erase/Write  */
     IAP_Command_CopyRamToFlash,                            /*!< Copy Data from RAM to FLASH      */
@@ -98,7 +100,7 @@ typedef enum {
     IAP_Command_ReinvokeISP,                               /*!< Jump to InSystem Programming ROM */
 } IAP_CommandType;
 
-/*! Macro to test whether parameter is a valid IAP Command Byte */
+/*! @brief Macro to test whether parameter is a valid IAP Command Byte */
 #define IAP_IS_COMMAND_TYPE(Command) (((Command) >= IAP_Command_PrepareSectors) \
                                    && ((Command) <= IAP_Command_ReinvokeISP))
 /** @} */
@@ -107,7 +109,7 @@ typedef enum {
   * @{
   */
 
-/*! IAP Status Return Codes */
+/*! @brief IAP Status Return Codes */
 typedef enum {
     IAP_Status_Success = 0,                                /*!< IAP command succeeded            */
     IAP_Status_InvalidCommand,                             /*!< Invalid IAP command byte         */
@@ -137,8 +139,9 @@ typedef enum {
   * @{
   */
 
-/*! IAP Write / Erase Valid Byte Counts.  These are broken out specifically to make it
- *  clear when sending IAP commands that only a narrow range of values are allowed.
+/*! @brief IAP Write / Erase Valid Byte Counts.
+ *  These are broken out specifically to make it clear when sending IAP
+ *  commands that only a narrow range of values are allowed.
  */
 typedef enum {
     IAP_ByteCount_256                  =  256,             /*!<  256 Bytes                       */
@@ -147,7 +150,7 @@ typedef enum {
     IAP_ByteCount_4096                 = 4096              /*!< 4096 Bytes                       */
 } IAP_ByteCountType;
 
-/*! Macro to test whether parameter is a valid byte count for IAP write / erase commands. */
+/*! @brief Macro to test whether parameter is a valid byte count for IAP write / erase commands. */
 #define IAP_IS_BYTE_COUNT_TYPE(ByteCount) (((ByteCount) == IAP_ByteCount_256) \
                                        || ((ByteCount) == IAP_ByteCount_512)  \
                                        || ((ByteCount) == IAP_ByteCount_1024) \
@@ -162,7 +165,7 @@ typedef enum {
 
 /* Exported Functions -------------------------------------------------------*/
 
-/** @defgroup IAP_Exported_Functions Flash Programming Exported Access-level Functions
+/** @defgroup IAP_ExportedFunctions IAP Interface Exported Functions
   * @{
   */
 
@@ -185,7 +188,7 @@ IAP_StatusType IAP_Call(IAP_CommandType Command, uint32_t p0, uint32_t p1,
 
 /* Inline Functions ---------------------------------------------------------*/
 
-/** @defgroup IAP_Inline_Functions Flash Programming Inline Access-level Functions
+/** @defgroup IAP_InlineFunctions IAP Interface Inline Functions
   * @{
   */
 

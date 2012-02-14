@@ -1,11 +1,30 @@
-/** ***************************************************************************
+/**************************************************************************//**
  * @file     ct16b.h
  * @brief    16 Bit Counter/Timer Interface Header for NXP LPC Microcontrollers
  * @version  V1.0
  * @author   Tymm Twillman
  * @date     1. January 2012
- * @license  Simplified BSD License
  ******************************************************************************
+ * @section Overview
+ * This file gives a basic interface to NXP LPC CT16B Counter / Timer
+ * peripherals.  These peripherals can operate as timers, in various counter
+ * modes, and also have built-in PWM hardware; this is in contrast to timers
+ * on some older chips which have much more basic counter modes and do not have
+ * PWM hardware.
+ *
+ * This interface offers basic things like setting the mode of the Counter /
+ * timer, setting up the prescaler, getting the current count value,
+ * configuring interrupts and timer match values, dealing with interrupts,
+ * etc.
+ *
+ * @note
+ * This file does not handle the following necessary steps for CT16B use:
+ * - The CT16B's input clock must be enabled
+ * - (if using Match or Capture pins) IO Pins must be set up externally
+ ******************************************************************************
+ * @section License License
+ * Licensed under a Simplified BSD License:
+ *
  * Copyright (c) 2012, Timothy Twillman
  * All rights reserved.
  *
@@ -52,15 +71,15 @@ extern "C" {
 
 
 /**
-  * @defgroup CT16B_Access_Interface CT16B (16-bit Counter/Timer) Access-level Interface
-  * @ingroup  LPC_Peripheral_Access_Layer
+  * @defgroup CT16B_AbstractionLayer CT16B (16-bit Counter/Timer) Abstraction Layer
+  * @ingroup  LPC_Peripheral_AbstractionLayer
   * @{
   */
 
 /* Typedefs -----------------------------------------------------------------*/
 
 /**
-  * @defgroup CT16B_Types CT16B Access-level Interface Types and Definitions
+  * @defgroup CT16B_Types CT16B Interface Types and Type-Related Definitions
   * @{
   */
 
@@ -69,7 +88,7 @@ extern "C" {
   * @{
   */
 
-#if !defined(LPC11XX)
+#if ! (defined(LPC11XX) || defined(LPC11Cxx))
 # define CT16B_IT_Mask                       (0xff)        /*!< All valid bits in interrupt reg  */
 #else
 # define CT16B_IT_Mask                       (0x1f)        /*!< All valid bits in interrupt reg  */
@@ -81,7 +100,7 @@ extern "C" {
 #define CT16B_IT_MR3                        (1 << 3)       /*!< Match on match register 3        */
 #define CT16B_IT_CR0                        (1 << 4)       /*!< Trigger of Capture Input 0       */
 
-#if !defined(LPC11XX)
+#if ! (defined(LPC11XX) || defined(LPC11Cxx))
 # define CT16B_IT_CR1                       (1 << 5)       /*!< Trigger of capture input 1       */
 # define CT16B_IT_CR2                       (1 << 6)       /*!< Trigger of capture input 2       */
 # define CT16B_IT_CR3                       (1 << 7)       /*!< Trigger of capture input 3       */
@@ -121,7 +140,7 @@ extern "C" {
   * @{
   */
 
-/*! CT16B external match control actions */
+/*! @brief CT16B external match control actions; one action per external match output */
 typedef enum {
     CT16B_ExtMatchControl_None = 0x00,                     /*!< No output on timer/ctr match     */
     CT16B_ExtMatchControl_Clear,                           /*!< Set output lo on timer/ctr match */
@@ -129,7 +148,7 @@ typedef enum {
     CT16B_ExtMatchControl_Toggle,                          /*!< Toggle output on timer/ctr match */
 } CT16B_ExtMatchControl_Type;
 
-/*! Macro to test whether parameter is a valid counter / timer external match control setting */
+/*! @brief Macro to test whether parameter is a valid counter / timer external match control setting */
 #define CT16B_IS_EXT_MATCH_CONTROL(Control) (((Control) == CT16B_ExtMatchControl_None)  \
                                           || ((Control) == CT16B_ExtMatchControl_Clear) \
                                           || ((Control) == CT16B_ExtMatchControl_Set)   \
@@ -141,7 +160,7 @@ typedef enum {
   * @{
   */
 
-/*! CT16B mode configurations */
+/*! @brief CT16B peripheral mode configurations */
 typedef enum {
     CT16B_Mode_Timer = 0x00,                               /*!< Timer mode                       */
     CT16B_Mode_CountRisingEdges,                           /*!< Count mode; count rising edges   */
@@ -149,7 +168,7 @@ typedef enum {
     CT16B_Mode_CountAllEdges,                              /*!< Count mode; count all edges      */
 } CT16B_Mode_Type;
 
-/*! Macro to test whether parameter is a valid counter / timer mode setting */
+/*! @brief Macro to test whether parameter is a valid counter / timer mode setting */
 #define CT16B_IS_MODE(Mode)  (((Mode) == CT16B_Mode_Timer)             \
                            || ((Mode) == CT16B_Mode_CountRisingEdges)  \
                            || ((Mode) == CT16B_Mode_CountFallingEdges) \
@@ -164,7 +183,7 @@ typedef enum {
 /* Inline Functions ---------------------------------------------------------*/
 
 /**
-  * @defgroup CT16B_INLINE_Functions CT16B Access-level Inline Functions
+  * @defgroup CT16B_InlineFunctions CT16B Interface Inline Functions
   *
   * @{
   */
@@ -283,12 +302,16 @@ __INLINE static uint16_t CT16B_GetCount(CT16B_Type *Timer)
 
 /** @brief  Set the prescaler value of a timer.
   * @param  Timer       The timer
-  * @param  Prescaler   The new prescaler value.
+  * @param  Prescaler   The new prescaler value (0 - 65535).
   * @return             None.
   *
   * The prescaler of a timer is the # of input clocks or counts before
   * the timer increments.  Changing this changes the number of
   * counts before each increment of the timer/counter.
+  *
+  * A prescaler value of 0 means that the timer will increment every
+  * PCLK; 1 means every 2 PCLKS and so on -- unlike many other interfaces
+  * in this library, this one is 0-based.
   */
 __INLINE static void CT16B_SetPrescaler(CT16B_Type *Timer, uint16_t Prescaler)
 {
@@ -512,6 +535,7 @@ __INLINE static void CT16B_SetCaptureControl(CT16B_Type *Timer, unsigned int Cha
 
 /** @brief  Get the current configuration for a timer's capture input channel.
   * @param  Timer       The timer
+  * @param  Channel     The channel on the timer
   * @return             A bitmask of configuration bits for the specified channel.
   */
 __INLINE static uint8_t CT16B_GetCaptureControl(CT16B_Type *Timer, unsigned int Channel)

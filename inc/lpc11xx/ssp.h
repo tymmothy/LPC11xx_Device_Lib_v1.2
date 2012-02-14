@@ -1,11 +1,13 @@
-/** ***************************************************************************
+/**************************************************************************//**
  * @file     ssp.h
  * @brief    SSP Serial Interface Header for NXP LPC Microcontrollers
  * @version  V1.0
  * @author   Tymm Twillman
  * @date     1. January 2012
- * @license  Simplified BSD License
  ******************************************************************************
+ * @section License License
+ * Licensed under a Simplified BSD License:
+ *
  * Copyright (c) 2012, Timothy Twillman
  * All rights reserved.
  *
@@ -57,14 +59,14 @@ extern "C" {
 
 
 /**
-  * @defgroup SSP_Access_Interface SSP (Synchronous Serial Peripheral) Access-layer Interface
-  * @ingroup  LPC_Peripheral_Access_Layer
+  * @defgroup SSP_AbstractionLayer SSP (Synchronous Serial Peripheral) Abstraction layer
+  * @ingroup  LPC_Peripheral_AbstractionLayer
   * @{
   */
 
 /* Types & Type-Related Definitions -----------------------------------------*/
 
-/** @defgroup SSP_Access_Types SSP Access-level Interface Types & Definitions
+/** @defgroup SSP_Types SSP Interface Types and Type-Related Definitions
   * @{
   */
 
@@ -72,7 +74,7 @@ extern "C" {
   * @{
   */
 
-/*! SSP Word Length Configurations                                           */
+/*! @brief SSP Word Length Settings */
 typedef enum {
    SSP_WordLength_4 = 4,               /*!< Send/Receive 4 bit words         */
    SSP_WordLength_5,                   /*!< Send/Receive 5 bit words         */
@@ -89,7 +91,7 @@ typedef enum {
    SSP_WordLength_16                   /*!< Send/Receive 16 bit words        */
 } SSP_WordLength_Type;
 
-/*! Macro to test whether parameter is a valid SSP Word Length value         */
+/*! @brief Macro to test whether parameter is a valid SSP Word Length value */
 #define SSP_IS_WORD_LENGTH(WordLength) (((WordLength) >= SSP_WordLength_4) \
                                      && ((WordLength) <= SSP_WordLength_16))
 
@@ -99,14 +101,14 @@ typedef enum {
   * @{
   */
 
-/*! SSP Frame Format Configurations                                          */
+/*! @brief SSP Frame Format Configurations */
 typedef enum {
    SSP_FrameFormat_SPI = 0x00,         /*!< Data formatted as SPI Frames     */
    SSP_FrameFormat_TI = 0x10,          /*!< Data formatted as TI Frames      */
    SSP_FrameFormat_MW = 0x20           /*!< Data formatted as Microwire      */
 } SSP_FrameFormat_Type;
 
-/*! Macro to test whether parameter is a valid SSP Frame Format value */
+/*! @brief Macro to test whether parameter is a valid SSP Frame Format value */
 #define SSP_IS_FRAME_FORMAT(FrameFormat) (((FrameFormat) == SSP_FrameFormatSPI)\
                                        || ((FrameFormat) == SSP_FrameFormatTI) \
                                        || ((FrameFormat) == SSP_FrameFormatMW))
@@ -117,13 +119,13 @@ typedef enum {
   * @{
   */
 
-/** @brief SSP Inter-Frame Clock Polarity Configurations                     */
+/** @brief SSP Inter-Frame Clock Polarity Configurations */
 typedef enum {
    SSP_ClockPolarity_Low  = 0x00,      /*!< Clock line low between frames    */
    SSP_ClockPolarity_High = 0x40       /*!< Clock line high between frames   */
 } SSP_ClockPolarity_Type;
 
-/*! Macro to test whether parameter is a valid SSP Clock Polarity value      */
+/*! @brief Macro to test whether parameter is a valid SSP Clock Polarity value */
 #define SSP_IS_CLOCK_POLARITY(Polarity) (((Polarity) == SSP_ClockPolarityLow) \
                                       || ((Polarity) == SSP_ClockPolarityHigh))
 
@@ -133,13 +135,13 @@ typedef enum {
   * @{
   */
 
-/** @brief SSP Clock Phase Configurations                                    */
+/** @brief SSP Clock Phase Configurations */
 typedef enum {
    SSP_ClockPhase_A = 0x00,            /*!< Data latched on 1st clock change */
    SSP_ClockPhase_B = 0x80             /*!< Data latched on 2nd clock change */
 } SSP_ClockPhase_Type;
 
-/*! Macro to test whether parameter is a valid SSP Clock Phase value         */
+/*! @brief Macro to test whether parameter is a valid SSP Clock Phase value */
 #define SSP_IS_CLOCK_PHASE(Phase) (((Phase) == SSP_ClockPhaseA) \
                                 || ((Phase) == SSP_ClockPhaseB))
 
@@ -149,14 +151,14 @@ typedef enum {
   * @{
   */
 
-/*! SSP Communication Mode (Master/Slave/Etc.) Configurations                */
+/*! @brief SSP Communication Mode (Master/Slave/Etc.) Configurations */
 typedef enum {
     SSP_Mode_Master         = 0x00,    /*!< SSP is wire Master               */
     SSP_Mode_Slave          = 0x04,    /*!< SSP is wire Slave                */
     SSP_Mode_SlaveInputOnly = 0x0c     /*!< SSP is wire Slave, out disabled  */
 } SSP_Mode_Type;
 
-/*! Macro to test whether parameter is a valid SSP Communication Mode value  */
+/*! @brief Macro to test whether parameter is a valid SSP Communication Mode value */
 #define SSP_IS_MODE(Mode) (((Mode) == SSP_ModeMaster) \
                         || ((Mode) == SSP_ModeSlave)  \
                         || ((Mode) == SSP_ModeSlaveInputOnly))
@@ -167,7 +169,7 @@ typedef enum {
   * @{
   */
 
-/*! SSP Interrupts                                                           */
+/*! @brief SSP Interrupts */
 typedef enum {
     SSP_IT_RxOverrun   = 0x01,         /*!< Receive Overrun Interrupt        */
     SSP_IT_RxTimer     = 0x02,         /*!<  Rx FIFO read timeout            */
@@ -175,7 +177,7 @@ typedef enum {
     SSP_IT_TxHalfEmpty = 0x08,         /*!<  Tx FIFO at least half empty     */
 } SSP_IT_Type;
 
-/*! Macro to test whether parameter is a valid SSP Interrupt value   */
+/*! @brief Macro to test whether parameter is a valid SSP Interrupt value */
 #define SSP_IS_IT(Interrupt) (((Interrupt) == SSP_IT_RxOverrun)   \
                            || ((Interrupt) == SSP_IT_RxTimeout)   \
                            || ((Interrupt) == SSP_IT_RxHalfFull)  \
@@ -190,7 +192,7 @@ typedef enum {
 /* Inline Functions ---------------------------------------------------------*/
 
 /**
-  * @defgroup SSP_Inline_Functions SSP Access-level Inline Functions
+  * @defgroup SSP_InlineFunctions SSP Interface Inline Functions
   * @{
   */
 

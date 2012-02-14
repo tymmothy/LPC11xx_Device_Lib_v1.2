@@ -1,11 +1,13 @@
-/** ***************************************************************************
- * @file:    i2c.h
- * @purpose: I2C Interface Header File for NXP LPC Microcontrollers
- * @version: V1.0
- * @author:  Tymm Twillman
- * @date:    1. January 2012
- * @license: Simplified BSD License
+/**************************************************************************//**
+ * @file     i2c.h
+ * @brief    I2C Interface Header File for NXP LPC Microcontrollers
+ * @version  V1.0
+ * @author   Tymm Twillman
+ * @date     1. January 2012
  ******************************************************************************
+ * @section License License
+ * Licensed under a Simplified BSD License:
+ *
  * Copyright (c) 2012, Timothy Twillman
  * All rights reserved.
  *
@@ -51,14 +53,14 @@ extern "C" {
 
 
 /**
-  * @defgroup I2C_Access_Interface I2C (Inter-Integreated Circuit) Access-level Interface
-  * @ingroup  LPC_Peripheral_Access_Layer
+  * @defgroup I2C_AbstractionLayer I2C (Inter-Integreated Circuit) Abstraction Layer
+  * @ingroup  LPC_Peripheral_AbstractionLayer
   * @{
   */
 
 /* Types & Type-Related Definitions -----------------------------------------*/
 
-/** @defgroup I2C_Access_Types I2C Access-level Types & Definitions
+/** @defgroup I2C_Types I2C Interface Types and Type-Related Definitions
   * @{
   */
 
@@ -66,7 +68,7 @@ extern "C" {
   * @{
   */
 
-/*! I2C State Machine Status Codes */
+/*! @brief I2C State Machine Status Codes */
 typedef enum {
     I2C_Status_Start = 0x08,
     I2C_Status_RepeatedStart = 0x10,
@@ -86,7 +88,7 @@ typedef enum {
 
 /* Inline Functions ---------------------------------------------------------*/
 
-/** @addtogroup I2C_Inline_Functions I2C Access-level Interface Inline Functions
+/** @addtogroup I2C_InlineFunctions I2C Interface Inline Functions
   * @{
   */
 

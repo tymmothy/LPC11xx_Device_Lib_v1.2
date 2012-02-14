@@ -1,11 +1,13 @@
-/** **************************************************************************
+/**************************************************************************//**
  * @file     wdt.h
- * @brief    Watchdog Timer Interface Header for NXP LPC Microcontrollers
+ * @brief    Watchdog Timer Interface Header for NXP LPC Microcontrollers.
  * @version  V1.0
  * @author   Tymm Twillman
- * @date     5. January 2012
- * @license  Simplified BSD License
+ * @date     1. January 2012
  ******************************************************************************
+ * @section License License
+ * Licensed under a Simplified BSD License:
+ *
  * Copyright (c) 2012, Timothy Twillman
  * All rights reserved.
  *
@@ -50,14 +52,14 @@ extern "C" {
 
 
 /**
-  * @defgroup WDT_Access_Interface WDT (Watchdog Timer) Access-level Interface
-  * @ingroup  LPC_Peripheral_Access_Layer
+  * @defgroup WDT_AbstractionLayer WDT (Watchdog Timer) Abstraction Layer
+  * @ingroup  LPC_Peripheral_AbstractionLayer
   * @{
   */
 
 /* Types & Type-Related Definitions -----------------------------------------*/
 
-/** @defgroup WDT_Access_Types WDT Access-level Interface Types & Definitions
+/** @defgroup WDT_Types WDT Interface Types and Type-Related Definitions
   * @{
   */
 
@@ -76,7 +78,7 @@ extern "C" {
 
 /* Inline Functions ---------------------------------------------------------*/
 
-/** @defgroup WDT_Inline_Functions WDT Access-level Inline Functions
+/** @defgroup WDT_InlineFunctions WDT Interface Inline Functions
   * @{
   */
 

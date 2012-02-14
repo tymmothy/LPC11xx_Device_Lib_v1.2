@@ -1,11 +1,13 @@
-/** ***************************************************************************
+/**************************************************************************//**
  * @file     lpc11xx_crt0.c
  * @brief    Low-level memory initialization code for LPC11xx CPUs
  * @version  V1.0
  * @author   Tymm Twillman
- * @date     3. January 2012
- * @license  Simplified BSD License
+ * @date     1. January 2012
  ******************************************************************************
+ * @section License License
+ * Licensed under a Simplified BSD License:
+ *
  * Copyright (c) 2012, Timothy Twillman
  * All rights reserved.
  *
@@ -39,6 +41,7 @@
 
 #include "lpc11xx.h"
 #include "lpc11xx/isr_vector.h"
+#include "system_lpc11xx.h"
 
 
 /* External Declarations ----------------------------------------------------*/
@@ -69,21 +72,21 @@ const ISRVector_Type BootISRVector = {
     .SVC_Handler_Vect                = SVC_Handler,
     .PendSV_Handler_Vect             = PendSV_Handler,
     .SysTick_Handler_Vect            = SysTick_Handler,
-    .PIO0_0_Wakeup_IRQHandler_Vect   = PIO0_0_Wakeup_IRQHandler,
-    .PIO0_1_Wakeup_IRQHandler_Vect   = PIO0_1_Wakeup_IRQHandler,
-    .PIO0_2_Wakeup_IRQHandler_Vect   = PIO0_2_Wakeup_IRQHandler,
-    .PIO0_3_Wakeup_IRQHandler_Vect   = PIO0_3_Wakeup_IRQHandler,
-    .PIO0_4_Wakeup_IRQHandler_Vect   = PIO0_4_Wakeup_IRQHandler,
-    .PIO0_5_Wakeup_IRQHandler_Vect   = PIO0_5_Wakeup_IRQHandler,
-    .PIO0_6_Wakeup_IRQHandler_Vect   = PIO0_6_Wakeup_IRQHandler,
-    .PIO0_7_Wakeup_IRQHandler_Vect   = PIO0_7_Wakeup_IRQHandler,
-    .PIO0_8_Wakeup_IRQHandler_Vect   = PIO0_8_Wakeup_IRQHandler,
-    .PIO0_9_Wakeup_IRQHandler_Vect   = PIO0_9_Wakeup_IRQHandler,
-    .PIO0_10_Wakeup_IRQHandler_Vect  = PIO0_10_Wakeup_IRQHandler,
-    .PIO0_11_Wakeup_IRQHandler_Vect  = PIO0_11_Wakeup_IRQHandler,
-    .PIO1_0_Wakeup_IRQHandler_Vect   = PIO1_0_Wakeup_IRQHandler,
+    .StartLogic0_IRQHandler_Vect     = StartLogic0_IRQHandler,
+    .StartLogic1_IRQHandler_Vect     = StartLogic1_IRQHandler,
+    .StartLogic2_IRQHandler_Vect     = StartLogic2_IRQHandler,
+    .StartLogic3_IRQHandler_Vect     = StartLogic3_IRQHandler,
+    .StartLogic4_IRQHandler_Vect     = StartLogic4_IRQHandler,
+    .StartLogic5_IRQHandler_Vect     = StartLogic5_IRQHandler,
+    .StartLogic6_IRQHandler_Vect     = StartLogic6_IRQHandler,
+    .StartLogic7_IRQHandler_Vect     = StartLogic7_IRQHandler,
+    .StartLogic8_IRQHandler_Vect     = StartLogic8_IRQHandler,
+    .StartLogic9_IRQHandler_Vect     = StartLogic9_IRQHandler,
+    .StartLogic10_IRQHandler_Vect    = StartLogic10_IRQHandler,
+    .StartLogic11_IRQHandler_Vect    = StartLogic11_IRQHandler,
+    .StartLogic12_IRQHandler_Vect    = StartLogic12_IRQHandler,
     .SSP1_IRQHandler_Vect            = SSP1_IRQHandler,
-    .I2C0_IRQHandler_Vect             = I2C0_IRQHandler,
+    .I2C0_IRQHandler_Vect            = I2C0_IRQHandler,
     .CT16B0_IRQHandler_Vect          = CT16B0_IRQHandler,
     .CT16B1_IRQHandler_Vect          = CT16B1_IRQHandler,
     .CT32B0_IRQHandler_Vect          = CT32B0_IRQHandler,
@@ -93,10 +96,10 @@ const ISRVector_Type BootISRVector = {
     .ADC0_IRQHandler_Vect            = ADC0_IRQHandler,
     .WDT_IRQHandler_Vect             = WDT_IRQHandler,
     .BOD_IRQHandler_Vect             = BOD_IRQHandler,
-    .PIO3_IRQHandler_Vect            = PIO3_IRQHandler,
-    .PIO2_IRQHandler_Vect            = PIO2_IRQHandler,
-    .PIO1_IRQHandler_Vect            = PIO1_IRQHandler,
-    .PIO0_IRQHandler_Vect            = PIO0_IRQHandler,
+    .GPIO3_IRQHandler_Vect           = GPIO3_IRQHandler,
+    .GPIO2_IRQHandler_Vect           = GPIO2_IRQHandler,
+    .GPIO1_IRQHandler_Vect           = GPIO1_IRQHandler,
+    .GPIO0_IRQHandler_Vect           = GPIO0_IRQHandler,
 };
 
 
@@ -173,12 +176,12 @@ void _start()
     unsigned long *x;
     unsigned long *y;
 
-	/* Clear BSS area */
+    /* Clear BSS area */
     for (x = &_bss_start; x < &_bss_end; x++) {
         *x = 0;
     }
 
-	/* Copy data area from flash */
+    /* Copy data area from flash */
     for (x = &_data_start,y = &_data_src_start; x < &_data_end; x++,y++) {
         *x = *y;
     }
@@ -190,7 +193,7 @@ void _start()
      */
     __libc_init_array();
 
-	/* Call main() function... */
+    /* Call main() function... */
     main();
 
     /* Call global / static destructors */

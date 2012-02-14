@@ -1,11 +1,13 @@
-/** ***************************************************************************
+/**************************************************************************//**
  * @file     syscon.h
  * @brief    System Control Block Interface Header for LPC11xx Microcontrollers
  * @version  V1.0
  * @author   Tymm Twillman
  * @date     1. June 2010
- * @license  Simplified BSD License
  ******************************************************************************
+ * @section License License
+ * Licensed under a Simplified BSD License:
+ *
  * Copyright (c) 2012, Timothy Twillman
  * All rights reserved.
  *
@@ -33,7 +35,7 @@
  * The views and conclusions contained in the software and documentation are
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Timothy Twillman.
- *****************************************************************************
+ ******************************************************************************
  * This file defines types and functions for using the LPC11xx System Control
  * block:
  *  - Memory Remapping
@@ -61,14 +63,14 @@ extern "C" {
 
 
 /**
-  * @defgroup SYSCON_Access_Interface SYSCON (System Control Block) Access-level Interface
-  * @ingroup  LPC_Peripheral_Access_Layer
+  * @defgroup SYSCON_AbstractionLayer SYSCON (System Control Block) Abstraction Layer
+  * @ingroup  LPC_Peripheral_AbstractionLayer
   * @{
   */
 
 /* Types & Type-Related Definitions -----------------------------------------*/
 
-/** @defgroup SYSCON_Access_Types SYSCON Access-level Interface Types & Definitions
+/** @defgroup SYSCON_Types SYSCON Interface Types and Type-Related Definitions
   * @{
   */
 
@@ -76,14 +78,14 @@ extern "C" {
   * @{
   */
 
-/*! First page / ISR vector memory remapping options */
+/*! @brief First page / ISR vector memory remapping options */
 typedef enum {
     SYSCON_RemapMem_Bootloader = 0x00,                     /*!< ISR vector mapped from bootldr.  */
     SYSCON_RemapMem_RAM,                                   /*!< ISR vector mapped from RAM       */
     SYSCON_RemapMem_FLASH,                                 /*!< ISR vector mapped from Flash     */
 } SYSCON_RemapMem_Type;
 
-/*! Macro to test whether parameter is a valid memory remapping setting */
+/*! @brief Macro to test whether parameter is a valid memory remapping setting */
 #define SYSCON_IS_REMAP_MEM(RemapMem) (((RemapMem) == SYSCON_RemapMem_Bootloader)  \
                                     || ((RemapMem) == SYSCON_RemapMem_RAM)         \
                                     || ((RemapMem) == SYSCON_RemapMem_FLASH))
@@ -108,13 +110,13 @@ typedef enum {
   * @{
   */
 
-/*! System oscillator frequency range settings for external crystals */
+/*! @brief System oscillator frequency range settings for external crystals */
 typedef enum {
     SYSCON_SysOscFreqRange_1_20 = 0,                       /*!< Setting for  1-20 MHz ext. xtal  */
     SYSCON_SysOscFreqRange_15_25                           /*!< Setting for 15-25 MHz ext. xtal  */
 } SYSCON_SysOscFreqRange_Type;
 
-/*! Macro to test whether parameter is a valid system oscillator frequency range value */
+/*! @brief Macro to test whether parameter is a valid system oscillator frequency range value */
 #define SYSCON_IS_SYSOSC_FREQ_RANGE(Range) (((Range) == SYSCON_SysOscFreqRange_1_20) \
                                          || ((Range) == SYSCON_SysOscFreqRange_15_25))
 
@@ -124,7 +126,7 @@ typedef enum {
   * @{
   */
 
-/*! Watchdog frequency values */
+/*! @brief Watchdog frequency values */
 typedef enum {
     SYSCON_WDTOscFreq_0_5_Mhz = 0x01,                      /*!< Run WDT oscillator @ 0.5 Mhz     */
     SYSCON_WDTOscFreq_0_8_Mhz = 0x02,                      /*!< Run WDT oscillator @ 0.8 Mhz     */
@@ -143,7 +145,7 @@ typedef enum {
     SYSCON_WDTOscFreq_3_4_Mhz = 0x0f                       /*!< Run WDT oscillator @ 3.4 Mhz     */
 } SYSCON_WDTOscFreq_Type;
 
-/*! Macro to test whether parameter is a valid watchdog frequency value */
+/*! @brief Macro to test whether parameter is a valid watchdog frequency value */
 #define SYSCON_IS_WDT_OSC_FREQ(Freq) (((Freq) == SYSCON_WDTOscFreq_0_5_Mhz) \
                                    || ((Freq) == SYSCON_WDTOscFreq_0_8_Mhz) \
                                    || ((Freq) == SYSCON_WDTOscFreq_1_1_Mhz) \
@@ -206,7 +208,7 @@ typedef enum {
   * @{
   */
 
-/*! System PLL P (divisor) value settings -- divisor is 2 times the set PVal value */
+/*! @brief System PLL P (divisor) value settings -- divisor is 2 times the set PVal value */
 typedef enum {
     SYSCON_SysPLLPVal_1 = 0x00,                            /*!< Divide by 2                      */
     SYSCON_SysPLLPVal_2 = 0x01,                            /*!< Divide by 4                      */
@@ -214,7 +216,7 @@ typedef enum {
     SYSCON_SysPLLPVal_8 = 0x03                             /*!< Divide by 16                     */
 } SYSCON_SysPLLPVal_Type;
 
-/*! Macro to test whether parameter is a valid system oscillator frequency range value */
+/*! @brief Macro to test whether parameter is a valid system oscillator frequency range value */
 #define SYSCON_IS_SYSPLL_PVAL_TYPE(PVal) (((PVal) == SYSCON_SysPLLPVal_1) \
                                        || ((PVal) == SYSCON_SysPLLPVal_2) \
                                        || ((PVal) == SYSCON_SysPLLPVal_4) \
@@ -226,13 +228,13 @@ typedef enum {
   * @{
   */
 
-/*! System PLL clock sources */
+/*! @brief System PLL clock sources */
 typedef enum {
     SYSCON_SysPLLClockSource_IRC = 0x00,                   /*!< PLL source: internal RC osc.     */
     SYSCON_SysPLLClockSource_SysOsc                        /*!< PLL source: system oscillator    */
 } SYSCON_SysPLLClockSource_Type;
 
-/*! Macro to test whether parameter is a valid PLL clock source value */
+/*! @brief Macro to test whether parameter is a valid PLL clock source value */
 #define SYSCON_IS_SYSPLL_CLOCK_SOURCE(Source) (((Source) == SYSCON_SysPLLClockSource_IRC) \
                                             || ((Source) == SYSCON_SysPLLClockSource_SYSOsc))
 
@@ -242,7 +244,7 @@ typedef enum {
   * @{
   */
 
-/*! Main CPU Clock Sources */
+/*! @brief Main CPU Clock Sources */
 typedef enum {
     SYSCON_MainClockSource_IRC = 0x00,                     /*!< Main clock source: IRC osc       */
     SYSCON_MainClockSource_SysPLLIn,                       /*!< Main clock source: Sys PLL in    */
@@ -250,7 +252,7 @@ typedef enum {
     SYSCON_MainClockSource_SysPLLOut                       /*!< Main clock source: Sys PLL out   */
 } SYSCON_MainClockSource_Type;
 
-/*! Macro to test whether parameter is a valid main clock source value */
+/*! @brief Macro to test whether parameter is a valid main clock source value */
 #define SYSCON_IS_MAIN_CLOCK_SOURCE(Source) (((Source) == SYSCON_MainClockSource_IRC) \
                                      || ((Source) == SYSCON_MainClockSource_SysPLLIn) \
                                      || ((Source) == SYSCON_MainClockSource_WDTOsc)   \
@@ -262,14 +264,14 @@ typedef enum {
   * @{
   */
 
-/*! Watchdog timer clock sources */
+/*! @brief Watchdog timer clock sources */
 typedef enum {
     SYSCON_WDTClockSource_IRC = 0x00,                      /*!< WDT clock source: IRC oscillator */
     SYSCON_WDTClockSource_MainClock,                       /*!< WDT clock source: Main clock     */
     SYSCON_WDTClockSource_WDTOsc                           /*!< WDT clock source: WDT oscillator */
 } SYSCON_WDTClockSource_Type;
 
-/*! Macro to test whether parameter is a valid Watchdog Timer Clock Source value */
+/*! @brief Macro to test whether parameter is a valid Watchdog Timer Clock Source value */
 #define SYSCON_IS_WDTCLK_SOURCE(Source) (((Source) == SYSCON_WDTClockSource_IRC)       \
                                       || ((Source) == SYSCON_WDTClockSource_MainClock) \
                                       || ((Source) == WDTCLK_Source_WDTOsc))
@@ -280,7 +282,7 @@ typedef enum {
   * @{
   */
 
-/*! CLKOUT clock sources */
+/*! @brief CLKOUT clock sources */
 typedef enum {
     SYSCON_CLKOUTSource_IRC = 0x00,                        /*!< CLKOUT Clock source: IRC osc     */
     SYSCON_CLKOUTSource_SYSOsc,                            /*!< CLKOUT clock source: System osc. */
@@ -288,7 +290,7 @@ typedef enum {
     SYSCON_CLKOUTSource_MainClock                          /*!< CLKOUT clock source: Main clock  */
 } SYSCON_CLKOUTSource_Type;
 
-/*! Macro to test whether parameter is a valid CLKOUT clock source value */
+/*! @brief Macro to test whether parameter is a valid CLKOUT clock source value */
 #define SYSCON_IS_CLKOUT_SOURCE(Source) (((Source) == SYSCON_CLKOUTSource_IRC)       \
                                        || ((Source) == SYSCON_CLKOUTSource_SYSOsc)   \
                                        || ((Source) == SYSCON_CLKOUTSource_WDTOsc)   \
@@ -300,7 +302,7 @@ typedef enum {
   * @{
   */
 
-/*! Brownout detector reset voltage levels */
+/*! @brief Brownout detector reset voltage levels */
 typedef enum {
     SYSCON_BODResetVoltage_1V46 = 0x00,                    /*!< BOD resets MCU at 1.46v          */
     SYSCON_BODResetVoltage_2V06,                           /*!< BOD resets MCU at 2.06v          */
@@ -308,7 +310,7 @@ typedef enum {
     SYSCON_BODResetVoltage_2V80,                           /*!< BOD resets MCU at 2.8v           */
 } SYSCON_BODResetVoltage_Type;
 
-/*! Macro to test whether parameter is a valid brownout detector reset voltage value */
+/*! @brief Macro to test whether parameter is a valid brownout detector reset voltage value */
 #define SYSCON_IS_BOD_RESET_VOLTAGE(Voltage) (((Voltage) == SYSCON_BODResetVoltage_1V46) \
                                            || ((Voltage) == SYSCON_BODResetVoltage_2V06) \
                                            || ((Voltage) == SYSCON_BODResetVoltage_2V35) \
@@ -320,7 +322,7 @@ typedef enum {
   * @{
   */
 
-/*! Brownout detector interrupt voltage levels */
+/*! @brief Brownout detector interrupt voltage levels */
 typedef enum {
     SYSCON_BODInterruptVoltage_1V65 = 0x00,                /*!< BOD IRQ triggered at 1.65v       */
     SYSCON_BODInterruptVoltage_2V22 = 0x04,                /*!< BOD IRQ triggered at 2.22v       */
@@ -328,7 +330,7 @@ typedef enum {
     SYSCON_BODInterruptVoltage_2V80 = 0x0c                 /*!< BOD IRQ triggered at 2.8v        */
 } SYSCON_BODInterruptVoltage_Type;
 
-/*! Macro to test whether parameter is a valid brownout detector interrupt voltage value */
+/*! @brief Macro to test whether parameter is a valid brownout detector interrupt voltage value */
 #define SYSCON_IS_BOD_INTERRUPT_VOLTAGE(Voltage) (((Voltage) == SYSCON_BODInterruptVoltage_1V65) \
                                                || ((Voltage) == SYSCON_BODInterruptVoltage_2V22) \
                                                || ((Voltage) == SYSCON_BODInterruptVoltage_2V52) \
@@ -340,13 +342,13 @@ typedef enum {
   * @{
   */
 
-/*! Start Logic Trigger Edges */
+/*! @brief Start Logic Trigger Edges */
 typedef enum {
     SYSCON_StartLogicEdge_Falling = 0x00,                  /*!< Start logic trig on falling edge */
     SYSCON_StartLogicEdge_Rising                           /*!< Start logic trig on rising edge  */
 } SYSCON_StartLogicEdge_Type;
 
-/*! Macro to test whether parameter is a valid start logic edge value */
+/*! @brief Macro to test whether parameter is a valid start logic edge value */
 #define SYSCON_IS_START_LOGIC_EDGE(Edge) (((Edge) == SYSCON_StartLogicEdge_Falling) \
                                        || ((Edge) == SYSCON_StartLogicEdge_Rising))
 
@@ -370,12 +372,12 @@ typedef enum {
 #define SYSCON_StartLogicInput_PIO0_11 (1 << 11)           /*!< System start logic input PIO0_11 */
 #define SYSCON_StartLogicInput_PIO1_0  (1 << 12)           /*!< System start logic input PIO1_0  */
 
-/*! Type for passing start logic input masks */
+/*! @brief Type for passing start logic input masks */
 typedef uint16_t SYSCON_StartLogicInputs_Type;
 
 /** @} */
 
-/** @defgroup SYSCON_PowerLines System Analog Power Line Control Bits
+/** @defgroup SYSCON_AnalogPowerLines System Analog Power Line Control Bits
   * @{
   */
 
@@ -389,7 +391,7 @@ typedef uint16_t SYSCON_StartLogicInputs_Type;
 #define SYSCON_AnalogPowerLine_WDTOsc  (1 << 6)            /*!< Power for WDT oscillator         */
 #define SYSCON_AnalogPowerLine_SysPLL  (1 << 7)            /*!< Power for system PLL             */
 
-/*! Type for passing analog power line control bits */
+/*! @brief Type for passing analog power line control bits */
 typedef uint16_t SYSCON_AnalogPowerLines_Type;
 
 /** @} */
@@ -398,14 +400,14 @@ typedef uint16_t SYSCON_AnalogPowerLines_Type;
   * @{
   */
 
-/*! System Power Modes */
+/*! @brief System Power Modes */
 typedef enum {
     SYSCON_PowerMode_Sleep,            /*!< Sleep mode                       */
     SYSCON_PowerMode_Awake,            /*!< Awake from sleep mode            */
     SYSCON_PowerMode_Run,              /*!< Run mode                         */
 } SYSCON_PowerMode_Type;
 
-/*! Macro to test whether parameter is a valid system power mode value */
+/*! @brief Macro to test whether parameter is a valid system power mode value */
 #define SYSCON_IS_POWER_MODE(Mode)  (((Mode) == SYSCON_PowerMode_Sleep) \
                                   || ((Mode) == SYSCON_PowerMode_Awake) \
                                   || ((Mode) == SYSCON_PowerMode_Run))
@@ -447,7 +449,7 @@ typedef enum {
 /* Inline Functions ---------------------------------------------------------*/
 
 /**
-  * @defgroup SYSCON_Inline_Functions SYSCON Access-level Inline Functions
+  * @defgroup SYSCON_InlineFunctions SYSCON Interface Inline Functions
   * @{
   */
 

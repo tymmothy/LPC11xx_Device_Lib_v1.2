@@ -1,11 +1,13 @@
-/** ***************************************************************************
+/**************************************************************************//**
  * @file     uart.h
  * @brief    UART Interface Header for NXP LPC Microcontrollers
  * @version  V1.0
  * @author   Tymm Twillman
- * @date     1. June 2010
- * @license  Simplified BSD License
+ * @date     1. January 2012
  ******************************************************************************
+ * @section License License
+ * Licensed under a Simplified BSD License:
+ *
  * Copyright (c) 2012, Timothy Twillman
  * All rights reserved.
  *
@@ -57,15 +59,15 @@ extern "C" {
 
 
 /**
-  * @defgroup UART_Access_Interface UART (Asynchronous Serial) Access-level Interface
-  * @ingroup  LPC_Peripheral_Access_Layer
+  * @defgroup UART_AbstractionLayer UART (Asynchronous Serial) Abstraction Layer
+  * @ingroup  LPC_Peripheral_AbstractionLayer
   * @{
   */
 
 /* Types & Type-Related Definitions -----------------------------------------*/
 
 /**
-  * @defgroup UART_Access_Types UART Access-layer Types & Definitions
+  * @defgroup UART_Types UART Interface Types and Type-Related Definitions
   * @{
   */
 
@@ -220,7 +222,7 @@ typedef enum {
 
 /* UART Inline Functions ----------------------------------------------------*/
 
-/** @defgroup UART_Inline_Functions UART Access-level Inline Functions
+/** @defgroup UART_InlineFunctions UART Interface Inline Functions
   * @{
   */
 

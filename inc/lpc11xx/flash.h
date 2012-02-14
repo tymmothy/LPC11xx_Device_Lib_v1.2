@@ -1,11 +1,19 @@
-/** ***************************************************************************
+/**************************************************************************//**
  * @file     flash.h
  * @brief    Flash Memory Interface Header for NXP LPC11xx Microcontrollers
  * @version  V1.0
  * @author   Tymm Twillman
  * @date     1. January 2012
- * @license  Simplified BSD License
  ******************************************************************************
+ * @section Overview
+ * This file gives a basic interface to NXP LPC11xx Flash Memory Controllers.
+ *
+ * It allows setting of Flash wait states & generating 128-bit signatures
+ * of Flash memory ranges.
+ ******************************************************************************
+ * @section License License
+ * Licensed under a Simplified BSD License:
+ *
  * Copyright (c) 2012, Timothy Twillman
  * All rights reserved.
  *
@@ -52,56 +60,26 @@ extern "C" {
 
 
 /**
-  * @defgroup FLASH_Access_Interface Flash Control Access-level Interface
-  * @ingroup  LPC_Peripheral_Access_Layer
+  * @defgroup FLASH_AbstractionLayer Flash Control Abstraction Layer
+  * @ingroup  LPC_Peripheral_AbstractionLayer
   * @{
   */
-
-/* Types & Type-Related Definitions -----------------------------------------*/
-
-/**
-  * @defgroup FLASH_Access_Types FLASH Access-level Interface Types & Definitions
-  * @{
-  */
-
-/** @defgroup FLASH_Latency_Types FLASH Latency Types
-  * @{
-  */
-
-/*! Flash Control Latency (wait-state) Configuration Settings */
-typedef enum {
-    FLASH_Latency_0 = 0x00,            /*!< No latency on Flash accesses     */
-    FLASH_Latency_1,                   /*!< 1-cycle Flash access latency     */
-    FLASH_Latency_2                    /*!< 2-cycle Flash access latency     */
-} FLASH_Latency_Type;
-
-/*! Macro to test whether the parameter is a valid Flash latency setting */
-#define IS_FLASH_LATENCY_TYPE(Latency) (((Latency) == FLASH_Latency_0) \
-                                     || ((Latency) == FLASH_Latency_1) \
-                                     || ((Latency) == FLASH_Latency_2))
-
-/** @} */
-
-/**
-  * @}
-  */
-
 
 /* Inline Functions ----------------------------------------------------------*/
 
-/** @defgroup FLASH_Inline_Functions FLASH Access-level Inline Functions
+/** @defgroup FLASH_InlineFunctions FLASH Interface Inline Functions
   * @{
   */
 
 /** @brief Set the Flash fetch latency.
-  * @param  Latency     The new number of wait states per Flash access
+  * @param  Latency     The new number of wait states per Flash access (0-2)
   * @return             None.
   *
-  * Note: Must be 1 or 2 if chip @ >=20Mhz, 2 if >=40Mhz
+  * Must have minimum 1 cycle latency @ >=20Mhz; minimum 2 cycles @ >=40Mhz.
   */
-__INLINE static void FLASH_SetLatency(FLASH_Latency_Type Latency)
+__INLINE static void FLASH_SetLatency(unsigned int Latency)
 {
-    lpclib_assert(IS_FLASHCFG_LATENCY_TYPE(Latency));
+    lpclib_assert(Latency <= 2);
 
     FLASH->FLASHCFG = (FLASH->FLASHCFG & ~FLASH_FLASHTIM_Mask) | Latency;
 }
@@ -109,7 +87,7 @@ __INLINE static void FLASH_SetLatency(FLASH_Latency_Type Latency)
 /** @brief Get the currently configured Flash fetch latency.
   * @return             The number of configured wait states per Flash access.
   */
-__INLINE static uint16_t FLASH_GetLatency(void)
+__INLINE static unsigned int FLASH_GetLatency(void)
 {
     return FLASH->FLASHCFG & (FLASH_FLASHTIM_Mask);
 }

@@ -2,9 +2,12 @@
  * @file     isr_vector.h
  * @brief    ISR/Exception Handler declarations for NXP LPC11xx MCUs
  * @version  V1.0
+ * @author   Tymm Twillman
  * @date     1. January 2012
- * @license  Simplified BSD License
  ******************************************************************************
+ * @section License License
+ * Licensed under a Simplified BSD License:
+ *
  * Copyright (c) 2012, Timothy Twillman
  * All rights reserved.
  *
@@ -42,6 +45,11 @@ extern "C" {
 #endif
 
 
+/**
+  * @ingroup LPC11xx_System LPC11xx Microcontroller System Interface
+  * @{
+  */
+
 /* Types --------------------------------------------------------------------*/
 
 /** @defgroup LPC11xx_ISR_Vectors LPC11xx ISR Vectors
@@ -50,7 +58,7 @@ extern "C" {
 
 /** @brief Structure holding ISR Vectors for system handlers/IRQ handlers.
   *
-  * ISR Vector Structure for declaring RAM-based ISR vectors, etc.
+  * Useful for declaring RAM-based ISR vectors, etc.
   */
 typedef struct isr_vector {
     void *Stack_Addr;                               /*!< Stack Address @ Reset        */
@@ -82,7 +90,11 @@ typedef struct isr_vector {
     void (* StartLogic10_IRQHandler_Vect)(void);    /*!< GPIO0.10 Wakeup IRQ Handler  */
     void (* StartLogic11_IRQHandler_Vect)(void);    /*!< GPIO0.11 Wakeup IRQ Handler  */
     void (* StartLogic12_IRQHandler_Vect)(void);    /*!< GPIO1.0  Wakeup IRQ Handler  */
+#if defined(LPC11CXX)  /* CAN parts only */
+    void (* CAN_IRQHandler_Vect)(void);             /*!< CAN IRQ Handler              */
+#else
     void (* Reserved29)(void);                      /*!<   (unused)                   */
+#endif /* ! #if defined(LPC11CXX) */
     void (* SSP1_IRQHandler_Vect)(void);            /*!< SSP1 IRQ Handler             */
     void (* I2C0_IRQHandler_Vect)(void);            /*!< I2C IRQ Handler              */
     void (* CT16B0_IRQHandler_Vect)(void);          /*!< 16-Bit Timer 0 IRQ Handler   */
@@ -97,10 +109,10 @@ typedef struct isr_vector {
     void (* WDT_IRQHandler_Vect)(void);             /*!< Watchdot Timer IRQ Handler   */
     void (* BOD_IRQHandler_Vect)(void);             /*!< Brownout Det. IRQ Handler    */
     void (* Reserved43)(void);                      /*!<   (unused)                   */
-    void (* PIO3_IRQHandler_Vect)(void);            /*!< PIO3 (GPIO) IRQ Handler      */
-    void (* PIO2_IRQHandler_Vect)(void);            /*!< PIO2 (GPIO) IRQ Handler      */
-    void (* PIO1_IRQHandler_Vect)(void);            /*!< PIO1 (GPIO) IRQ Handler      */
-    void (* PIO0_IRQHandler_Vect)(void);            /*!< PIO0 (GPIO) IRQ Handler      */
+    void (* GPIO3_IRQHandler_Vect)(void);           /*!< GPIO3 IRQ Handler            */
+    void (* GPIO2_IRQHandler_Vect)(void);           /*!< GPIO2 IRQ Handler            */
+    void (* GPIO1_IRQHandler_Vect)(void);           /*!< GPIO1 IRQ Handler            */
+    void (* GPIO0_IRQHandler_Vect)(void);           /*!< GPIO0 IRQ Handler            */
 } ISRVector_Type;
 
 /** @} */
@@ -181,6 +193,10 @@ extern void StartLogic11_IRQHandler(void);
 /*! @brief Start Logic Input 12 (GPIO1.0) IRQ Handler */
 extern void StartLogic12_IRQHandler(void);
 
+#if defined(LPC11CXX)  /* CAN parts only */
+extern void CAN_IRQHandler(void);
+#endif
+
 /*! @brief Synchronous Serial Peripheral 1 IRQ Handler */
 extern void SSP1_IRQHandler(void);
 
@@ -225,6 +241,10 @@ extern void GPIO1_IRQHandler(void);
 
 /*! @brief GPIO Port 0 IRQ Handler */
 extern void GPIO0_IRQHandler(void);
+
+/**
+  * @}
+  */
 
 /**
   * @}

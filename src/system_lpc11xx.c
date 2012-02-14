@@ -1,13 +1,41 @@
-/******************************************************************************
- * @file:    system_lpc11xx.c
- * @purpose: LPC11xx MCU Initialization Functions (Required for CMSIS)
- * @version: V1.0
- * @author:  Tymm Twillman
- * @date:    1. June 2010
+/***************************************************************************//*
+ * @file     system_lpc11xx.c
+ * @brief    LPC11xx MCU Initialization Functions (Required for CMSIS)
+ * @version  V1.0
+ * @author   Tymm Twillman
+ * @date     1. June 2010
+ ******************************************************************************
+ * @section License License
+ * Licensed under a Simplified BSD License:
  *
- * This file contains system initialization functions for LPC11xx MCU's.
+ * Copyright (c) 2012, Timothy Twillman
+ * All rights reserved.
  *
- ******************************************************************************/
+ * Redistribution and use in source and binary forms, with or without
+ *  modification, are permitted provided that the following conditions are met:
+ *
+ *    1. Redistributions of source code must retain the above copyright notice,
+ *        this list of conditions and the following disclaimer.
+ *
+ *    2. Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED ''AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES,
+ * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
+ * AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+ * TIMOTHY TWILLMAN OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+ * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+ * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * The views and conclusions contained in the software and documentation are
+ * those of the authors and should not be interpreted as representing official
+ * policies, either expressed or implied, of Timothy Twillman.
+ *****************************************************************************/
 
 /* Includes -----------------------------------------------------------------*/
 
@@ -101,7 +129,7 @@ static inline void SysPLLInit(void)
 #endif
 
     /* Make sure the PLL is powered */
-    SYSCON_EnablePowerLines(SYSCON_PowerMode_Run, SYSCON_PowerLine_SysPLL);
+    SYSCON_EnableAnalogPowerLines(SYSCON_PowerMode_Run, SYSCON_AnalogPowerLine_SysPLL);
     while (!SYSCON_SysPLLIsLocked());
 
     /* Set the Main Clock to use the System PLL's Output as its source */
@@ -212,7 +240,7 @@ void SystemInit(void)
 # else
     SYSCON_SetSysOscFreqRange(SYSCON_SysOscFreqRange_15_25);
 # endif
-    SYSCON_EnablePowerLines(SYSCON_PowerMode_Run, SYSCON_PowerLine_SysOsc);
+    SYSCON_EnableAnalogPowerLines(SYSCON_PowerMode_Run, SYSCON_AnalogPowerLine_SysOsc);
 #endif
 
     /* Brief delay to let the system stabilize a little */
@@ -221,7 +249,7 @@ void SystemInit(void)
     }
 
     /* Make sure we don't exceed flash specs when changing clock speed */
-    FLASH_SetLatency(FLASH_Latency_2);
+    FLASH_SetLatency(2);
 
 #if MCUOSC_Val != F_CPU
     /* Configure & connect the system PLL, if desired */
@@ -233,9 +261,9 @@ void SystemInit(void)
 
     /* Set flash latency to maximum for running */
     if (SystemCoreClock <= 20000000UL) {
-        FLASH_SetLatency(FLASH_Latency_0);
+        FLASH_SetLatency(0);
     } else if (SystemCoreClock <= 40000000UL) {
-        FLASH_SetLatency(FLASH_Latency_1);
+        FLASH_SetLatency(1);
     }
 
     SYSCON_SetAHBClockDivider(AHBCLKDIV_Val);

@@ -1,11 +1,25 @@
-/** ***************************************************************************
+/**************************************************************************//**
  * @file     crp.h
  * @brief    Code Protection Interface Header for NXP LPC Microcontrollers.
  * @version  V1.0
  * @author   Tymm Twillman
- * @date     3. January 2012
- * @license  Simplified BSD License
+ * @date     1. January 2012
  ******************************************************************************
+ * @section Overview
+ * This file gives a basic interface to NXP LPC Code Read Protection.
+ *
+ * Protection is controlled by a special coded byte at a given location in
+ * Flash memory; it indicates the degree and type of restrictions placed
+ * on the boot loader and debugging interfaces.
+ *
+ * @note
+ * This file & the related crp.c source file require specific support of the
+ * linker script(s) used to generate object code to place the CodeProtection
+ * variable at the correct place in Flash for CRP to function.
+ ******************************************************************************
+ * @section License License
+ * Licensed under a Simplified BSD License:
+ *
  * Copyright (c) 2012, Timothy Twillman
  * All rights reserved.
  *
@@ -49,15 +63,15 @@ extern "C" {
 
 
 /**
-  * @defgroup CRP_Access_Interface CRP (Code Read Protection) Access-level Interface
-  * @ingroup  LPC_Peripheral_Access_Layer
+  * @defgroup CRP_AbstractionLayer CRP (Code Read Protection) Abstraction Layer
+  * @ingroup  LPC_Peripheral_AbstractionLayer
   * @{
   */
 
 /* Definitions --------------------------------------------------------------*/
 
 /**
-  * @defgroup CRP_Access_Definitions CRP Access-level Interface Definitions
+  * @defgroup CRP_Definitions CRP Interface Definitions
   * @{
   */
 
@@ -80,7 +94,7 @@ extern "C" {
 /* External Variables -------------------------------------------------------*/
 
 /**
-  * @defgroup CRP_Exported_Variables CRP Access-level Exported Variables
+  * @defgroup CRP_Exported_Variables CRP Interface Exported Variables
   * @{
   */
 

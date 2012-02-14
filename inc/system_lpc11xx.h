@@ -4,8 +4,10 @@
  * @version  V1.0
  * @author   Tymm Twillman
  * @date     1. June 2010
- * @license  Simplified BSD License
  ******************************************************************************
+ * @section License License
+ * Licensed under a Simplified BSD License:
+ *
  * Copyright (c) 2012, Timothy Twillman
  * All rights reserved.
  *
@@ -42,6 +44,12 @@
 extern "C" {
 #endif
 
+
+/**
+  * @addtogroup LPC11xx_System LPC11xx Microcontroller System Interface
+  * @{
+  */
+
 /* Exported Variables ---------------------------------------------------------------------------*/
 
 /** @defgroup LPC11xx_System_Variables System-level Core Variables for LPC11xx MCUs
@@ -51,14 +59,12 @@ extern "C" {
 extern uint32_t SystemCoreClock;                           /*!< Speed of MCU Core Clock          */
 extern uint32_t SystemAHBClock;                            /*!< Speed of AHB Bus                 */
 
-/**
-  * @}
-  */
+/** @} */
 
 
 /* Exported Functions ---------------------------------------------------------------------------*/
 
-/** @defgroup LPC11xx_System_Functions System-level Core Functions for LPC11xx MCUs
+/** @defgroup LPC11xx_System_ExportedFunctions System-level Core Functions for LPC11xx MCUs
   * @{
   */
 
@@ -77,6 +83,10 @@ extern void SystemInit(void);
   * Checks system clocking registers to determine current CPU core clock speed.
   */
 extern void SystemCoreClockUpdate(void);
+
+/**
+  * @}
+  */
 
 /**
   * @}

@@ -1,11 +1,13 @@
-/** ***************************************************************************
+/**************************************************************************//**
  * @file     iocon.h
  * @brief    IO Configuration Interface Header for LPC11xx Microcontrollers
  * @version  V1.0
  * @author   Tymm Twillman
- * @date     1. June 2010
- * @license  Simplified BSD License
+ * @date     1. January 2012
  ******************************************************************************
+ * @section License License
+ * Licensed under a Simplified BSD License:
+ *
  * Copyright (c) 2012, Timothy Twillman
  * All rights reserved.
  *
@@ -52,14 +54,14 @@ extern "C" {
 
 
 /**
-  * @defgroup IOCON_Access_Interface IOCON (IO Configuration Block) Access-level Interface
-  * @ingroup  LPC_Peripheral_Access_Layer
+  * @defgroup IOCON_AbstractionLayer IOCON (IO Configuration Block) Abstraction Layer
+  * @ingroup  LPC_Peripheral_AbstractionLayer
   * @{
   */
 
 /* Types & Type-Related Definitions -----------------------------------------*/
 
-/** @defgroup IOCON_Access_Types IOCON Access-level Interface Types & Definitions
+/** @defgroup IOCON_Types IOCON Interface Types and Type-Related Definitions
   * @{
   */
 
@@ -67,7 +69,7 @@ extern "C" {
   * @{
   */
 
-/*! IOCON Pin Locations */
+/*! @brief IOCON Pin Locations */
 typedef enum {
     IOCON_Pin_2_6 = 0x00,                                  /*!< Port 2 pin 6                     */
     IOCON_Pin_2_0 = 0x02,                                  /*!< Port 2 pin 0                     */
@@ -113,13 +115,13 @@ typedef enum {
     IOCON_Pin_3_3                                          /*!< Port 3 Pin 3                     */
 } IOCON_Pin_Type;
 
-/*! Macro to test whether parameter is a valid IO Pin */
+/*! @brief Macro to test whether parameter is a valid IO Pin */
 #define IOCON_IS_PIN(Pin)  (((Pin) >= IOCON_Pin_2_6)     \
                                   && ((Pin) <= IOCON_Pin_3_3) \
                                   && ((Pin) != 0x01)          \
                                   && ((Pin) != 0x06))
 
-/*! Macro to test whether parameter is a valid ADC Pin */
+/*! @brief Macro to test whether parameter is a valid ADC Pin */
 #define IOCON_IS_AD_PIN(Pin)   (((Pin) == IOCON_Pin_0_11) \
                                   || ((Pin) == IOCON_Pin_1_0)  \
                                   || ((Pin) == IOCON_Pin_1_1)  \
@@ -129,12 +131,12 @@ typedef enum {
                                   || ((Pin) == IOCON_Pin_1_10) \
                                   || ((Pin) == IOCON_Pin_1_11))
 
-/*! Macro to test whether parameter is a valid I2C Pin */
+/*! @brief Macro to test whether parameter is a valid I2C Pin */
 #define IOCON_IS_I2C_PIN(Pin)  (((Pin) == IOCON_Pin_0_4) \
                                   || ((Pin) == IOCON_Pin_0_5))
 
 #if defined(LPC11XXL) /* L-series Parts Only */
-/*! Macro to test whether parameter is a valid (pseudo) Open Drain Pin */
+/*! @brief Macro to test whether parameter is a valid (pseudo) Open Drain Pin */
 # define IOCON_IS_OD_PIN(Pin)  (!IOCON_IS_I2C_PIN(Pin))
 #endif
 
@@ -144,8 +146,9 @@ typedef enum {
   * @{
   */
 
-/*!< IOCON Pin Function settings (pretty non-descriptive, but are built on in the simplified
- *   pin configuration settings below)
+/*! @brief IOCON Pin Function settings
+ *  These names are pretty non-descriptive, but are used to build more useful
+ *  simplified pin settings below.
  */
 typedef enum {
     IOCON_Function_Default = 0x00,                         /*!< Default Pin Function Setting     */
@@ -154,7 +157,7 @@ typedef enum {
     IOCON_Function_Alt3,                                   /*!< Alternate Pin Function #3        */
 } IOCON_Function_Type;
 
-/*! Macro to test whether parameter is a valid IOCON pin function */
+/*! @brief Macro to test whether parameter is a valid IOCON pin function */
 #define IOCON_IS_FUNCTION(Function) \
                                   (((Function) == IOCON_Function_Default) \
                                 || ((Function) == IOCON_Function_Alt1)    \
@@ -167,11 +170,11 @@ typedef enum {
 /** @} */
 
 /** @defgroup IOCON_Modes  IO Configuration Pin Pullup / Pulldown Modes
-  * Note: N/A on I2C Pins IOCON_Pin_PIO_0_4, IOCON_Pin_PIO_0_5
+  * N/A on I2C Pins IOCON_Pin_PIO_0_4, IOCON_Pin_PIO_0_5
   * @{
   */
 
-/*! IOCON Pin Mode Configuration Settings */
+/*! @brief IOCON Pin Mode Configuration Settings */
 typedef enum {
     IOCON_Mode_Normal   = 0x00,                            /*!< Normal mode (no PU/PD resistors) */
     IOCON_Mode_PD       = 0x08,                            /*!< Pulldown resistor enabled        */
@@ -179,7 +182,7 @@ typedef enum {
     IOCON_Mode_Repeater = 0x18                             /*!< Repeater Mode enabled on pin     */
 } IOCON_Mode_Type;
 
-/*! Macro to test whether parameter is a valid IOCON pin mode */
+/*! @brief Macro to test whether parameter is a valid IOCON pin mode */
 #define IOCON_IS_MODE(Mode) (((Mode) == IOCON_Mode_Normal) \
                                || ((Mode) == IOCON_Mode_PD)     \
                                || ((Mode) == IOCON_Mode_PU)     \
@@ -191,11 +194,11 @@ typedef enum {
 /** @} */
 
 /** @defgroup IOCON_I2CModes  IO Configuration I2C Modes
-  * Note: Applies to IOCON_Pin_PIO_0_4, IOCON_Pin_PIO_0_5 Only
+  * Applies to IOCON_Pin_PIO_0_4, IOCON_Pin_PIO_0_5 Only
   * @{
   */
 
-/*! IOCON I2C Pin Configuration Modes */
+/*! @brief IOCON I2C Pin Configuration Modes */
 typedef enum {
     IOCON_I2CMode_I2C                  = 0x0000,           /*!< Pin configured for I2C IO        */
     IOCON_I2CMode_PIO                  = 0x0100,           /*!< Pin configured for GPIO          */
@@ -213,19 +216,19 @@ typedef enum {
 /** @} */
 
 /** @defgroup IOCON_ADModes  IO Configuration Analog Modes
-  * Note: Applies to IOCON_Pin_PIO0_11, IOCON_Pin_PIO1_0, IOCON_Pin_PIO1_1,
-  *                  IOCON_Pin_PIO1_2,  IOCON_Pin_PIO1_3, IOCON_Pin_PIO1_4,
-  *                  IOCON_Pin_PIO1_11, IOCON_Pin_PIO1_10
+  * Applies to IOCON_Pin_PIO0_11, IOCON_Pin_PIO1_0, IOCON_Pin_PIO1_1,
+  *            IOCON_Pin_PIO1_2,  IOCON_Pin_PIO1_3, IOCON_Pin_PIO1_4,
+  *            IOCON_Pin_PIO1_11, IOCON_Pin_PIO1_10
   * @{
   */
 
-/*! IOCON Analog Capable Pin Configuration Modes */
+/*! @brief IOCON Analog Capable Pin Configuration Modes */
 typedef enum {
     IOCON_ADMode_Analog                = 0x00,             /*!< AD pin in analog mode            */
     IOCON_ADMode_Digital               = 0x80              /*!< AD pin in digital mode           */
 } IOCON_ADMode_Type;
 
-/*! Macro to test whether parameter is a valid IOCON Analog/Digital Mode */
+/*! @brief Macro to test whether parameter is a valid IOCON Analog/Digital Mode */
 #define IOCON_IS_AD_MODE(Mode) (((Mode) == IOCON_ADMode_Analog) \
                              || ((Mode) == IOCON_ADMode_Digital))
 
@@ -237,17 +240,17 @@ typedef enum {
 #if defined(LPC11XXL)  /* L-series parts only */
 
 /** @defgroup IOCON_ODModes  IO Configuration (pseudo) Open Drain Modes
-  * Note: Applies to non-I2C Pins
+  * Applies to non-I2C Pins
   * @{
   */
 
-/*! IOCON (pseudo) Open-Drain Pin Configuration Modes */
+/*! @brief IOCON (pseudo) Open-Drain Pin Configuration Modes */
 typedef enum {
     IOCON_ODMode_Normal                = 0x0000,           /*!< Pin configured for normal op     */
     IOCON_ODMode_OpenDrain             = 0x0400            /*!< Pin configured for open drain op */
 } IOCON_ODMode_Type;
 
-/*! Macro to test whether parameter is a valid IOCON Open Drain Mode */
+/*! @brief Macro to test whether parameter is a valid IOCON Open Drain Mode */
 #define IOCON_IS_AD_MODE(Mode) (((Mode) == IOCON_ODMode_Normal) \
                              || ((Mode) == IOCON_ODMode_OpenDrain))
 
@@ -262,14 +265,14 @@ typedef enum {
   * @{
   */
 
-/*! IOCON SSP0 SCK Pin Location Settings */
+/*! @brief IOCON SSP0 SCK Pin Location Settings */
 typedef enum {
     IOCON_SCK0Location_PIO0_10 = 0x00,                     /*!< SSP0 SCK routed to PIO0.10       */
     IOCON_SCK0Location_PIO2_11,                            /*!< SSP0 SCK routed to PIO2.11       */
     IOCON_SCK0Location_PIO0_6                              /*!< SSP0 SCK routed to PIO0.6        */
 } IOCON_SCK0Location_Type;
 
-/*! Macro to test whether parameter is a valid SSP0 SCK pin location */
+/*! @brief Macro to test whether parameter is a valid SSP0 SCK pin location */
 #define IOCON_IS_SCK0_LOCATION(Location) \
                                   (((Location) == IOCON_SCK0Location_PIO0_10) \
                                 || ((Location) == IOCON_SCK0Location_PIO2_11) \
@@ -281,13 +284,13 @@ typedef enum {
   * @{
   */
 
-/*! IOCON UART0 DSR Pin Location Settings */
+/*! @brief IOCON UART0 DSR Pin Location Settings */
 typedef enum {
     IOCON_DSR0Location_PIO2_1 = 0x00,                      /*!< UART0 DSR routed to PIO2.1       */
     IOCON_DSR0Location_PIO3_1                              /*!< UART0 DSR routed to PIO3.1       */
 } IOCON_DSR0Location_Type;
 
-/*! Macro to test whether parameter is a valid UART0 DSR pin location */
+/*! @brief Macro to test whether parameter is a valid UART0 DSR pin location */
 #define IOCON_IS_DSR0_LOCATION(Location) \
                                    (((Location) == IOCON_DSR0Location_PIO2_1) \
                                  || ((Location) == IOCON_DSR0Location_PIO3_1))
@@ -298,13 +301,13 @@ typedef enum {
   * @{
   */
 
-/*! IOCON UART0 DCD Pin Location Settings */
+/*! @brief IOCON UART0 DCD Pin Location Settings */
 typedef enum {
     IOCON_DCD0Location_PIO2_2 = 0x00,                      /*!< UART0 DCD routed to PIO2.2       */
     IOCON_DCD0Location_PIO3_2                              /*!< UART0 DCD routed to PIO3.2       */
 } IOCON_DCD0Location_Type;
 
-/*! Macro to test whether parameter is a valid UART0 DCD pin location */
+/*! @brief Macro to test whether parameter is a valid UART0 DCD pin location */
 #define IOCON_IS_DCD0_LOCATION(Location) \
                                    (((Location) == IOCON_DCD0Location_PIO2_2) \
                                  || ((Location) == IOCON_DCD0Location_PIO3_2))
@@ -315,13 +318,13 @@ typedef enum {
   * @{
   */
 
-/*! IOCON UART0 RI Pin Location Settings */
+/*! @brief IOCON UART0 RI Pin Location Settings */
 typedef enum {
     IOCON_RI0Location_PIO2_3 = 0x00,                       /*!< UART0 RI routed to PIO2.3        */
     IOCON_RI0Location_PIO3_3                               /*!< UART0 RI routed to PIO3.3        */
 } IOCON_RI0Location_Type;
 
-/*! Macro to test whether parameter is a valid UART0 RI pin location */
+/*! @brief Macro to test whether parameter is a valid UART0 RI pin location */
 #define IOCON_IS_RI0_LOCATION(Location) \
                                    (((Location) == IOCON_RI0Location_PIO2_3) \
                                  || ((Location) == IOCON_RI0Location_PIO3_3))
@@ -442,7 +445,7 @@ typedef enum {
 #define IOCON_PinConfig_3_3_PIO          (((((uint16_t)IOCON_Function_Default) << 8)) | IOCON_Pin_3_3)  /*!< Pin 3.3 configured as PIO                    */
 #define IOCON_PinConfig_3_3_RI0          (((((uint16_t)IOCON_Function_Alt1) << 8))    | IOCON_Pin_3_3)  /*!< Pin 3.3 configured as UART0 RI               */
 
-/*! Type used for passing pin configuration settings */
+/*! @brief Type used for passing pin configuration settings */
 typedef uint16_t IOCON_PinConfig_Type;
 
 /** @} */
@@ -454,7 +457,7 @@ typedef uint16_t IOCON_PinConfig_Type;
 
 /* Inline Functions ---------------------------------------------------------*/
 
-/** @addtogroup IOCON_Inline_Functions IOCON Access-level Inline Functions
+/** @addtogroup IOCON_InlineFunctions IOCON Interface Inline Functions
   * @{
   */
 

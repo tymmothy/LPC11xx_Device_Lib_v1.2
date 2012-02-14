@@ -1,11 +1,13 @@
-/** ***************************************************************************
+/**************************************************************************//**
  * @file     power_api.h
- * @brief    Power Profile API Interface Header for LPC11xxL Microcontrollers
+ * @brief    Power Profile API Interface Header for LPC11xxL Microcontrollers.
  * @version  V1.0
  * @author   Tymm Twillman
- * @date     1. June 2010
- * @license  Simplified BSD License
+ * @date     1. January 2012
  ******************************************************************************
+ * @section License License
+ * Licensed under a Simplified BSD License:
+ *
  * Copyright (c) 2012, Timothy Twillman
  * All rights reserved.
  *
@@ -51,7 +53,7 @@ extern "C" {
 
 
 /**
-  * @defgroup PowerAPI_Access_Interface Power Profile API Access-level Interface
+  * @defgroup PowerAPI Power Profile API Interface
   * @ingroup  ROM
   * @{
   */
@@ -63,6 +65,16 @@ extern "C" {
   */
 
 #define POWERAPI_ENTRY_POINT     (0x1fff2004UL)     /*!< Power API entry location in ROM */
+
+/** @} */
+
+
+/* Types & Type-Related Definitions -----------------------------------------*/
+
+/** @defgroup PowerAPI_Types Power API Interface Types and Type-Related Definitions
+  * @ingroup  PowerAPI
+  * @{
+  */
 
 typedef enum {
     PowerAPI_PLLMode_Equal = 0,
@@ -85,14 +97,6 @@ typedef enum {
     PowerAPI_PowerMode_Efficiency,
     PowerAPI_PowerMode_LowCurrent
 } PowerAPI_PowerMode_Type;
-
-
-/* Types & Type-Related Definitions -----------------------------------------*/
-
-/** @defgroup PowerAPI_Types Power Profile Interface Typedefs
-  * @ingroup  PowerAPI
-  * @{
-  */
 
 /**
   * @}
