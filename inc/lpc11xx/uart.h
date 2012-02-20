@@ -5,6 +5,21 @@
  * @author   Tymm Twillman
  * @date     1. January 2012
  ******************************************************************************
+ * @section Overview
+ * This file gives a basic interface to NXP LPC microcontroller
+ * UARTs.  It abstracts such things as setting baud rate, word sizes,
+ * parity, etc., as well as simplifying use of UART interrupts
+ * and reading/writing data to/from the UART.
+ *
+ * @note
+ * This file does not handle the following necessary steps for UART use:
+ * - The UART's (AHB/APB/VPB) input clock line must be enabled (& on some
+ *   chips, e.g. LPC11xx, the SSP input clock divider configured).
+ * - IO Pins must be configured for UART use
+ * - For interrupt use, an interrupt handler must be declared and
+ *   the UART's interrupt line must be enabled in the microcontroller's
+ *   interrupt controller.
+ ******************************************************************************
  * @section License License
  * Licensed under a Simplified BSD License:
  *
@@ -55,7 +70,7 @@ extern "C" {
 
 #include <stdint.h>
 #include "lpc11xx.h"
-#include "lpc11xx/lib_assert.h"
+#include "lpclib_assert.h"
 
 
 /**

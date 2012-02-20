@@ -5,7 +5,20 @@
  * @author   Tymm Twillman
  * @date     1. January 2012
  ******************************************************************************
- * @section License License
+ * @section Overview
+ * This file gives a basic interface to NXP LPC11[C]xx microcontroller
+ * GPIO.  It abstracts such things as setting pin directions, setting /
+ * clearing pins, setting up interrupts on pins and reading pins.
+ *
+ * @note
+ * This file does not handle the following necessary steps for GPIO use:
+ * - The GPIO (AHB/APB/VPB) bus clock line must be enabled
+ * - In many cases, IO Pins must be configured for GPIO use in the IOCON block
+ * - For interrupt use, an interrupt handler must be declared and
+ *   the GPIO port's interrupt line must be enabled in the microcontroller's
+ *   interrupt controller.
+ ******************************************************************************
+ * @section License
  * Licensed under a Simplified BSD License:
  *
  * Copyright (c) 2012, Timothy Twillman
@@ -58,6 +71,10 @@ extern "C" {
   * @ingroup  LPC_Peripheral_AbstractionLayer
   * @{
   */
+/* Definitions --------------------------------------------------------------*/
+
+/*! @brief Number of pins per GPIO port. */
+#define GPIO_NUM_PINS   (12)
 
 /* Types & Type-Related Definitions -----------------------------------------*/
 
@@ -94,12 +111,13 @@ typedef enum {
     GPIO_Sense_RisingEdge   = 2,      /*!< Sense GPIO signal rising edge     */
     GPIO_Sense_High         = 3,      /*!< Sense GPIO signal high level      */
     GPIO_Sense_BothEdges    = 4       /*!< Sense GPIO signal both edges      */
-} GPIO_SenseType;
+} GPIO_Sense_Type;
 
 /*! @brief Macro to test whether the parameter is a valid pin sense config */
 #define GPIO_IS_SENSE_TYPE(Sense)  (((Sense) == GPIO_Sense_FallingEdge) \
-                                 || ((Sense) == GPIO_Sense_Level)       \
+                                 || ((Sense) == GPIO_Sense_Low)         \
                                  || ((Sense) == GPIO_Sense_RisingEdge)  \
+                                 || ((Sense) == GPIO_Sense_High)        \
                                  || ((Sense) == GPIO_Sense_BothEdges))
 
 /** @} */
@@ -160,6 +178,7 @@ typedef enum {
 __INLINE static void GPIO_WritePins(GPIO_Type *GPIO, uint16_t Pins, uint16_t PinValues)
 {
     lpclib_assert((Pins & ~GPIO_Pin_Mask) == 0);
+    lpclib_assert((PinValues & ~GPIO_Pin_Mask) == 0);
 
     GPIO->SELDATA[Pins] = PinValues;
 }
@@ -254,7 +273,7 @@ __INLINE static uint16_t GPIO_GetPinDirection(GPIO_Type *GPIO, unsigned int Pin)
   * @return None.
   */
 __INLINE static void GPIO_SetPinITSenseTypes(GPIO_Type *GPIO, uint16_t Pins,
-                                             GPIO_SenseType Sense)
+                                             GPIO_Sense_Type Sense)
 {
     lpclib_assert((Pins & ~GPIO_Pin_Mask) == 0);
     lpclib_assert(GPIO_IS_SENSE_TYPE(Sense));

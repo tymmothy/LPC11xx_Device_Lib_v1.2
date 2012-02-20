@@ -5,7 +5,12 @@
  * @author   Tymm Twillman
  * @date     1. January 2012
  ******************************************************************************
- * @section License License
+ * @section Overview
+ * This file declares a type for working with LPC11xx Interrupt Service
+ * Routine vectors.  This is primarily useful for run-time configurable
+ * ISR vectors in RAM, but can find other uses as well.
+ ******************************************************************************
+ * @section License
  * Licensed under a Simplified BSD License:
  *
  * Copyright (c) 2012, Timothy Twillman

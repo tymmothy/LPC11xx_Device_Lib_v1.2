@@ -5,6 +5,12 @@
  * @author   Tymm Twillman
  * @date     1. June 2010
  ******************************************************************************
+ * @section Overview
+ * This file gives a basic interface to NXP LPC11xx microcontroller
+ * system configuration blocks.  It abstracts such things as setting
+ * remapping ISR memory, enabling/disabling system clock lines, configuring
+ * the system brownout detector, and getting device ID's.
+ ******************************************************************************
  * @section License License
  * Licensed under a Simplified BSD License:
  *
@@ -236,7 +242,7 @@ typedef enum {
 
 /*! @brief Macro to test whether parameter is a valid PLL clock source value */
 #define SYSCON_IS_SYSPLL_CLOCK_SOURCE(Source) (((Source) == SYSCON_SysPLLClockSource_IRC) \
-                                            || ((Source) == SYSCON_SysPLLClockSource_SYSOsc))
+                                            || ((Source) == SYSCON_SysPLLClockSource_SysOsc))
 
 /** @} */
 
@@ -272,9 +278,9 @@ typedef enum {
 } SYSCON_WDTClockSource_Type;
 
 /*! @brief Macro to test whether parameter is a valid Watchdog Timer Clock Source value */
-#define SYSCON_IS_WDTCLK_SOURCE(Source) (((Source) == SYSCON_WDTClockSource_IRC)       \
-                                      || ((Source) == SYSCON_WDTClockSource_MainClock) \
-                                      || ((Source) == WDTCLK_Source_WDTOsc))
+#define SYSCON_IS_WDT_CLOCK_SOURCE(Source) (((Source) == SYSCON_WDTClockSource_IRC)       \
+                                         || ((Source) == SYSCON_WDTClockSource_MainClock) \
+                                         || ((Source) == SYSCON_WDTClockSource_WDTOsc))
 
 /** @} */
 
@@ -577,8 +583,6 @@ __INLINE static void SYSCON_SetWDTOscDivider(unsigned int Divider)
   */
 __INLINE static unsigned int SYSCON_GetWDTOscDivider(void)
 {
-    lpclib_assert(SYSCON_IS_WDT_OSC_FREQ(OscFreq));
-
     return ((SYSCON->WDTOSCCTRL & SYSCON_WDTOSCCTRL_DIV_Mask) + 1) << 1;
 }
 
@@ -611,7 +615,7 @@ __INLINE static SYSCON_WDTOscFreq_Type SYSCON_GetWDTOscFreq(void)
   */
 __INLINE static void SYSCON_SetIRCTrim(unsigned int Trim)
 {
-    lpclib_assert((Trim & ~IRCCTL_TRIM_Mask) == 0);
+    lpclib_assert((Trim & ~SYSCON_IRCCTL_TRIM_Mask) == 0);
 
     SYSCON->IRCCTRL = Trim;
 }
@@ -654,7 +658,7 @@ __INLINE static void SYSCON_ClearResetSource(uint32_t sources)
   */
 __INLINE static void SYSCON_SetSysPLLClockSource(SYSCON_SysPLLClockSource_Type Source)
 {
-    lpclib_assert(IS_SYSPLL_CLOCK_SOURCE(Source));
+    lpclib_assert(SYSCON_IS_SYSPLL_CLOCK_SOURCE(Source));
 
     SYSCON->SYSPLLCLKSEL = Source;
 }
@@ -699,7 +703,7 @@ __INLINE static unsigned int SYSCON_SysPLLClockSourceIsUpdated(void)
   */
 __INLINE static void SYSCON_SetSysPLLClockScaler(unsigned int Scaler)
 {
-    lpclib_assert((Scaler & ~(SYSPLLCTRL_MSEL_Mask | SYSPLLCTRL_PSEL_Mask)) == 0);
+    lpclib_assert((Scaler & ~(SYSCON_SYSPLLCTRL_MSEL_Mask | SYSCON_SYSPLLCTRL_PSEL_Mask)) == 0);
 
     SYSCON->SYSPLLCTRL = Scaler;
 }
@@ -721,7 +725,7 @@ __INLINE static unsigned int SYSCON_GetSysPLLClockScaler(void)
   */
 __INLINE static void SYSCON_SetSysPLLMVal(unsigned int MVal)
 {
-    lpclib_assert((MVal & ~(SYSPLLCTRL_MSEL_Mask)) == 0);
+    lpclib_assert((MVal & ~(SYSCON_SYSPLLCTRL_MSEL_Mask)) == 0);
 
     SYSCON->SYSPLLCTRL = (SYSCON->SYSPLLCTRL & ~SYSCON_SYSPLLCTRL_MSEL_Mask) | MVal;
 }
@@ -764,7 +768,7 @@ __INLINE static unsigned int SYSCON_GetSysPLLPVal(void)
   */
 __INLINE static void SYSCON_SetMainClockSource(SYSCON_MainClockSource_Type Source)
 {
-    lpclib_assert(IS_MAINCLK_SOURCE(Source));
+    lpclib_assert(SYSCON_IS_MAIN_CLOCK_SOURCE(Source));
 
     SYSCON->MAINCLKSEL = Source;
 }
@@ -808,7 +812,7 @@ __INLINE static unsigned int SYSCON_MainClockSourceIsUpdated(void)
   */
 __INLINE static void SYSCON_SetAHBClockDivider(uint32_t Divider)
 {
-    lpclib_assert((Divider & ~SYSAHBCLKDIV_Mask) == 0);
+    lpclib_assert((Divider & ~SYSCON_SYSAHBCLKDIV_Mask) == 0);
 
     SYSCON->SYSAHBCLKDIV = Divider;
 }
@@ -1114,7 +1118,7 @@ __INLINE static unsigned int SYSCON_BODChipResetIsEnabled(void)
   */
 __INLINE static void SYSCON_SetSysTickCalibration(uint16_t Calibration)
 {
-    lpclib_assert((Calibration & ~SYSCON_SYSTCKCAL_Mask) == 0);
+    lpclib_assert((Calibration & ~SYSCON_SYSTCKCAL_CAL_Mask) == 0);
 
     SYSCON->SYSTCKCAL = Calibration;
 }
@@ -1239,14 +1243,16 @@ __INLINE static void SYSCON_InitAnalogPowerLines(void)
 __INLINE static void SYSCON_EnableAnalogPowerLines(SYSCON_PowerMode_Type PowerMode,
                                                    SYSCON_AnalogPowerLines_Type PowerLines)
 {
-    lpclib_assert((PowerLines & ~SYSCON_AnalogPowerLines_Mask) == 0);
     lpclib_assert(SYSCON_IS_POWER_MODE(PowerMode));
 
     if (PowerMode == SYSCON_PowerMode_Sleep) {
+        lpclib_assert((PowerLines & ~SYSCON_PDSLEEPCFG_Mask) == 0);
         SYSCON->PDSLEEPCFG = (SYSCON->PDSLEEPCFG & ~(PowerLines)) | SYSCON_PDSLEEPCFG_Required;
     } else if (PowerMode == SYSCON_PowerMode_Awake) {
+        lpclib_assert((PowerLines & ~SYSCON_PDAWAKECFG_Mask) == 0);
         SYSCON->PDAWAKECFG = (SYSCON->PDAWAKECFG & ~(PowerLines)) | SYSCON_PDAWAKECFG_Required;
     } else { /* SYSCON_PowerMode_Run */
+        lpclib_assert((PowerLines & ~SYSCON_PDRUNCFG_Mask) == 0);
         SYSCON->PDRUNCFG = (SYSCON->PDRUNCFG & ~((uint16_t)PowerLines)) | SYSCON_PDRUNCFG_Required;
     }
 }
@@ -1264,15 +1270,16 @@ __INLINE static void SYSCON_EnableAnalogPowerLines(SYSCON_PowerMode_Type PowerMo
 __INLINE static void SYSCON_DisableAnalogPowerLines(SYSCON_PowerMode_Type PowerMode,
                                                     SYSCON_AnalogPowerLines_Type PowerLines)
 {
-    lpclib_assert((PowerLines & ~SYSCON_AnalogPowerLines_Mask) == 0);
     lpclib_assert(SYSCON_IS_POWER_MODE(PowerMode));
 
     if (PowerMode == SYSCON_PowerMode_Sleep) {
-        PowerLines &= ~(SYSCON_AnalogPowerLine_BOD | SYSCON_AnalogPowerLine_WDTOsc);
+        lpclib_assert((PowerLines & ~SYSCON_PDSLEEPCFG_Mask) == 0);
         SYSCON->PDSLEEPCFG |= (SYSCON_PDSLEEPCFG_Required | PowerLines);
     } else if (PowerMode == SYSCON_PowerMode_Awake) {
+        lpclib_assert((PowerLines & ~SYSCON_PDAWAKECFG_Mask) == 0);
         SYSCON->PDAWAKECFG |= (SYSCON_PDAWAKECFG_Required | PowerLines);
     } else { /* SYSCON_PowerMode_Run */
+        lpclib_assert((PowerLines & ~SYSCON_PDRUNCFG_Mask) == 0);
         SYSCON->PDRUNCFG |= (SYSCON_PDRUNCFG_Required | PowerLines);
     }
 }

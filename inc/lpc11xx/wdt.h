@@ -5,6 +5,17 @@
  * @author   Tymm Twillman
  * @date     1. January 2012
  ******************************************************************************
+ * @section Overview
+ * This file gives a basic interface to NXP LPC microcontroller
+ * WDT's.  It abstracts such things as setting the
+ *
+ * @note
+ * This file does not handle the following necessary steps for WDT use:
+ * - If the WDT oscillator is used as the input clock, its speed must be
+ *   set and power enabled, and its clock input divider configured.
+ * - The WDT's input clock must be set and its divider configured.
+ * - The WDT's (AHB/APB/VPB) bus clock must be enabled.
+ ******************************************************************************
  * @section License License
  * Licensed under a Simplified BSD License:
  *

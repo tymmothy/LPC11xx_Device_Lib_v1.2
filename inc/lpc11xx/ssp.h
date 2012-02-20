@@ -5,7 +5,22 @@
  * @author   Tymm Twillman
  * @date     1. January 2012
  ******************************************************************************
- * @section License License
+ * @section Overview
+ * This file gives a basic interface to NXP LPC microcontroller
+ * SSPs.  It abstracts such things as setting word sizes, frame formats,
+ * clock polarities, etc., as well as simplifying use of SSP interrupts
+ * and reading/writing data to/from the SSP.
+ *
+ * @note
+ * This file does not handle the following necessary steps for SSP use:
+ * - IO Pins must be configured for SSP use
+ * - The SSP's (AHB/APB/VPB) bus clock line must be enabled (& on some
+ *   chips, e.g. LPC11xx, the SSP input clock divider configured).
+ * - For interrupt use, an interrupt handler must be declared and
+ *   the SSP's interrupt line must be enabled in the microcontroller's
+ *   interrupt controller.
+ ******************************************************************************
+ * @section License
  * Licensed under a Simplified BSD License:
  *
  * Copyright (c) 2012, Timothy Twillman
@@ -35,11 +50,6 @@
  * The views and conclusions contained in the software and documentation are
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Timothy Twillman.
- ******************************************************************************
- *
- * NOTE: Pin Modes need to be configured in the PINCONFIG/IOCON block
- *       separately.
- *
  *****************************************************************************/
 
 #ifndef NXP_LPC_SSP_H_

@@ -5,7 +5,18 @@
  * @author   Tymm Twillman
  * @date     1. January 2012
  ******************************************************************************
- * @section License License
+ * @section Overview
+ * This file gives an interface to an assert function that can be used during
+ * library debugging.  When enabled, any use of lpclib_assert() where the
+ * passed in parameter evaluates to 0 will cause the program to jump into
+ * an infinite loop.  This can be helpful in finding bugs in the library
+ * code.  When disabled, lpclib_assert() does nothing.
+ *
+ * To enable the assert checking, define the symbol LPCLIB_DEBUG when
+ * compiling the library, and when compiling any applications that use
+ * the library.
+ ******************************************************************************
+ * @section License
  * Licensed under a Simplified BSD License:
  *
  * Copyright (c) 2012, Timothy Twillman
@@ -35,11 +46,6 @@
  * The views and conclusions contained in the software and documentation are
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Timothy Twillman.
- ******************************************************************************
- *
- * To use the assert testing in the library:
- * Define LPCLIB_DEBUG when compiling & using the library.
- *
  *****************************************************************************/
 
 #ifndef LPCLIB_ASSERT_H_

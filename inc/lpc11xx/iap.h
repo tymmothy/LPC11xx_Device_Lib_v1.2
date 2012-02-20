@@ -5,7 +5,17 @@
  * @author   Tymm Twillman
  * @date     1. January 2012
  ******************************************************************************
- * @section License License
+ * @section Overview
+ * This file gives an abstract interface to NXP LPC Flash Programming via
+ * the IAP (In-Application Programming) interface.
+ *
+ * @note
+ * - During Flash programming, interrupts are not disabled by the IAP
+ *   interface.
+ * - IAP write/erase calls use 32 bytes @ the top of RAM
+ * - Flash is not accessible during a write/erase
+ ******************************************************************************
+ * @section License
  * Licensed under a Simplified BSD License:
  *
  * Copyright (c) 2012, Timothy Twillman
@@ -170,13 +180,13 @@ typedef enum {
   */
 
 /** @brief  Call into the IAP system
-  * @param  Command    The IAP Command to Execute
-  * @param  p0         First argument to pass to IAP (call-dependent)
-  * @param  p1         Second argument to pass to IAP (call-dependent)
-  * @param  p2         Third argument to pass to IAP (call-dependent)
-  * @param  p3         Fourth argument to pass to IAP (call-dependent)
-  * @param  Result     Location to write any results passed back from IAP
-  * @return            An IAP Status Code giving status of operation.
+  * @param  Command     The IAP Command to Execute
+  * @param  p0          First argument to pass to IAP (call-dependent)
+  * @param  p1          Second argument to pass to IAP (call-dependent)
+  * @param  p2          Third argument to pass to IAP (call-dependent)
+  * @param  p3          Fourth argument to pass to IAP (call-dependent)
+  * @param  Result      Location to write any results passed back from IAP
+  * @return             An IAP Status Code giving status of operation.
   *
   * Result can be set to NULL if no result is necessary.
   */
@@ -193,15 +203,16 @@ IAP_StatusType IAP_Call(IAP_CommandType Command, uint32_t p0, uint32_t p1,
   */
 
 /** @brief  Prepare Flash sectors for erase / write operations
-  * @param  StartAddr    4096-byte aligned location in memory to start prepping
-  * @param  NumSectors   Number of sectors to prepare
-  * @return              0 on success, negative IAP status value on error.
+  * @param  StartAddr   4096-byte aligned location in memory to start prepping
+  * @param  NumSectors  Number of sectors to prepare
+  * @return             0 on success, negative IAP status value on error.
   */
 static __INLINE int IAP_PrepareSectors(uint32_t StartAddr, uint32_t NumSectors)
 {
     int ret;
 
-    lpclib_assert((StartAddr (IAP_SECTOR_SIZE - 1)) == 0);
+
+    lpclib_assert((StartAddr & (IAP_SECTOR_SIZE - 1)) == 0);
 
     ret = IAP_Call(IAP_Command_PrepareSectors, (StartAddr >> 12),
                   (StartAddr >> 12) + (NumSectors - 1), 0, 0, 0);
@@ -210,15 +221,16 @@ static __INLINE int IAP_PrepareSectors(uint32_t StartAddr, uint32_t NumSectors)
 
 /**
   * @brief  Copy data from RAM to Flash pages
-  * @param  DestAddr     256-byte aligned location in memory to copy to
-  * @param  SrcAddr      word aligned location in memory to end copy
-  * @param  ByteCount    # of Bytes to Copy (should be 256/512/1024/4096)
-  * @return              0 on success, negative IAP status value on error.
+  * @param  DestAddr    256-byte aligned location in memory to copy to
+  * @param  SrcAddr     word aligned location in memory to end copy
+  * @param  ByteCount   # of Bytes to Copy (should be 256/512/1024/4096)
+  * @return             0 on success, negative IAP status value on error.
   */
 static __INLINE int IAP_CopyRamToFlash(uint32_t DestAddr, uint32_t SrcAddr,
                                      IAP_ByteCountType ByteCount)
 {
     int ret;
+
 
     lpclib_assert((DestAddr & 0xff) == 0);
     lpclib_assert((SrcAddr & 0xff) == 0);
@@ -231,13 +243,14 @@ static __INLINE int IAP_CopyRamToFlash(uint32_t DestAddr, uint32_t SrcAddr,
 
 
 /** @brief  Erase Flash pages
-  * @param  StartAddr     4096-byte aligned location in memory to start erase
-  * @param  NumSectors    Number of sectors to erase
-  * @return               0 on success, negative IAP status value on error.
+  * @param  StartAddr   4096-byte aligned location in memory to start erase
+  * @param  NumSectors  Number of sectors to erase
+  * @return             0 on success, negative IAP status value on error.
   */
 static __INLINE int IAP_EraseSectors(uint32_t StartAddr, uint32_t NumSectors)
 {
     int ret;
+
 
     lpclib_assert((StartAddr & (IAP_SECTOR_SIZE - 1)) == 0);
 
@@ -247,15 +260,16 @@ static __INLINE int IAP_EraseSectors(uint32_t StartAddr, uint32_t NumSectors)
 }
 
 /** @brief  Blank Check Flash Sectors
-  * @param  StartAddr      4096-byte aligned location in memory to start check
-  * @param  NumSectors     Number of sectors to blank-check
+  * @param  StartAddr   4096-byte aligned location in memory to start check
+  * @param  NumSectors  Number of sectors to blank-check
   * @param  NonBlankOffset Offset if the first non-blank location
-  * @return                0 on success, negative IAP status value on error.
+  * @return             0 on success, negative IAP status value on error.
   */
 static __INLINE int IAP_BlankCheckSectors(uint32_t StartAddr,
                                  uint32_t NumSectors, uint32_t *NonBlankOffset)
 {
     int ret;
+
 
     lpclib_assert((StartAddr & (IAP_SECTOR_SIZE -1)) == 0);
 
@@ -266,12 +280,13 @@ static __INLINE int IAP_BlankCheckSectors(uint32_t StartAddr,
 
 
 /** @brief  Read the MCU's Part ID
-  * @param  PartID       Address at which to save the MCU's Part ID
-  * @return              0 on success, negative IAP status value on error.
+  * @param  PartID      Address at which to save the MCU's Part ID
+  * @return             0 on success, negative IAP status value on error.
   */
 static __INLINE int IAP_ReadPartID(uint32_t *PartID)
 {
     int ret;
+
 
     ret = IAP_Call(IAP_Command_ReadPartID, 0, 0, 0, 0, PartID);
     return -ret;
@@ -280,11 +295,12 @@ static __INLINE int IAP_ReadPartID(uint32_t *PartID)
 
 /** @brief  Read the MCU's Boot Code Version
   * @param  BootCodeVersion Address at which to save the Boot Code Version
-  * @return              0 on success, negative IAP status value on error.
+  * @return             0 on success, negative IAP status value on error.
   */
 static __INLINE int IAP_ReadBootCodeVersion(uint32_t *BootCodeVersion)
 {
     int ret;
+
 
     ret = IAP_Call(IAP_Command_ReadBootCodeVersion, 0, 0, 0, 0,
                    BootCodeVersion);
@@ -292,11 +308,11 @@ static __INLINE int IAP_ReadBootCodeVersion(uint32_t *BootCodeVersion)
 }
 
 /** @brief  Compare RAM or Flash contents; returns offset of first difference
-  * @param  Addr1        4-byte aligned location of first segment to compare
-  * @param  Addr2        4-byte aligned location of second segment to compare
-  * @param  NumBytes     Multiple of 4 bytes; number of bytes to compare
+  * @param  Addr1       4-byte aligned location of first segment to compare
+  * @param  Addr2       4-byte aligned location of second segment to compare
+  * @param  NumBytes    Multiple of 4 bytes; number of bytes to compare
   * @param  MismatchOffset Offset of first difference between segments
-  * @return              0 on success, negative IAP status value on error.
+  * @return             0 on success, negative IAP status value on error.
   */
 static __INLINE int IAP_Compare(uint32_t Addr1, uint32_t Addr2,
                               uint32_t NumBytes, uint32_t *MismatchOffset)
@@ -315,7 +331,7 @@ static __INLINE int IAP_Compare(uint32_t Addr1, uint32_t Addr2,
 
 
 /** @brief  Execute In System Programming Function
-  * @return Does Not Return.
+  * @return             Does Not Return.
   */
 static __INLINE void IAP_ReinvokeISP(void) __attribute__((noreturn));
 static __INLINE void IAP_ReinvokeISP(void)

@@ -416,7 +416,7 @@ __INLINE static uint32_t CT32B_GetChannelMatchValue(CT32B_Type *Timer, unsigned 
 __INLINE static void CT32B_SetChannelExtMatchControl(CT32B_Type *Timer, unsigned int Channel, CT32B_ExtMatchControl_Type Control)
 {
     lpclib_assert(Channel <= 3);
-    lpclib_assert(CT32B_IS_EXT_MATCH(Control));
+    lpclib_assert(CT32B_IS_EXT_MATCH_CONTROL(Control));
 
     Timer->EMR = (Timer->EMR & ~(0x03 << ((Channel * 2) + 4))) | (Control << ((Channel * 2) + 4));
 }
@@ -524,6 +524,7 @@ __INLINE static uint8_t CT32B_ChannelPWMIsEnabled(CT32B_Type *Timer, unsigned in
   */
 __INLINE static void CT32B_SetCaptureControl(CT32B_Type *Timer, unsigned int Channel, unsigned int Control)
 {
+    Channel = Channel;
 #ifdef LPC11XX
     /* LPC11xx has only one capture channel */
     lpclib_assert(Channel == 0);

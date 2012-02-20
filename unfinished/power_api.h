@@ -5,7 +5,12 @@
  * @author   Tymm Twillman
  * @date     1. January 2012
  ******************************************************************************
- * @section License License
+ * @section Overview
+ * This file gives a basic interface to NXP LPC11xxL microcontroller
+ * Power Profile API (ROM based interface to power control on the
+ * chips).  It allows setting of the microcontroller's PLL and performance.
+ ******************************************************************************
+ * @section License
  * Licensed under a Simplified BSD License:
  *
  * Copyright (c) 2012, Timothy Twillman

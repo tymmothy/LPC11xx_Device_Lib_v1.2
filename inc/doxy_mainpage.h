@@ -25,11 +25,51 @@
  * - find best sizes of integers for passing small bitmasks & ints around
  * - correct compilation issues
  *
- * system_lpc11xx.c
- * - Set up separate PSP/MSP stack pointers???
+ * adc.h
+ * - Masks (multiple ADC inputs) abstraction ?
+ *
+ * can.h
+ * - Create
+ *
+ * canopen.h
+ * ct16b.h
+ *
+ * ct32b.h
+ * - Match up to ct16b.h
+ *
+ * flash.h
+ *
+ * gpio.h
+ * - Multiple pins abstraction ?
+ * - Interrupts (sense) abstraction ?
+ * - Set/GetPinDirections ?
+ *
+ * i2c.h
+ * - Monitor mode -> work on proper abstraction
+ * - Make a state machine to handle I2C comms
+ *
+ * iap.h
+ * iocon.h
+ * isr_vector.h
+ *
+ * lpc11xx.h
+ * - Wakeup / Start IRQ numbering
+ *
+ * lpclib_assert.h
+ * pmu.h
+ * ssp.h
  *
  * syscon.h
  * - Analog power control bits (type naming, function naming, better docs)
+ *
+ * system_lpc11xx.c
+ * - Set up separate PSP/MSP stack pointers???
+ * system_lpc11xx.h
+ *
+ * uart.h
+ * power_profiles.h
+ *
+ * wdt.h
  *****************************************************************************
  * @section License License
  *

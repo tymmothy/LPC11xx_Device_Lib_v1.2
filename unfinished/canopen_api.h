@@ -5,7 +5,11 @@
  * @author   Tymm Twillman
  * @date     1. January 2012
  ******************************************************************************
- * @section License License
+ * @section Overview
+ * This file gives a basic interface to NXP LPC11Cxx microcontroller
+ * ROM-based OpenCAN driver for Controller Area Network communication.
+ ******************************************************************************
+ * @section License
  * Licensed under a Simplified BSD License:
  *
  * Copyright (c) 2012, Timothy Twillman

@@ -127,3 +127,13 @@ __INLINE static void SSP_DeInit(SSP_Type *SSP)
     }
 }
 
+
+/** @brief Initialize the I2C controller
+  * @param  Init        Settings with which to initialize the I2C controller
+  * @return             None.
+  */
+__INLINE static void I2C_Init(I2C_Init_Type *Init)
+{
+}
+
+

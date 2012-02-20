@@ -5,10 +5,9 @@ $(echo  !!!)
 
 PHONY += all clean
 
-all: liblpc11xx.a uart_echo_noirq.bin uart_echo_irq.bin
+all: liblpc11xx.a test.bin
 
-uart_noirq.elf: liblpc11xx.a
-uart_irq.elf: liblpc11xx.a
+test.elf: liblpc11xx.a
 
 liblpc11xx.a: 
 	$(MAKE) -C $(LPC11XXLIB_DIR)/src $@ O="$(PWD)"

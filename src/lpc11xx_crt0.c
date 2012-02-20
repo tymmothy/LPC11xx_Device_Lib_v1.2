@@ -5,7 +5,13 @@
  * @author   Tymm Twillman
  * @date     1. January 2012
  ******************************************************************************
- * @section License License
+ * @section Overview
+ * This file contains standard code to be executed when the microcontroller
+ * starts, when main() exits, and when unhandled exceptions occur.  It also
+ * holds the Flash ISR vectors, and gives access to variables with information
+ * about memory layout (bss/data/stack).
+ ******************************************************************************
+ * @section License
  * Licensed under a Simplified BSD License:
  *
  * Copyright (c) 2012, Timothy Twillman

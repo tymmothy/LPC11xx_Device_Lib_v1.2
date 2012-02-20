@@ -5,7 +5,44 @@
  * @author   Tymm Twillman
  * @date     1. January 2012
  ******************************************************************************
- * @section License License
+ * @section Overview
+ * This file contains peripheral register & interrupt definitions for NXP
+ * LPC11xx microcontrollers.
+ *
+ * Microcontrollers handled by this file:
+ * - LPC1102
+ * - LPC1111  (LPC1111/x01)
+ * - LPC1111L (LPC1111/x02)
+ * - LPC1112  (LPC1112/x01)
+ * - LPC1112L (LPC1112/x02)
+ * - LPC1113  (LPC1113/x01)
+ * - LPC1113L (LPC1113/x02)
+ * - LPC1114  (LPC1114/x01)
+ * - LPC1114L (LPC1114/x02)
+ * - LPC11C14
+ * - LPC11C24
+ *
+ * The structure of this file:
+ * - Basic core-level LPC11xx definitions (IRC clock, Cortex-M0 configuration)
+ * - Interrupt numbering
+ * - Importing core_cm0.h from ARM CMSIS package for Cortex-M0 interface
+ * - Peripheral register types
+ * - Peripheral register bit definitions
+ * - Peripheral memory locations
+ * - Peripheral instances
+ *
+ * @note
+ * Not all peripherals are brought out on all chips; those with lower pin
+ * counts for example may not have SSP1, and not all GPIO lines will be
+ * available on chips with fewer pins.
+ *
+ * @note
+ * For proper exporting of the full & correct peripheral interfaces:
+ * - Define the symbol LPC11XX for base series chips (LPC1111/2/3/4).
+ * - Define the symbol LPC11XXL for enhanced chips (power profiles, etc).
+ * - Define the symbole LPC11CXX for CAN enabled chips.
+ ******************************************************************************
+ * @section License
  * Licensed under a Simplified BSD License:
  *
  * Copyright (c) 2012, Timothy Twillman
@@ -58,7 +95,7 @@ extern "C" {
   * @{
   */
 
-#define __NVIC_PRIO_BITS        (2)             /*!< Number of Priority Bits used by the NVIC    */
+#define __NVIC_PRIO_BITS        (3)             /*!< Number of Priority Bits used by the NVIC    */
 #define __Vendor_SysTickConfig  (0)             /*!< No vendor-specific SysTick configuration    */
 #define __CM0_REV               (0x0000)        /*!< Cortex-M0 Core is Revision 0                */
 

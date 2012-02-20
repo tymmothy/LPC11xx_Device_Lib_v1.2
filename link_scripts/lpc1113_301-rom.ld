@@ -4,9 +4,9 @@
 
 OUTPUT_FORMAT ("elf32-littlearm", "elf32-bigarm", "elf32-littlearm")
 OUTPUT_ARCH(arm)
-STARTUP(lpc111x_crt0.o)
+STARTUP(lpc11xx_crt0.o)
 ENTRY(_start)
-GROUP(-lgcc -lc -llpc111x)
+GROUP(-lgcc -lc -llpc11xx)
 
 /******************************************************************************/
 /*                             Tweakable Stuff                                */
@@ -29,34 +29,34 @@ PROVIDE ( SVC_Handler = UndefinedException_Handler ) ;
 PROVIDE ( PendSV_Handler = UndefinedException_Handler ) ;
 PROVIDE ( SysTick_Handler = UndefinedException_Handler ) ;
 
-PROVIDE ( PIO0_0_Wakeup_IRQHandler = Reset_Handler ) ;
-PROVIDE ( PIO0_1_Wakeup_IRQHandler = Reset_Handler ) ;
-PROVIDE ( PIO0_2_Wakeup_IRQHandler = Reset_Handler ) ;
-PROVIDE ( PIO0_3_Wakeup_IRQHandler = Reset_Handler ) ;
-PROVIDE ( PIO0_4_Wakeup_IRQHandler = Reset_Handler ) ;
-PROVIDE ( PIO0_5_Wakeup_IRQHandler = Reset_Handler ) ;
-PROVIDE ( PIO0_6_Wakeup_IRQHandler = Reset_Handler ) ;
-PROVIDE ( PIO0_7_Wakeup_IRQHandler = Reset_Handler ) ;
-PROVIDE ( PIO0_8_Wakeup_IRQHandler = Reset_Handler ) ;
-PROVIDE ( PIO0_9_Wakeup_IRQHandler = Reset_Handler ) ;
-PROVIDE ( PIO0_10_Wakeup_IRQHandler = Reset_Handler ) ;
-PROVIDE ( PIO0_11_Wakeup_IRQHandler = Reset_Handler ) ;
-PROVIDE ( PIO1_0_Wakeup_IRQHandler = Reset_Handler ) ;
+PROVIDE ( StartLogic0_IRQHandler = Reset_Handler ) ;
+PROVIDE ( StartLogic1_IRQHandler = Reset_Handler ) ;
+PROVIDE ( StartLogic2_IRQHandler = Reset_Handler ) ;
+PROVIDE ( StartLogic3_IRQHandler = Reset_Handler ) ;
+PROVIDE ( StartLogic4_IRQHandler = Reset_Handler ) ;
+PROVIDE ( StartLogic5_IRQHandler = Reset_Handler ) ;
+PROVIDE ( StartLogic6_IRQHandler = Reset_Handler ) ;
+PROVIDE ( StartLogic7_IRQHandler = Reset_Handler ) ;
+PROVIDE ( StartLogic8_IRQHandler = Reset_Handler ) ;
+PROVIDE ( StartLogic9_IRQHandler = Reset_Handler ) ;
+PROVIDE ( StartLogic10_IRQHandler = Reset_Handler ) ;
+PROVIDE ( StartLogic11_IRQHandler = Reset_Handler ) ;
+PROVIDE ( StartLogic12_IRQHandler = Reset_Handler ) ;
 PROVIDE ( SSP1_IRQHandler = Reset_Handler ) ;
-PROVIDE ( I2C_IRQHandler = Reset_Handler ) ;
+PROVIDE ( I2C0_IRQHandler = Reset_Handler ) ;
 PROVIDE ( CT16B0_IRQHandler = Reset_Handler ) ;
 PROVIDE ( CT16B1_IRQHandler = Reset_Handler ) ;
 PROVIDE ( CT32B0_IRQHandler = Reset_Handler ) ;
 PROVIDE ( CT32B1_IRQHandler = Reset_Handler ) ;
 PROVIDE ( SSP0_IRQHandler = Reset_Handler ) ;
-PROVIDE ( UART_IRQHandler = Reset_Handler ) ;
-PROVIDE ( ADC_IRQHandler = Reset_Handler ) ;
+PROVIDE ( UART0_IRQHandler = Reset_Handler ) ;
+PROVIDE ( ADC0_IRQHandler = Reset_Handler ) ;
 PROVIDE ( WDT_IRQHandler = Reset_Handler ) ;
 PROVIDE ( BOD_IRQHandler = Reset_Handler ) ;
-PROVIDE ( PIO3_IRQHandler = Reset_Handler ) ;
-PROVIDE ( PIO2_IRQHandler = Reset_Handler ) ;
-PROVIDE ( PIO1_IRQHandler = Reset_Handler ) ;
-PROVIDE ( PIO0_IRQHandler = Reset_Handler ) ;
+PROVIDE ( GPIO3_IRQHandler = Reset_Handler ) ;
+PROVIDE ( GPIO2_IRQHandler = Reset_Handler ) ;
+PROVIDE ( GPIO1_IRQHandler = Reset_Handler ) ;
+PROVIDE ( GPIO0_IRQHandler = Reset_Handler ) ;
 
 /******************************************************************************/
 /*                              Peripheral Map                                */

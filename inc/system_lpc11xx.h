@@ -5,6 +5,13 @@
  * @author   Tymm Twillman
  * @date     1. June 2010
  ******************************************************************************
+ * @section Overview
+ * This file is required for CMSIS.  It exports SystemInit() (the main system
+ * initialization function), SystemCoreClockUpdate (which updates system
+ * clock speed variables to match the current hardware configuration when
+ * called), and the variables SystemCoreClock and SystemAHBClock which give
+ * the CPU core clock and AHB bus clock speed respectively.
+ ******************************************************************************
  * @section License License
  * Licensed under a Simplified BSD License:
  *

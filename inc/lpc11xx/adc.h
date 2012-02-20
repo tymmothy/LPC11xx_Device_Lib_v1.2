@@ -14,9 +14,12 @@
  * This file does not handle the following necessary steps for ADC use:
  * - Pins must be set up in for AD input
  * - Power to the ADC must be enabled
- * - The ADC input clock must be enabled
+ * - The ADC's (AHB/APB/VPB) bus clock line must be enabled
+ * - For interrupt use, an interrupt handler must be declared and
+ *   the ADC's interrupt line must be enabled in the microcontroller's
+ *   interrupt controller.
  ******************************************************************************
- * @section License License
+ * @section License
  * Licensed under a Simplified BSD License:
  *
  * Copyright (c) 2012, Timothy Twillman
@@ -198,7 +201,7 @@ typedef enum {
 
 /** @brief Set the bitmask of enabled ADC channels.
   * @param  ADC         The ADC peripheral
-  * @param  ChannelMask A bitmask of ADC channels to enable (1 bit per channel).
+  * @param  ChannelMask A bitmask of ADC channels to enable (1 bit per channel)
   * @return             None.
   */
 __INLINE static void ADC_SetEnabledChannelMask(ADC_Type *ADC, ADC_ChannelMask_Type ChannelMask)
@@ -210,7 +213,7 @@ __INLINE static void ADC_SetEnabledChannelMask(ADC_Type *ADC, ADC_ChannelMask_Ty
 
 /** @brief Get a bitmask of the enabled ADC channels.
   * @param  ADC         The ADC peripheral
-  * @return             A bitmask of enabled ADC channels (1 bit per channel).
+  * @return             A bitmask of enabled ADC channels (1 bit per channel)
   */
 __INLINE static ADC_ChannelMask_Type ADC_GetEnabledChannelMask(ADC_Type *ADC)
 {
@@ -219,7 +222,7 @@ __INLINE static ADC_ChannelMask_Type ADC_GetEnabledChannelMask(ADC_Type *ADC)
 
 /** @brief Enable an ADC channel.
   * @param  ADC         The ADC peripheral
-  * @param  Channel     The ADC channel number to enable (single channel).
+  * @param  Channel     The ADC channel number to enable (single channel)
   * @return             None.
   */
 __INLINE static void ADC_EnableChannel(ADC_Type *ADC, ADC_Channel_Type Channel)
@@ -231,7 +234,7 @@ __INLINE static void ADC_EnableChannel(ADC_Type *ADC, ADC_Channel_Type Channel)
 
 /** @brief Disable an ADC channel.
   * @param  ADC         The ADC peripheral
-  * @param  Channel     Channel # to disable (single channel).
+  * @param  Channel     Channel # to disable (single channel)
   * @return             None.
   */
 __INLINE static void ADC_DisableChannel(ADC_Type *ADC, ADC_Channel_Type Channel)
@@ -268,7 +271,7 @@ __INLINE static unsigned int ADC_ChannelIsEnabled(ADC_Type *ADC, unsigned int Ch
   */
 __INLINE static void ADC_SetEnabledITChannelMask(ADC_Type *ADC, ADC_ChannelMask_Type ChannelMask)
 {
-    lpclib_assert(ADC_IS_CHANNEL_MASK(ChannelMask));
+    lpclib_assert(ADC_IS_CHANNELMASK(ChannelMask));
 
     ADC->INTEN = (ADC->INTEN & ~ADC_ADINTEN_Mask) | (ChannelMask << ADC_ADINTEN_Shift);
 }
@@ -346,7 +349,7 @@ __INLINE static ADC_ChannelMask_Type ADC_GetDoneChannelMask(ADC_Type *ADC)
   * @param  Channel     The ADC channel (0 - 7)
   * @return             1 if the channel's conversion is complete, 0 otherwise.
   */
-__INLINE static uint16_t ADC_ChannelIsDone(ADC_Type *ADC, ADC_Channel_Type Channel)
+__INLINE static unsigned int ADC_ChannelIsDone(ADC_Type *ADC, ADC_Channel_Type Channel)
 {
     lpclib_assert(ADC_IS_CHANNEL(Channel));
 
@@ -364,7 +367,7 @@ __INLINE static uint16_t ADC_ChannelIsDone(ADC_Type *ADC, ADC_Channel_Type Chann
   * Overruns occur when a conversion is lost -- a new conversion is made on
   * an ADC channel before the last conversion has been read out by software.
   */
-__INLINE static uint8_t ADC_GetOverrunChannelMask(ADC_Type *ADC)
+__INLINE static ADC_ChannelMask_Type ADC_GetOverrunChannelMask(ADC_Type *ADC)
 {
     return (ADC->STAT & ADC_STATOVERRUN_Mask) >> ADC_STATOVERRUN_Shift;
 }
@@ -377,9 +380,9 @@ __INLINE static uint8_t ADC_GetOverrunChannelMask(ADC_Type *ADC)
   * Overruns occur when a conversion is lost -- a new conversion is made on
   * an ADC channel before the last conversion has been read out by software.
   */
-__INLINE static uint8_t ADC_ChannelIsOverrun(ADC_Type *ADC, ADC_Channel_Type Channel)
+__INLINE static ADC_ChannelMask_Type ADC_ChannelIsOverrun(ADC_Type *ADC, ADC_Channel_Type Channel)
 {
-    return (ADC->STAT & (1 << (Channel + ADC_STATOVERRUN_Shift)) ? 1:0;
+    return (ADC->STAT & (1 << (Channel + ADC_STATOVERRUN_Shift))) ? 1:0;
 }
 
 /** @brief Read the value from a single ADC channel.
@@ -445,7 +448,7 @@ __INLINE static uint32_t ADC_ReadGlobalResult(ADC_Type *ADC)
   * @param  ADC         The ADC peripheral
   * @return             1 if there are interrupts pending, 0 otherwise.
   */
-__INLINE static unsigned int ADC_GetITStatus(ADC_Type *ADC)
+__INLINE static unsigned int ADC_ITIsPending(ADC_Type *ADC)
 {
     return (ADC->STAT & ADC_ADINT) ? 1:0;
 }

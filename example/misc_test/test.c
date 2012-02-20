@@ -1,12 +1,10 @@
 /******************************************************************************
- * @file:    uart_echo_noirq.c
- * @purpose: Example / test program for LPC11xx UART interface
+ * @file:    test.c
+ * @purpose: Basic file for testing compilation of assorted functions.
  * @version: V1.0
  * @author:  Tymm Twillman
  * @date:    1. January 2012
  * @license: Simplified BSD License
- *
- * Echoes characters received on UART.
  *
  ******************************************************************************
  * Copyright (c) 2012, Timothy Twillman
@@ -43,10 +41,23 @@
 #include <stdint.h>
 
 #include "lpc11xx.h"
-#include "lpc11xx/syscon.h"
+#include "lpc11xx/adc.h"
+/*#include "lpc11xx/canopen_api.h"*/
+#include "lpc11xx/crp.h"
+#include "lpc11xx/ct16b.h"
+#include "lpc11xx/ct32b.h"
+#include "lpc11xx/flash.h"
 #include "lpc11xx/gpio.h"
+#include "lpc11xx/i2c.h"
+#include "lpc11xx/iap.h"
 #include "lpc11xx/iocon.h"
+#include "lpc11xx/isr_vector.h"
+#include "lpc11xx/pmu.h"
+/*#include "lpc11xx/power_api.h"*/
+#include "lpc11xx/ssp.h"
+#include "lpc11xx/syscon.h"
 #include "lpc11xx/uart.h"
+#include "lpc11xx/wdt.h"
 #include "system_lpc11xx.h"
 
 
@@ -186,13 +197,81 @@ void init_uart(UART_Type *uart, uint32_t baud)
     UART_Recv(uart);
 }
 
+static inline void test1a(unsigned int val)
+{
+    *((uint32_t *)0x20000000) = val;
+}
+
+static inline void test1b(uint16_t val)
+{
+    *((uint32_t *)0x20000000) = val;
+}
+
+static inline void test1c(uint8_t val)
+{
+    *((uint32_t *)0x20000000) = val;
+}
+
+
+void test1a2()
+{
+    test1a(0xffffffff);
+}
+
+void test1b2()
+{
+    test1b(0xffffffff);
+}
+
+void test1c2()
+{
+    test1c(0xffffffff);
+}
+
+static inline unsigned int test2a()
+{
+    return (*((uint32_t *)0x20000000));
+}
+
+static inline uint8_t test2b()
+{
+    return (*((uint32_t *)0x20000000));
+}
+
+unsigned int test2a2()
+{
+    return test2a();
+}
+
+uint8_t test2b2()
+{
+    return test2b();
+}
+
+
+static inline unsigned int test3a()
+{
+    return (*((uint32_t *)0x20000000) & 0x20) ? 1:0;
+}
+
+static inline uint8_t test3b()
+{
+    return (*((uint32_t *)0x20000000) & 0x20) ? 1:0;
+}
+
+unsigned int test3a2()
+{
+    return test3a();
+}
+
+uint8_t test3b2()
+{
+    return test3b();
+}
 
 /** @brief  Main function for UART example / test program.
   *
   * @return None (never returns).
-  *
-  * Sits in a loop waiting for characters on the given UART, then sends
-  *  a string telling what it got.
   */
 int main(void)
 {

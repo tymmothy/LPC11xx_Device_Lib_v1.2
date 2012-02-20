@@ -19,10 +19,13 @@
  *
  * @note
  * This file does not handle the following necessary steps for CT16B use:
- * - The CT16B's input clock must be enabled
+ * - The CT16B's (AHB/APB/VPB) bus clock line must be enabled
  * - (if using Match or Capture pins) IO Pins must be set up externally
+ * - For interrupt use, an interrupt handler must be declared and
+ *   the CT16B's interrupt line must be enabled in the microcontroller's
+ *   interrupt controller.
  ******************************************************************************
- * @section License License
+ * @section License
  * Licensed under a Simplified BSD License:
  *
  * Copyright (c) 2012, Timothy Twillman
@@ -67,7 +70,7 @@ extern "C" {
 #include <stdint.h>
 
 #include "lpc11xx.h"
-#include "lpc11xx/lib_assert.h"
+#include "lpclib_assert.h"
 
 
 /**
@@ -418,7 +421,7 @@ __INLINE static uint16_t CT16B_GetChannelMatchValue(CT16B_Type *Timer, unsigned 
 __INLINE static void CT16B_SetChannelExtMatchControl(CT16B_Type *Timer, unsigned int Channel, CT16B_ExtMatchControl_Type Control)
 {
     lpclib_assert(Channel <= 3);
-    lpclib_assert(CT16B_IS_EXT_MATCH(Control));
+    lpclib_assert(CT16B_IS_EXT_MATCH_CONTROL(Control));
 
     Timer->EMR = (Timer->EMR & ~(0x03 << ((Channel * 2) + 4))) | (Control << ((Channel * 2) + 4));
 }

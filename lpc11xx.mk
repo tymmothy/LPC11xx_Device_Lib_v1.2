@@ -67,7 +67,8 @@ ifeq ($(filter liblpc11xx.a, $(MAKECMDGOALS)),liblpc11xx.a)
 endif
 
 # For the lpc1100 device library's use
-LPC11XXLIB_FLAGS := -D$(LPC11XX_MODEL) -DF_CPU=$(F_CPU) -DHSE_Val=$(HSE_Val)
+LPC11XXLIB_FLAGS := -D$(LPC11XX_MODEL) -DF_CPU=$(F_CPU) -DHSE_Val=$(HSE_Val) \
+                    -DLPCLIB_DEBUG
 
 # CPU machine flags
 override LPC11XX_MACHINE_FLAGS   += -mlittle-endian -mlong-calls -msoft-float \

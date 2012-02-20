@@ -249,7 +249,7 @@ void SystemInit(void)
     }
 
     /* Make sure we don't exceed flash specs when changing clock speed */
-    FLASH_SetLatency(2);
+    FLASH_SetWaitStates(2);
 
 #if MCUOSC_Val != F_CPU
     /* Configure & connect the system PLL, if desired */
@@ -260,10 +260,10 @@ void SystemInit(void)
     SystemCoreClock = F_CPU;
 
     /* Set flash latency to maximum for running */
-    if (SystemCoreClock <= 20000000UL) {
-        FLASH_SetLatency(0);
-    } else if (SystemCoreClock <= 40000000UL) {
-        FLASH_SetLatency(1);
+    if (SystemCoreClock < 20000000UL) {
+        FLASH_SetWaitStates(0);
+    } else if (SystemCoreClock < 40000000UL) {
+        FLASH_SetWaitStates(1);
     }
 
     SYSCON_SetAHBClockDivider(AHBCLKDIV_Val);

@@ -5,7 +5,13 @@
  * @author   Tymm Twillman
  * @date     1. January 2012
  ******************************************************************************
- * @section License License
+ * @section Overview
+ * This file gives a basic interface to NXP LPC microcontroller
+ * power management units.  It abstracts such things as putting the chip
+ * into sleep / deep power down modes and enabling/disabling hysteresis on the
+ * chip's wakeup pin.
+ ******************************************************************************
+ * @section License
  * Licensed under a Simplified BSD License:
  *
  * Copyright (c) 2012, Timothy Twillman
@@ -92,7 +98,7 @@ __INLINE static uint32_t PMU_DeepPowerDownIsEnabled(void)
   */
 __INLINE static uint8_t PMU_IsInSleepMode(void)
 {
-    return (PMU->PCON & PMU_SLEEPFLAG);
+    return (PMU->PCON & PMU_SLEEPFLAG) ? 1:0;
 }
 
 /** @brief  Test whether the chip is in deep power down mode
@@ -100,7 +106,7 @@ __INLINE static uint8_t PMU_IsInSleepMode(void)
   */
 __INLINE static uint8_t PMU_IsInDeepPowerDownMode(void)
 {
-    return (PMU->PCON & PMU_DPDFLAG);
+    return (PMU->PCON & PMU_DPDFLAG) ? 1:0;
 }
 
 /** @brief  Enable Hysteresis on the Wakeup Pin

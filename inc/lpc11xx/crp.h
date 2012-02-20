@@ -17,7 +17,7 @@
  * linker script(s) used to generate object code to place the CodeProtection
  * variable at the correct place in Flash for CRP to function.
  ******************************************************************************
- * @section License License
+ * @section License
  * Licensed under a Simplified BSD License:
  *
  * Copyright (c) 2012, Timothy Twillman

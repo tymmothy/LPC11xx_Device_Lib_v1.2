@@ -5,7 +5,7 @@
  * @author   Tymm Twillman
  * @date     1. June 2010
  ******************************************************************************
- * @section License License
+ * @section License
  * Licensed under a Simplified BSD License:
  *
  * Copyright (c) 2012, Timothy Twillman

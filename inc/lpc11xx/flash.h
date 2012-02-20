@@ -11,7 +11,7 @@
  * It allows setting of Flash wait states & generating 128-bit signatures
  * of Flash memory ranges.
  ******************************************************************************
- * @section License License
+ * @section License
  * Licensed under a Simplified BSD License:
  *
  * Copyright (c) 2012, Timothy Twillman
@@ -77,7 +77,7 @@ extern "C" {
   *
   * Must have minimum 1 cycle latency @ >=20Mhz; minimum 2 cycles @ >=40Mhz.
   */
-__INLINE static void FLASH_SetLatency(unsigned int Latency)
+__INLINE static void FLASH_SetWaitStates(unsigned int Latency)
 {
     lpclib_assert(Latency <= 2);
 
@@ -87,7 +87,7 @@ __INLINE static void FLASH_SetLatency(unsigned int Latency)
 /** @brief Get the currently configured Flash fetch latency.
   * @return             The number of configured wait states per Flash access.
   */
-__INLINE static unsigned int FLASH_GetLatency(void)
+__INLINE static unsigned int FLASH_GetWaitStates(void)
 {
     return FLASH->FLASHCFG & (FLASH_FLASHTIM_Mask);
 }

@@ -5,7 +5,17 @@
  * @author   Tymm Twillman
  * @date     1. January 2012
  ******************************************************************************
- * @section License License
+ * @section Overview
+ * This file gives a basic interface to the IO configuration block of
+ * NXP LPC11xx microcontrollers.  It abstracts such things as configuring
+ * the peripheral controlling IO pins, enabling pull-up/pull-down resistors,
+ * and enabling digital mode for ADC input pins configured as GPIO.
+ *
+ * @note
+ * This file does not handle the following necessary steps for IOCON use:
+ * - The IOCON (AHB/APB/VPB) bus clock line must be enabled
+ ******************************************************************************
+ * @section License
  * Licensed under a Simplified BSD License:
  *
  * Copyright (c) 2012, Timothy Twillman
@@ -50,7 +60,7 @@ extern "C" {
 #include <stdint.h>
 
 #include "lpc11xx.h"
-#include "lpc11xx/lib_assert.h"
+#include "lpclib_assert.h"
 
 
 /**
@@ -137,7 +147,7 @@ typedef enum {
 
 #if defined(LPC11XXL) /* L-series Parts Only */
 /*! @brief Macro to test whether parameter is a valid (pseudo) Open Drain Pin */
-# define IOCON_IS_OD_PIN(Pin)  (!IOCON_IS_I2C_PIN(Pin))
+# define IOCON_IS_OD_PIN(Pin)  (IOCON_IS_PIN(Pin) && (!IOCON_IS_I2C_PIN(Pin)))
 #endif
 
 /** @} */
@@ -706,7 +716,7 @@ __INLINE static void IOCON_SetDCD0Location(IOCON_DCD0Location_Type Location)
 /** @brief Get Location of UART 0 DCD Pin
   * @return Location of UART DCD Pin
   */
-__INLINE static IOCON_DCDLocation_Type IOCON_GetDCD0Location(void)
+__INLINE static IOCON_DCD0Location_Type IOCON_GetDCD0Location(void)
 {
     return IOCON->DCD0_LOC;
 }
