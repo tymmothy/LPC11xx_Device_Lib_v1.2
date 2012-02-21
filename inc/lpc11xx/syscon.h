@@ -379,7 +379,7 @@ typedef enum {
 #define SYSCON_StartLogicInput_PIO1_0  (1 << 12)           /*!< System start logic input PIO1_0  */
 
 /*! @brief Type for passing start logic input masks */
-typedef uint16_t SYSCON_StartLogicInputs_Type;
+typedef uint32_t SYSCON_StartLogicInputs_Type;
 
 /** @} */
 
@@ -398,7 +398,7 @@ typedef uint16_t SYSCON_StartLogicInputs_Type;
 #define SYSCON_AnalogPowerLine_SysPLL  (1 << 7)            /*!< Power for system PLL             */
 
 /*! @brief Type for passing analog power line control bits */
-typedef uint16_t SYSCON_AnalogPowerLines_Type;
+typedef uint32_t SYSCON_AnalogPowerLines_Type;
 
 /** @} */
 
@@ -642,7 +642,7 @@ __INLINE static uint32_t SYSCON_GetResetSources(void)
   * @param  sources  A bitmask of reset sources to clear
   * @return None.
   */
-__INLINE static void SYSCON_ClearResetSource(uint32_t sources)
+__INLINE static void SYSCON_ClearResetSources(uint32_t sources)
 {
     lpclib_assert((sources & ~SYSCON_SYSRESSTAT_STAT_Mask) == 0);
 
@@ -691,7 +691,7 @@ __INLINE static void SYSCON_EnableSysPLLClockSourceUpdate(void)
   */
 __INLINE static unsigned int SYSCON_SysPLLClockSourceIsUpdated(void)
 {
-    return (((uint16_t)(SYSCON->SYSPLLCLKUEN)) & ((uint16_t)SYSCON_SYSPLLUEN_ENA)) ? 1:0;
+    return (SYSCON->SYSPLLCLKUEN & SYSCON_SYSPLLUEN_ENA) ? 1:0;
 }
 
 /** @brief  Set the system PLL's clock scaler setting.
@@ -810,7 +810,7 @@ __INLINE static unsigned int SYSCON_MainClockSourceIsUpdated(void)
   *
   * Divider must be an integer from 0-255 inclusive (0 == disabled)
   */
-__INLINE static void SYSCON_SetAHBClockDivider(uint32_t Divider)
+__INLINE static void SYSCON_SetAHBClockDivider(unsigned int Divider)
 {
     lpclib_assert((Divider & ~SYSCON_SYSAHBCLKDIV_Mask) == 0);
 
@@ -820,7 +820,7 @@ __INLINE static void SYSCON_SetAHBClockDivider(uint32_t Divider)
 /** @brief  Get the value by which the main clock is divided to feed the AHB clock.
   * @return The current clock divider.
   */
-__INLINE static uint32_t SYSCON_GetAHBClockDivider(void)
+__INLINE static unsigned int SYSCON_GetAHBClockDivider(void)
 {
     return SYSCON->SYSAHBCLKDIV;
 }
@@ -960,7 +960,7 @@ __INLINE static void SYSCON_EnableWDTClockSourceUpdate(void)
   */
 __INLINE static unsigned int SYSCON_WDTClockSourceIsUpdated(void)
 {
-    return (((uint16_t)SYSCON->WDTCLKUEN) & ((uint16_t)SYSCON_WDTCLKUEN_ENA)) ? 1:0;
+    return (SYSCON->WDTCLKUEN & SYSCON_WDTCLKUEN_ENA) ? 1:0;
 }
 
 /** @brief  Set the value by which the watchdog timer's clock input will be divided.
@@ -1116,7 +1116,7 @@ __INLINE static unsigned int SYSCON_BODChipResetIsEnabled(void)
   * @param  Calibration  The new SysTick calibration value (0-4095)
   * @return None.
   */
-__INLINE static void SYSCON_SetSysTickCalibration(uint16_t Calibration)
+__INLINE static void SYSCON_SetSysTickCalibration(uint32_t Calibration)
 {
     lpclib_assert((Calibration & ~SYSCON_SYSTCKCAL_CAL_Mask) == 0);
 
@@ -1126,7 +1126,7 @@ __INLINE static void SYSCON_SetSysTickCalibration(uint16_t Calibration)
 /** @brief  Get the current SysTick calibration value.
   * @return The current SysTick calibration value (0-4095).
   */
-__INLINE static uint16_t SYSCON_GetSysTickCalibration(void)
+__INLINE static uint32_t SYSCON_GetSysTickCalibration(void)
 {
     return SYSCON->SYSTCKCAL;
 }
@@ -1247,13 +1247,13 @@ __INLINE static void SYSCON_EnableAnalogPowerLines(SYSCON_PowerMode_Type PowerMo
 
     if (PowerMode == SYSCON_PowerMode_Sleep) {
         lpclib_assert((PowerLines & ~SYSCON_PDSLEEPCFG_Mask) == 0);
-        SYSCON->PDSLEEPCFG = (SYSCON->PDSLEEPCFG & ~(PowerLines)) | SYSCON_PDSLEEPCFG_Required;
+        SYSCON->PDSLEEPCFG = (SYSCON->PDSLEEPCFG & ~PowerLines) | SYSCON_PDSLEEPCFG_Required;
     } else if (PowerMode == SYSCON_PowerMode_Awake) {
         lpclib_assert((PowerLines & ~SYSCON_PDAWAKECFG_Mask) == 0);
-        SYSCON->PDAWAKECFG = (SYSCON->PDAWAKECFG & ~(PowerLines)) | SYSCON_PDAWAKECFG_Required;
+        SYSCON->PDAWAKECFG = (SYSCON->PDAWAKECFG & ~PowerLines) | SYSCON_PDAWAKECFG_Required;
     } else { /* SYSCON_PowerMode_Run */
         lpclib_assert((PowerLines & ~SYSCON_PDRUNCFG_Mask) == 0);
-        SYSCON->PDRUNCFG = (SYSCON->PDRUNCFG & ~((uint16_t)PowerLines)) | SYSCON_PDRUNCFG_Required;
+        SYSCON->PDRUNCFG = (SYSCON->PDRUNCFG & ~PowerLines) | SYSCON_PDRUNCFG_Required;
     }
 }
 

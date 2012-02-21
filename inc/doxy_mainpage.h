@@ -67,6 +67,8 @@
  * system_lpc11xx.h
  *
  * uart.h
+ * - AutoBaud IT's
+ *
  * power_profiles.h
  *
  * wdt.h

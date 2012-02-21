@@ -933,7 +933,7 @@ typedef struct {
 #define UART_MODE1                     (1 << 1)            /*!< Mode 1 Selected (0 = Mode 0)     */
 #define UART_AUTORESTART               (1 << 2)            /*!< Autobaud Restart on Timeout      */
 #define UART_ABEOIRQCLR                (1 << 8)            /*!< Clear ABEO Interrupt             */
-#define UART_OBTOIRQCLR                (1 << 9)            /*!< Clear ABTO Interrupt             */
+#define UART_ABTOIRQCLR                (1 << 9)            /*!< Clear ABTO Interrupt             */
 
 /** @} */
 

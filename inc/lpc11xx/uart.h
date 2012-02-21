@@ -103,6 +103,11 @@ extern "C" {
 #define UART_IT_AutoBaudEnd            (0x0100)            /*!< End of Auto Baud Int Enable      */
 #define UART_IT_AutoBaudTimeout        (0x0200)            /*!< Auto Baud Timeout Int Enable     */
 
+typedef uint32_t UART_IT_Type;
+
+/*! @brief Macro to test whether parameter is a valid UART interrupt mask value */
+#define UART_IS_IT(IT) (((IT) & ~UART_IT_Mask) == 0)
+
 /** @} */
 
 /** @defgroup UART_ITIDs UART Pending Interrupt ID Values
@@ -230,6 +235,22 @@ typedef enum {
 
 /** @} */
 
+/** @defgroup UART_AutoBaudModes UART AutoBaud Modes
+  * @{
+  */
+
+/*! UART autobaud modes */
+typedef enum {
+    UART_AutoBaudMode_0 = 0x00,                            /*!< Use start bit + LSB for autobaud */
+    UART_AutoBaudMode_1 = 0x02,                            /*!< Use start bit only for autobaud  */
+} UART_AutoBaudMode_Type;
+
+/*! Macro to test whether parameter is a valid AutoBaud mode */
+#define UART_IS_AUTOBAUDMODE(MODE) (((MODE) == UART_AutoBaudMode_0) \
+                                 || ((MODE) == UART_AutoBaudMode_1))
+
+/** @} */
+
 /**
   * @}
   */
@@ -241,123 +262,95 @@ typedef enum {
   * @{
   */
 
-/**
-  * @brief  Receive a Byte via the UART
-  * @param  Uart    Pointer to the UART instance
+/** @brief Receive a byte via an UART.
+  * @param  Uart        A pointer to the UART instance
   * @return None.
+  *
+  * @note
+  * This returns the last byte received by the UART; it does not cause
+  * a transfer to occur.
   */
 __INLINE static uint8_t UART_Recv(UART_Type *Uart)
 {
     return Uart->RBR;
 }
 
-/**
-  * @brief  Send a Byte via the UART
-  * @param  Uart    Pointer to the UART instance
-  * @param  b       Byte to Send
-  * @return None.
+/** @brief Send a byte via an UART.
+  * @param  Uart        A pointer to the UART instance
+  * @param  b           The byte to send
+  * @return             None.
   */
 __INLINE static void UART_Send(UART_Type *Uart, uint8_t b)
 {
     Uart->THR = b;
 }
 
-/**
-  * @brief  Enable UART Interrupts
-  * @param  Uart    Pointer to the UART instance
-  * @param  IT      Interrupts to enable
-  * @return None.
+/** @brief Enable interrupts on an UART.
+  * @param  Uart        A pointer to the UART instance
+  * @param  IT          A bitmask of the interrupts to enable
+  * @return             None.
   */
-__INLINE static void UART_EnableIT(UART_Type *Uart, uint16_t IT)
+__INLINE static void UART_EnableIT(UART_Type *Uart, UART_IT_Type IT)
 {
-    lpclib_assert((IT & ~UART_IT_Mask) == 0);
+    lpclib_assert(UART_IS_IT(IT));
 
     Uart->IER |= IT;
 }
 
-/**
-  * @brief  Disable UART Interrupts
-  * @param  Uart    Pointer to the UART instance
-  * @param  IT      Interrupts to disable
-  * @return None.
+/** @brief Disable interrupts on an UART.
+  * @param  Uart        A pointer to the UART instance
+  * @param  IT          A bitmask of the interrupts to disable
+  * @return             None.
   */
-__INLINE static void UART_DisableIT(UART_Type *Uart, uint16_t IT)
+__INLINE static void UART_DisableIT(UART_Type *Uart, UART_IT_Type IT)
 {
-    lpclib_assert((IT & ~UART_IT_Mask) == 0);
+    lpclib_assert(UART_IS_IT(IT));
 
     Uart->IER &= ~IT;
 }
 
-/**
-  * @brief  Get Enabled UART Interrupts
-  * @param  Uart    Pointer to the UART instance
-  * @return Enabled UART Interrupts
+/** @brief Get a mask of interrupts that are enabled on an UART.
+  * @param  Uart        A pointer to the UART instance
+  * @return             A bitmask of enabled UART interrupts.
   */
-__INLINE static uint16_t UART_GetEnabledIT(UART_Type *Uart)
+__INLINE static UART_IT_Type UART_GetEnabledIT(UART_Type *Uart)
 {
     return Uart->IER;
 }
 
-/**
-  * @brief  Get Pending Interrupt ID's on Uart
-  * @param  Uart    Pointer to the UART instance
-  * @return 16-bit value with bits set indicating pending interrupt IDs
-  *
-  * Bit 0 will be 1 if no interrupts are pending.  Otherwise the following bits
-  *  correspond to pending interrupts:
-  *
-  *  UART_ITID_None: No Interrupt Pending
-  *  UART_ITID_ModemStatus: Modem Status Lines Changed
-  *  UART_ITID_TxEmpty: Transmitter Empty
-  *  UART_ITID_RxDataAvailable: Receiver has Data Available
-  *  UART_ITID_RxLineStatus: Receiver Error / Other RX Status
-  *  UART_ITID_CharacterTimeOut: Rx Character has been waiting some time
+/** @brief Get the ID of the highest pending interrupt on an UART.
+  * @param  Uart        A pointer to the UART instance
+  * @return             The ID of the highest pending interrupt on the UART.
   */
-__INLINE static uint16_t UART_GetPendingITID(UART_Type *Uart)
+__INLINE static UART_ITID_Type UART_GetPendingITID(UART_Type *Uart)
 {
     return (Uart->IIR & UART_INTID_Mask);
 }
 
-/**
-  * @brief  Get Pending Autobaud Interrupts on Uart
-  * @param  Uart    Pointer to the UART instance
-  * @return 16-bit value with bits set indicating pending Autobaud interrupts
-  *
-  *  UART_ITID_ABEO: End of Auto-Baud
-  *  UART_ITID_ABTO: Auto-Baud Timeout
-  */
-__INLINE static uint16_t UART_GetPendingAutoBaudITs(UART_Type *Uart)
-{
-    return Uart->IIR & (UART_IT_ABEO | UART_IT_ABTO);
-}
-
-/**
-  * @brief  Set the Word Length for Bytes Sent/Received via the UART
-  * @param  Uart       Pointer to the UART instance
-  * @param  WordLength Token indicating the word length (of UART_WordLength_Type type)
-  * @return None.
+/** @brief Set the word length for bytes sent/received via an UART.
+  * @param  Uart        A pointer to the UART instance
+  * @param  WordLength  A token representing the new UART word length
+  * @return             None.
   */
 __INLINE static void UART_SetWordLength(UART_Type *Uart, UART_WordLength_Type WordLength)
 {
-    lpclib_assert(UART_IS_WORDSIZE(WordLength));
+    lpclib_assert(UART_IS_WORDLENGTH(WordLength));
 
-    Uart->LCR = (Uart->LCR & ~UART_WORDLEN_Mask) | WordLength;
+    Uart->LCR = (Uart->LCR & ~UART_WORDLEN_Mask) | (WordLength - 5);
 }
 
-/**
-  * @brief  Get the Configured Word Length for Bytes Sent / Received via the UART
-  * @param  Uart     Pointer to the UART instance
-  * @return Token indicating the word length (of UART_WordLength_Type type)
+/** @brief Get the current word length for bytes sent/received via an UART.
+  * @param  Uart        A pointer to the UART instance
+  * @return             A token respresenting the current UART word length.
   */
 __INLINE static UART_WordLength_Type UART_GetWordLength(UART_Type *Uart)
 {
     return (Uart->LCR & UART_WORDLEN_Mask);
 }
 
-/**
-  * @brief  Set the # of Stop Bits for Bytes Sent / Received via the UART
-  * @param  Uart     Pointer to the UART instance
-  * @param  StopBits Token indicating the number of stop bits (of UART_StopBits_Type type)
+/** @brief Set the # of stop bits for bytes sent/received via an UART.
+  * @param  Uart        A pointer to the UART instance
+  * @param  StopBits    A token indicating the number of stop bits
   * @return None.
   */
 __INLINE static void UART_SetStopBits(UART_Type *Uart, UART_StopBits_Type StopBits)
@@ -367,20 +360,18 @@ __INLINE static void UART_SetStopBits(UART_Type *Uart, UART_StopBits_Type StopBi
     Uart->LCR = (Uart->LCR & ~UART_2STOPBITS) | StopBits;
 }
 
-/**
-  * @brief  Get the Configured # of Stop Bits for Bytes Sent / Received via the UART
-  * @param  Uart     Pointer to the UART instance
-  * @return Token representing the # of stop bits
+/** @brief Get the current # of stop bits for bytes sent/received via an UART.
+  * @param  Uart        A pointer to the UART instance
+  * @return             A token representing the current # of stop bits.
   */
 __INLINE static UART_StopBits_Type UART_GetStopBits(UART_Type *Uart)
 {
     return (Uart->LCR & UART_2STOPBITS);
 }
 
-/**
-  * @brief  Get the Configured Parity for Bytes Sent / Received via the UART
-  * @param  Uart     Pointer to the UART instance
-  * @param  Parity   Token indicating type of parity to use (of UART_Parity_Type type)
+/** @brief Set the parity type for bytes sent/received via an UART.
+  * @param  Uart        A pointer to the UART instance
+  * @param  Parity      A token indicating type of parity to use
   * @return None.
   */
 __INLINE static void UART_SetParity(UART_Type *Uart, UART_Parity_Type Parity)
@@ -390,231 +381,227 @@ __INLINE static void UART_SetParity(UART_Type *Uart, UART_Parity_Type Parity)
     Uart->LCR = (Uart->LCR & ~UART_PARITY_Mask) | Parity;
 }
 
-/**
-  * @brief  Get the Configured Parity for Bytes Sent / Received via the UART
-  * @param  Uart     Pointer to the UART instance
-  * @return Token indicating the configured parity type
+/** @brief  Get the current parity type for bytes sent/received via an UART.
+  * @param  Uart        A pointer to the UART instance
+  * @return             A token indicating the current parity type.
   */
 __INLINE static UART_Parity_Type UART_GetParity(UART_Type *Uart)
 {
     return (Uart->LCR & UART_PARITY_Mask);
 }
 
-/**
-  * @brief  Get UART Status Information
-  * @param  Uart     Pointer to the UART instance
-  * @return UART status (from LSR)
+/** @brief Get an UART's line status bits.
+  * @param  Uart        A pointer to the UART instance
+  * @return             The UART's line status bits (9 bits).
   */
-__INLINE static uint8_t UART_GetLineStatus(UART_Type *Uart)
+__INLINE static uint32_t UART_GetLineStatus(UART_Type *Uart)
 {
     return Uart->LSR;
 }
 
-/**
-  * @brief  Enable the UART's Transmitter
-  * @param  Uart     Pointer to the UART instance
-  * @return None.
+/** @brief Get an UART's modem status bits.
+  * @param  Uart        A pointer to the UART instance
+  * @return             The UART's modem status bits (8 bits).
+  */
+__INLINE static uint32_t UART_GetModemStatus(UART_Type *Uart)
+{
+    return Uart->MSR;
+}
+
+/** @brief Enable an UART's transmitter.
+  * @param  Uart        A pointer to the UART instance
+  * @return             None.
   */
 __INLINE static void UART_EnableTx(UART_Type *Uart)
 {
     Uart->TER = UART_TXEN;
 }
 
-/**
-  * @brief  Disable the UART's Transmitter
-  * @param  Uart     Pointer to the UART instance
-  * @return None.
+/** @brief Disable an UART's transmitter.
+  * @param  Uart        A pointer to the UART instance
+  * @return             None.
   */
 __INLINE static void UART_DisableTx(UART_Type *Uart)
 {
     Uart->TER = 0;
 }
 
-/**
-  * @brief  Determine Whether the UART's Transmitter is Enabled
-  * @param  Uart     Pointer to the UART instance
-  * @return 1 if the UART's transmitter is enabled, 0 otherwise
+/** @brief Test whether an UART's transmitter is enabled.
+  * @param  Uart        A pointer to the UART instance
+  * @return             1 if the transmitter is enabled, 0 otherwise.
   */
-__INLINE static uint32_t UART_TxIsEnabled(UART_Type *Uart)
+__INLINE static unsigned int UART_TxIsEnabled(UART_Type *Uart)
 {
     return (Uart->TER & UART_TXEN) ? 1:0;
 }
 
-/**
-  * @brief  Start sending a BREAK condition on the UART's TX line
-  * @param  Uart     Pointer to the UART instance
-  * @return None.
+/** @brief Begin signaling BREAK on an UART's TX line.
+  * @param  Uart        A pointer to the UART instance
+  * @return             None.
+  *
+  * @note
+  * BREAK is signaled by holding the TX line in a '1' state beyond
+  * the length of a frame (generally at least 15 bit periods).  This
+  * function begins the signaling; timing must be done in software.
   */
-__INLINE static void UART_StartBreak(UART_Type *Uart)
+__INLINE static void UART_BeginBreak(UART_Type *Uart)
 {
     Uart->LCR |= UART_BREAK;
 }
 
-/**
-  * @brief  Stop Sending a BREAK Condition on the UART's TX Line & Return to Normal Transmission
-  * @param  Uart     Pointer to the UART instance
-  * @return None.
+/** @brief End signaling BREAK on an UART's TX line.
+  * @param  Uart        A pointer to the UART instance
+  * @return             None.
+  *
+  * @sa UART_BeginBreak
   */
 __INLINE static void UART_EndBreak(UART_Type *Uart)
 {
     Uart->LCR &= ~UART_BREAK;
 }
 
-/**
-  * @brief  Determine Whether the UART is in Break Transmit Mode
-  * @param  Uart     Pointer to the UART instance
-  * @return 1 if the UART is in break mode, 0 otherwise
+/** @brief Test whether an UART is currently signaling BREAK.
+  * @param  Uart        A pointer to the UART instance
+  * @return             1 if the UART is signaling BREAK, 0 otherwise.
+  *
+  * @sa UART_BeginBreak
   */
-__INLINE static uint32_t UART_IsInBreak(UART_Type *Uart)
+__INLINE static unsigned int UART_IsInBreak(UART_Type *Uart)
 {
     return (Uart->LCR & UART_BREAK) ? 1:0;
 }
 
-/**
-  * @brief  Enable the UART's Loopback Mode
-  * @param  Uart     Pointer to the UART instance
-  * @return None.
+/** @brief Enable loopback mode on an UART.
+  * @param  Uart        A pointer to the UART instance
+  * @return             None.
   */
 __INLINE static void UART_EnableLoopback(UART_Type *Uart)
 {
     Uart->MCR |= UART_LOOPBACK;
 }
 
-/**
-  * @brief  Disable the UART's Loopback Mode
-  * @param  Uart     Pointer to the UART instance
-  * @return None.
+/** @brief Disable loopback mode on an UART.
+  * @param  Uart        A pointer to the UART instance
+  * @return             None.
   */
 __INLINE static void UART_DisableLoopback(UART_Type *Uart)
 {
     Uart->MCR &= ~UART_LOOPBACK;
 }
 
-/**
-  * @brief Get State of UART Loopback Mode
-  * @param  Uart     Pointer to the UART instance
-  * @return 1 if in loopback mode, 0 otherwise
+/** @brief Test whether loopback mode is enabled on an UART.
+  * @param  Uart        A pointer to the UART instance
+  * @return             1 if loopback mode is enabled, 0 otherwise.
   */
-__INLINE static uint8_t UART_LoopbackIsEnabled(UART_Type *Uart)
+__INLINE static unsigned int UART_LoopbackIsEnabled(UART_Type *Uart)
 {
     return (Uart->MCR & UART_LOOPBACK) ? 1:0;
 }
 
-/**
-  * @brief Set State of UART DTR Line
-  * @param  Uart     Pointer to the UART instance
-  * @param  Value    Non-zero value sets DTR, zero clears it.
-  * @return None.
+/** @brief Set the state of an UART's DTR line.
+  * @param  Uart        A pointer to the UART instance
+  * @param  State       The new DTR state (non-zero value to set, zero to clear)
+  * @return             None.
   */
-__INLINE static void UART_SetDTR(UART_Type *Uart, unsigned int Value)
+__INLINE static void UART_SetDTR(UART_Type *Uart, unsigned int State)
 {
-    if (Value) {
+    if (State) {
         Uart->MCR |= UART_DTR;
     } else {
         Uart->MCR &= UART_DTR;
     }
 }
 
-/**
-  * @brief Get Current State of UART DTR Line
-  * @param  Uart     Pointer to the UART instance
-  * @return 1 if in DTR is set, 0 otherwise
+/** @brief Get the current state of an UART's DTR Line.
+  * @param  Uart        A pointer to the UART instance
+  * @return             1 if in DTR is set, 0 otherwise.
   */
-__INLINE static uint8_t UART_GetDTR(UART_Type *Uart)
+__INLINE static unsigned int UART_DTRIsSet(UART_Type *Uart)
 {
     return (Uart->MCR & UART_DTR) ? 1:0;
 }
 
-/**
-  * @brief Set State of UART RTS Line
-  * @param  Uart     Pointer to the UART instance
-  * @param  Value    Non-zero to set RTS, zero to clear it.
-  * @return None.
+/** @brief Set the state of an UART's RTS line.
+  * @param  Uart        A pointer to the UART instance
+  * @param  State       The new RTS state (non-zero value to set, zero to clear)
+  * @return             None.
   */
-__INLINE static void UART_SetRTS(UART_Type *Uart, unsigned int Value)
+__INLINE static void UART_SetRTS(UART_Type *Uart, unsigned int State)
 {
-    if (Value) {
+    if (State) {
         Uart->MCR |= UART_RTS;
     } else {
         Uart->MCR &= UART_RTS;
     }
 }
 
-/**
-  * @brief Get Current State of UART RTS Line
-  * @param  Uart     Pointer to the UART instance
-  * @return 1 if in RTS is set, 0 Otherwise
+/** @brief Get the current state of an UART's RTS line.
+  * @param  Uart        A pointer to the UART instance
+  * @return             1 if in RTS is set, 0 otherwise.
   */
 __INLINE static uint8_t UART_GetRTS(UART_Type *Uart)
 {
     return (Uart->MCR & UART_RTS) ? 1:0;
 }
 
-/**
-  * @brief  Enable the UART's Auto RTS Flow Control
-  * @param  Uart     Pointer to the UART instance
-  * @return None.
+/** @brief  Enable automatic RTS flow control on an UART.
+  * @param  Uart        A pointer to the UART instance
+  * @return             None.
   */
 __INLINE static void UART_AutoRTSEnable(UART_Type *Uart)
 {
     Uart->MCR |= UART_RTSENA;
 }
 
-/**
-  * @brief  Disable the UART's Auto RTS Flow Control
-  * @param  Uart     Pointer to the UART instance
-  * @return None.
+/** @brief  Disable automatic RTS flow control on an UART.
+  * @param  Uart        A pointer to the UART instance
+  * @return             None.
   */
 __INLINE static void UART_AutoRTSDisable(UART_Type *Uart)
 {
     Uart->MCR &= ~UART_RTSENA;
 }
 
-/**
-  * @brief Get State of UART Auto RTS Mode
-  * @param  Uart     Pointer to the UART instance
-  * @return 1 if Auto RTS mode is enabled, 0 otherwise
+/** @brief Test whether automatic RTS flow control is enabled on an UART.
+  * @param  Uart        A pointer to the UART instance
+  * @return             1 if automatic RTS flow control is enabled, 0 otherwise.
   */
 __INLINE static uint8_t UART_AutoRTSIsEnabled(UART_Type *Uart)
 {
     return (Uart->MCR & UART_RTSENA) ? 1:0;
 }
 
-/**
-  * @brief  Enable the UART's Auto CTS Flow Control
-  * @param  Uart     Pointer to the UART instance
-  * @return None.
+/** @brief  Enable automatic CTS flow control on an UART.
+  * @param  Uart        A pointer to the UART instance
+  * @return             None.
   */
 __INLINE static void UART_AutoCTSEnable(UART_Type *Uart)
 {
     Uart->MCR |= UART_CTSENA;
 }
 
-/**
-  * @brief  Disable the UART's Auto CTS Flow Control
-  * @param  Uart     Pointer to the UART instance
-  * @return None.
+/** @brief  Disable automatic CTS flow control on an UART.
+  * @param  Uart        A pointer to the UART instance
+  * @return             None.
   */
 __INLINE static void UART_AutoCTSDisable(UART_Type *Uart)
 {
     Uart->MCR &= ~UART_CTSENA;
 }
 
-/**
-  * @brief Get State of UART Auto CTS Mode
-  * @param  Uart     Pointer to the UART instance
-  * @return 1 if Auto CTS mode is enabled, 0 otherwise
+/** @brief Test whether automatic CTS flow control is enabled on an UART.
+  * @param  Uart        A pointer to the UART instance
+  * @return             1 if automatic CTS flow control is enabled, 0 otherwise.
   */
 __INLINE static uint8_t UART_AutoCTSIsEnabled(UART_Type *Uart)
 {
     return (Uart->MCR & UART_CTSENA) ? 1:0;
 }
 
-/**
-  * @brief  Set the Number of Bytes in the UART's Rx FIFO that will Trigger an Interrupt
-  * @param  Uart     Pointer to the UART instance
-  * @param  Trigger  Token indicating number of bytes in the FIFO that will trigger an interrupt
-  * @return None.
+/** @brief Set the number of bytes in an UART's Rx FIFO that will trigger an interrupt.
+  * @param  Uart        A pointer to the UART instance
+  * @param  Trigger     A token indicating the number of bytes in the FIFO that will trigger an interrupt
+  * @return             None.
   */
 __INLINE static void UART_SetRxFifoTrigger(UART_Type *Uart, UART_RxFifoTrigger_Type Trigger)
 {
@@ -623,10 +610,9 @@ __INLINE static void UART_SetRxFifoTrigger(UART_Type *Uart, UART_RxFifoTrigger_T
     Uart->FCR = Trigger | UART_FIFOEN;
 }
 
-/**
-  * @brief  Flush the UART's Receive FIFO
-  * @param  Uart     Pointer to the UART instance
-  * @return None.
+/** @brief Flush an UART's Receive FIFO.
+  * @param  Uart        A pointer to the UART instance
+  * @return             None.
   */
 __INLINE static void UART_FlushRxFifo(UART_Type *Uart)
 {
@@ -634,10 +620,9 @@ __INLINE static void UART_FlushRxFifo(UART_Type *Uart)
                  | UART_FIFOEN | UART_FIFO_RX_RESET;
 }
 
-/**
-  * @brief  Flush the UART's Transmit FIFO
-  * @param  Uart     Pointer to the UART instance
-  * @return None.
+/** @brief Flush an UART's Transmit FIFO.
+  * @param  Uart        A pointer to the UART instance
+  * @return             None.
   */
 __INLINE static void UART_FlushTxFifo(UART_Type *Uart)
 {
@@ -645,37 +630,52 @@ __INLINE static void UART_FlushTxFifo(UART_Type *Uart)
                  | UART_FIFOEN | UART_FIFO_TX_RESET;
 }
 
-/**
-  * @brief  Enable the UART's FIFOs
-  * @param  Uart     Pointer to the UART instance
-  * @return None.
+/** @brief Flush an UART's (Rx & Tx) FIFOs.
+  * @param  Uart        A pointer to the UART instance
+  * @return             None.
+  */
+__INLINE static void UART_FlushFifos(UART_Type *Uart)
+{
+    Uart->FCR = (Uart->IIR & UART_FIFO_Mask)
+                 | UART_FIFOEN | UART_FIFO_TX_RESET | UART_FIFO_RX_RESET;
+}
+
+/** @brief Enable an UART's FIFOs.
+  * @param  Uart        A pointer to the UART instance
+  * @return             None.
   *
-  * According to the datasheet, the FIFOs should never be disabled for proper operation.
-  * This will clear the RX Trigger, setting it back to 1 character.
+  * @note
+  * FIFOs should be enabled during normal use (according to the datasheet,
+  * enabling the FIFOs is necessary for proper operation).
   */
 __INLINE static void UART_EnableFifos(UART_Type *Uart)
 {
     Uart->FCR = UART_FIFOEN;
 }
 
-/**
-  * @brief  Disable the UART's FIFOs
-  * @param  Uart     Pointer to the UART instance
-  * @return None.
+/** @brief Disable an UART's FIFOs.
+  * @param  Uart        A pointer to the UART instance
+  * @return             None.
   *
-  * According to the datasheet, the FIFOs should never be disabled for proper operation.
-  * This will clear the RX Trigger, setting it back to 1 character.
+  * @note
+  * FIFOs should not be disabled during normal use.
+  *
+  * Disabling FIFOS will:
+  * - Clear the RX Trigger, setting it back to 1 character.
+  * - Flush the FIFOs.
   */
 __INLINE static void UART_DisableFifos(UART_Type *Uart)
 {
     Uart->FCR = 0;
 }
 
-/**
-  * @brief  Set the UART's Divisor for Bit Timing
-  * @param  Uart     Pointer to the UART instance
-  * @param  Divisor  The number of prescaled UART clocks per bit (16 bits)
-  * @return None.
+/** @brief Set an UART's baud rate divisor.
+  * @param  Uart        A pointer to the UART instance
+  * @param  Divisor     The number of prescaled UART clocks per bit (16 bits)
+  * @return             None.
+  *
+  * @note
+  * A divisor of 0 is treated as a divisor of 1.
   */
 __INLINE static void UART_SetDivisor(UART_Type *Uart, uint16_t Divisor)
 {
@@ -685,10 +685,9 @@ __INLINE static void UART_SetDivisor(UART_Type *Uart, uint16_t Divisor)
     Uart->LCR &= ~UART_DLAB;
 }
 
-/**
-  * @brief  Get the Current UART Divisor for Bit Timing
-  * @param  Uart     Pointer to the UART instance
-  * @return The configured # of prescaled UART clocks per bit
+/** @brief Get an UART's current baud rate divisor.
+  * @param  Uart        A pointer to the UART instance
+  * @return             The configured # of prescaled UART clocks per bit.
   */
 __INLINE static uint16_t UART_GetDivisor(UART_Type *Uart)
 {
@@ -700,6 +699,126 @@ __INLINE static uint16_t UART_GetDivisor(UART_Type *Uart)
     Uart->LCR &= ~UART_DLAB;
 
     return Divisor;
+}
+
+/** @brief Start autobaud on an UART.
+  * @param  Uart        A pointer to the UART instance
+  * @return             None.
+  *
+  * @note
+  * Autobaud running flag will automatically clear when autobaud has
+  * completed.
+  */
+__INLINE static void UART_BeginAutoBaud(UART_Type *Uart)
+{
+    Uart->ACR |= UART_AUTOBAUD;
+}
+
+/** @brief End autobaud on an UART.
+  * @param  Uart        A pointer to the UART instance
+  * @return             None.
+  *
+  * @sa UART_BeginAutobaud
+  */
+__INLINE static void UART_EndAutoBaud(UART_Type *Uart)
+{
+    Uart->ACR &= ~UART_AUTOBAUD;
+}
+
+/** @brief Test whether an UART's autobaud is active.
+  * @param  Uart        A pointer to the UART instance
+  * @return             None.
+  *
+  * @sa UART_BeginAutobaud
+  */
+__INLINE static void UART_AutoBaudIsRunning(UART_Type *Uart)
+{
+    return (Uart->ACR & UART_AUTOBAUD) ? 1:0;
+}
+
+/** @brief Set an UART's autobaud mode.
+  * @param  Uart        A pointer to the UART instance
+  * @param  Mode        The new autobaud mode.
+  * @return             None.
+  *
+  * @sa UART_BeginAutoBaud
+  */
+__INLINE static void UART_SetAutoBaudMode(UART_Type *Uart, UART_AutoBaudMode_Type Mode)
+{
+    lpclib_assert(UART_IS_AUTOBAUDMODE(Mode));
+
+    Uart->ACR = (UART->ACR & ~UART_MODE1) | Mode;
+}
+
+/** @brief Get an UART's current autobaud mode.
+  * @param  Uart        A pointer to the UART instance
+  * @return             The current autobaud mode of the UART
+  *
+  * @sa UART_BeginAutoBaud
+  */
+__INLINE static UART_AutoBaudMode_Type UART_GetAutoBaudMode(UART_Type *Uart)
+{
+    return UART->ACR & UART_MODE1;
+}
+
+/** @brief Enable autobaud auto-restart on an UART.
+  * @param  Uart        A pointer to the UART instance
+  * @return             None.
+  *
+  * @sa UART_BeginAutoBaud
+  *
+  * @note
+  * Autobaud autorestart causes the autobaud function to re-start
+  * in case of timeout.
+  */
+__INLINE static void UART_EnableAutoBaudAutoRestart(UART_Type *Uart)
+{
+    Uart->ACR |= UART_AUTORESTART;
+}
+
+/** @brief Disable autobaud auto-restart on an UART.
+  * @param  Uart        A pointer to the UART instance
+  * @return             None.
+  *
+  * @sa UART_BeginAutoBaud
+  * @sa UART_EnableAutoBaudAutoRestart
+  */
+__INLINE static void UART_DisableAutoBaudAutoRestart(UART_Type *Uart)
+{
+    Uart->ACR &= ~UART_AUTORESTART;
+}
+
+/** @brief Get an UART's current autobaud mode.
+  * @param  Uart        A pointer to the UART instance
+  * @return             The current autobaud mode of the UART
+  *
+  * @sa UART_BeginAutoBaud
+  * @sa UART_EnableAutoBaudAutoRestart
+  */
+__INLINE static unsigned int UART_AutoBaudAutoRestartIsEnabled(UART_Type *Uart)
+{
+    return (UART->ACR & UART_AUTORESTART) ? 1:0;
+}
+
+/** @brief Get a bitmask of pending autobaud interrupts on an UART.
+  * @param  Uart        A pointer to the UART instance
+  * @return             A bitmask of pending autobaud interrupts.
+  */
+__INLINE static uint32_t UART_GetPendingAutoBaudITs(UART_Type *Uart)
+{
+    return Uart->IIR & (UART_IT_ABEO | UART_IT_ABTO);
+}
+
+/** @brief Clear pending autobaud interrupts on an UART.
+  * @param  Uart        A pointer to the UART instance
+  * @param  IT          A bitmask of autobaud interrupts to clear
+  * @return             None.
+  */
+__INLINE static void UART_ClearPendingAutobaudITs(UART_Type *Uart, UART_Autobaud_IT_Type IT)
+{
+    lpclib_assert(UART_IS_AUTOBAUDIT(IT));
+
+    Uart->ACR |= IT;
 }
 
 /**
