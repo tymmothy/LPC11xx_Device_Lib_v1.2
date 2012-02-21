@@ -12,9 +12,9 @@
  * @note
  * This file does not handle the following necessary steps for WDT use:
  * - If the WDT oscillator is used as the input clock, its speed must be
- *   set and power enabled, and its clock input divider configured.
- * - The WDT's input clock must be set and its divider configured.
+ *   set and power enabled, and its divider configured.
  * - The WDT's (AHB/APB/VPB) bus clock must be enabled.
+ * - The WDT's input clock must be set and its divider configured.
  ******************************************************************************
  * @section License License
  * Licensed under a Simplified BSD License:
@@ -93,64 +93,73 @@ extern "C" {
   * @{
   */
 
-/** @brief  Enable the Watchdog Timer (cannot be cleared w/o reset)
+/** @brief  Enable the watchdog timer.
   * @return None.
+  *
+  * @note
+  * - Once enabled, the watchdog timer cannot be disabled without a chip reset.
+  * - As a side-effect, this will clear the watchdog's "timed out" flag.  You probably want this.
+  * - On L-series (LPC11xxL) parts, this will also lock the watchdog's clock source.
   */
 __INLINE static void WDT_Enable(void)
 {
     WDT->MOD |= WDT_WDEN;
 }
 
-/** @brief  Determine Whether the Watchdog Timer is Enabled
-  * @return 1 if the WDT is enabled, 0 otherwise
+/** @brief  Test whether the watchdog timer is enabled.
+  * @return             1 if the WDT is enabled, 0 otherwise.
   */
 __INLINE static uint32_t WDT_IsEnabled(void)
 {
     return (WDT->MOD & WDT_WDEN) ? 1:0;
 }
 
-/** @brief  Enable WDT Resetting the Chip (cannot be cleared w/o reset)
+/** @brief  Enable watchdog timer chip reset on timeout.
   * @return None.
+  *
+  * @note
+  * - Once enabled, watchdog timer chip resetting cannot be disabled without a chip reset.
+  * - As a side-effect, this will clear the watchdog's "timed out" flag.  You probably want this.
   */
 __INLINE static void WDT_EnableChipReset(void)
 {
    WDT->MOD |= WDT_WDRESET;
 }
 
-/** @brief  Determine Whether the Watchdog Chip Reset is Enabled
-  * @return 1 if the WDT Chip Reset is enabled, 0 otherwise
+/** @brief  Test whether the watchdog timer's chip reset mode is enabled.
+  * @return             1 if chip resetting is enabled, 0 otherwise.
   */
 __INLINE static uint32_t WDT_ChipResetIsEnabled(void)
 {
     return (WDT->MOD & WDT_WDRESET) ? 1:0;
 }
 
-/** @brief Check Whether the Watchdog Timer has Timed Out
-  * @return 1 if the timer has timed out, 0 otherwise.
+/** @brief Test whether the watchdog timer has timed out.
+  * @return             1 if the watchdog timer has timed out, 0 otherwise.
   */
-__INLINE static uint8_t WDT_TimedOut(void)
+__INLINE static uint8_t WDT_IsTimedOut(void)
 {
     return (WDT->MOD & WDT_WDTOF) ? 1:0;
 }
 
-/** @brief Check Whether the Watchdog Timer Interrupt is Pending
-  * @return 1 if the timer interrupt is pending, 0 otherwise
+/** @brief Test whether the watchdog timer interrupt is pending.
+  * @return             1 if the timer interrupt is pending, 0 otherwise.
   */
 __INLINE static uint8_t WDT_ITIsPending(void)
 {
     return (WDT->MOD & WDT_WDINT) ? 1:0;
 }
 
-/** @brief Get the Current Value of the Watchdog Timer
-  * @return Current value of the watchdog timer
+/** @brief Get the current value of the watchdog timer's counter.
+  * @return             The current value of the watchdog timer's counter.
   */
 __INLINE static uint32_t WDT_GetCurrentValue(void)
 {
     return WDT->TV;
 }
 
-/** @brief Feed the Watchdog Timer (load the timer constant)
-  * @return None.
+/** @brief Feed the watchdog timer (load the timer constant).
+  * @return             None.
   *
   * This is necessary to load the current value in the Timer Constant
   *  register as the watchdog's Timer Reload value.  This is also necessary
@@ -161,30 +170,108 @@ __INLINE static void WDT_Feed(void)
 {
     uint32_t primask;
 
-    __asm__ __volatile__ ("    mrs    %0, primask":"=r"(primask));
 
+    __asm__ __volatile__ ("    mrs    %0, primask":"=r"(primask));
     __disable_irq();
     WDT->FEED = WDT_Feed_A;
     WDT->FEED = WDT_Feed_B;
     __asm__ __volatile__ ("    msr    primask, %0"::"r"(primask));
 }
 
-/** @brief Set the Watchdog's Timeout Constant (value that gets reloaded)
-  * @param  Timeout  Number of watchdog ticks before the watchdog times out
+/** @brief Set the watchdog's timeout constant.
+  * @param  Timeout  Number of watchdog ticks before the watchdog times out (range 0-16777215)
   * @return None.
+  *
+  * @note The watchdog timer's timeout constant is the number of watchdog ticks before
+  * the watchdog timer times out (and interrupts or resets the microcontroller).  It is reloaded
+  * into the watchdog timer's time value whenever a watchdog feed occurs.
+  *
+  * @sa WDT_Feed
   */
 __INLINE static void WDT_SetTimeout(uint32_t Timeout)
 {
+    lpclib_assert((Timeout & ~WDT_TC_Mask) == 0);
+
     WDT->TC = Timeout;
 }
 
-/** @brief Get the Reload Value of the Watchdog Timer
-  * @return Reload value of the timer
+/** @brief Get the watchdog timer's current timeout constant.
+  * @return             The current timeout constant value of the watchdog timer.
+  *
+  * @sa WDT_SetTimeout
   */
 __INLINE static uint32_t WDT_GetTimeout(void)
 {
     return WDT->TC;
 }
+
+
+#if defined(LPC11XXL)  /* L-series parts have windowed watchdog timer with additional features */
+
+/** @brief Restrict WDT counter reloading to timer values between WINDOW value and 0.
+  * @return             None.
+  *
+  * @note
+  * - Window mode cannot be cleared without resetting the chip.
+  * - As a side-effect, this will clear the watchdog's "timed out" flag.
+  *
+  * Windowed mode is meant to be used with the reset function of the WDT enabled.  In windowed
+  * mode, a WDT feed will only be allowed between the time the WDT's counter reaches the window
+  * value and 0; any feeds before this point will cause a chip reset.
+  */
+__INLINE static void WDT_EnableWindow(void)
+{
+    WDT->MOD |= WDT_WDPROTECT;
+}
+
+/** @brief Set the watchdog's 10-bit warning interrupt match value.
+  * @param Count        Value on which match of WDT counter will generate an interrupt (0-1023).
+  * @return             None.
+  *
+  * The warning interrupt is generated when the WDT counter's upper 14 bits are all 0 and the
+  * bottom 10 bits match the warning interrupt count value.
+  */
+__INLINE static void WDT_SetWarningITCount(uint16_t Count)
+{
+    lpclib_assert((Count & ~WDT_WARNINT_Mask) == 0);
+
+    WDT->WARNING = Count;
+}
+
+/** @brief Get the watchdog's current 10-bit warning interrupt match value.
+  * @return            The current WDT warning interrupt match value.
+  *
+  * @sa WDT_SetWarningITCount
+  */
+__INLINE static uint16_t WDT_GetWarningITCount(void)
+{
+    return WDT->WARNING;
+}
+
+/** @brief Set the maximum allowed WDT count value for feeding the WDT.
+  * @param Window       The new maximum allowed count value for feeding the WDT.
+  * @return             None.
+  *
+  * @sa WDT_EnableWindow
+  */
+__INLINE static void WDT_SetWindow(uint32_t Window)
+{
+    lpclib_assert((Window & ~WDT_WINDOW_Mask) == 0);
+
+    WDT->WINDOW = Window;
+}
+
+/** @brief Get the current maximum allowed WDT count value for feeding the WDT.
+  * @return             The current maximum allowed WDT count for feeding the WDT.
+  *
+  * @sa WDT_EnableWindow
+  */
+__INLINE static void WDT_GetWindow(void)
+{
+    return WDT->WINDOW;
+}
+
+#endif /* #if defined(LPC11XXL) */
 
 /**
   * @}

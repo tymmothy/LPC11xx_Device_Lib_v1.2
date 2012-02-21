@@ -537,7 +537,7 @@ __INLINE static void IOCON_DisablePinHysteresis(IOCON_Pin_Type Pin)
   * @param  Pin      ID of the pin for which to get the function
   * @return The Configured Pin Function
   */
-__INLINE uint32_t IOCON_PinHysteresisIsEnabled(IOCON_Pin_Type Pin)
+__INLINE unsigned int IOCON_PinHysteresisIsEnabled(IOCON_Pin_Type Pin)
 {
     return (((__IO uint32_t *)IOCON)[Pin] & IOCON_HYS) ? 1:0;
 }
@@ -659,7 +659,7 @@ __INLINE static void IOCON_DisablePinOpenDrainMode(IOCON_Pin_Type Pin)
   * @param  Pin     Pin which to check for Analog Mode
   * @return 1 if AD mode is enabled on the pin, 0 otherwise
   */
-__INLINE static uint8_t IOCON_PinAnalogModeIsEnabled(IOCON_Pin_Type Pin)
+__INLINE static unsigned int IOCON_PinAnalogModeIsEnabled(IOCON_Pin_Type Pin)
 {
     lpclib_assert(IOCON_IS_AD_PIN(Pin));
 

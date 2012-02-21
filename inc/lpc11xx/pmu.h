@@ -88,7 +88,7 @@ __INLINE static void PMU_DisableDeepPowerDown(void)
 /** @brief  Determine Whether Deep Power Down Mode is Enabled
   * @return 1 if DPD Mode is enabled, 0 otherwise
   */
-__INLINE static uint32_t PMU_DeepPowerDownIsEnabled(void)
+__INLINE static unsigned int PMU_DeepPowerDownIsEnabled(void)
 {
     return (PMU->PCON & PMU_DPDEN) ? 1:0;
 }
@@ -96,7 +96,7 @@ __INLINE static uint32_t PMU_DeepPowerDownIsEnabled(void)
 /** @brief  Test whether the chip is in sleep mode
   * @return 1 if the CPU is in sleep mode, 0 otherwise.
   */
-__INLINE static uint8_t PMU_IsInSleepMode(void)
+__INLINE static unsigned int PMU_IsInSleepMode(void)
 {
     return (PMU->PCON & PMU_SLEEPFLAG) ? 1:0;
 }
@@ -104,7 +104,7 @@ __INLINE static uint8_t PMU_IsInSleepMode(void)
 /** @brief  Test whether the chip is in deep power down mode
   * @return 1 if the CPU is in deep power down mode, 0 otherwise.
   */
-__INLINE static uint8_t PMU_IsInDeepPowerDownMode(void)
+__INLINE static unsigned int PMU_IsInDeepPowerDownMode(void)
 {
     return (PMU->PCON & PMU_DPDFLAG) ? 1:0;
 }
@@ -128,7 +128,7 @@ __INLINE static void PMU_DisableWakeupHysteresis(void)
 /** @brief Test whether hysteresis is enabled on the wakeup pin
   * @return 1 if hysteresis is enabled on the wakeup pin, 0 otherwise.
   */
-__INLINE static uint8_t PMU_WakeupHysteresisIsEnabled(void)
+__INLINE static unsigned int PMU_WakeupHysteresisIsEnabled(void)
 {
     return (PMU->GPREG4 & PMU_WAKEUPHYS) ? 1:0;
 }

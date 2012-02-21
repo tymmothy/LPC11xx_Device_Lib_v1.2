@@ -439,7 +439,7 @@ __INLINE static void SSP_SetClockPolarity(SSP_Type *SSP, SSP_ClockPolarity_Type 
 }
 
 /** @brief Set the Clock Phase on which Eata is Latched on SSP
-  * @param  SSP       The SSP device to set clock phase on
+  * @param  SSP       The SSP device
   * @param  Phase     Token indicating clock line phase on idle (A or B)
   * @return None.
   *
@@ -452,20 +452,25 @@ __INLINE static void SSP_SetClockPhase(SSP_Type *SSP, SSP_ClockPhase_Type Phase)
     SSP->CR0 = (SSP->CR0 & ~(SSP_CPHA)) | Phase;
 }
 
-/** @brief Set # of Prescaler Counts per Bit for an SSP, Minus 1 (0 means 1 clock)
-  * @param  SSP         The SSP device to set clock rate on
-  * @param  Clocks      # of clocks between 0 & 255.  Bit freq = PCLK / (CPSDVSR * (SCR + 1))
+/** @brief Set # of Prescaler Counts per Bit for an SSP
+  * @param  SSP         The SSP device
+  * @param  Clocks      # of clocks between 1 & 256
   * @return None.
+  *
+  * @note
+  * - This function takes the actual # of clocks, and subtracts 1 for setting the register value.
+  * - Final bit frequency = PCLK / (CPSDVSR * (SCR + 1)).
   */
 __INLINE static void SSP_SetClockRate(SSP_Type *SSP, unsigned int Clocks)
 {
-    lpclib_assert(Clocks <= 255);
-    SSP->CR0 = (SSP->CR0 & ~(SSP_SCR_Mask)) | (Clocks << SSP_SCR_Shift);
+    lpclib_assert((Clocks > 0) && (Clocks <= 256));
+
+    SSP->CR0 = (SSP->CR0 & ~(SSP_SCR_Mask)) | ((Clocks - 1) << SSP_SCR_Shift);
 }
 
 /** @brief Set # of PCLK Counts per SSP Prescaler Count for an SSP
   * @param  SSP         The SSP device to set clock phase on
-  * @param  Prescaler   Even prescaler count between 2 & 254
+  * @param  Prescaler   The new prescaler count (an even number; 2 <= n <= 254)
   * @return None.
   */
 __INLINE static void SSP_SetClockPrescaler(SSP_Type *SSP, unsigned int Prescaler)

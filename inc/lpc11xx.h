@@ -197,12 +197,19 @@ typedef struct {
   * @{
   */
 
-/*! @brief Watchdog Timer Register Map */
+/*! @brief Watchdog Timer Register Map (LPC11XXL)*/
 typedef struct {
     __IO    uint32_t    MOD;           /*!< Offset: 0x000  Watchdog Mode Register                */
     __IO    uint32_t    TC;            /*!< Offset: 0x004  Timer Constant Register               */
     __O     uint32_t    FEED;          /*!< Offset: 0x008  Feed Sequence Register                */
     __I     uint32_t    TV;            /*!< Offset: 0x00c  Timer Value Register                  */
+
+#if defined(LPC11XXL)  /* L-Series parts have windowed WDT with the following added registers    */
+            uint32_t      Reserved4[1];                                          /*!< (Reserved) */
+    __IO    uint32_t    WARNINT;       /*!< Offset: 0x014  Watchdog Warn Interrupt Compare Value */
+    __IO    uint32_t    WINDOW;        /*!< Offset: 0x018  Timer Window Register                 */
+#endif
+
 } WDT_Type;
 
 /** @} */
@@ -707,13 +714,17 @@ typedef struct {
 #define WDT_WDTOF                      (1 << 2)            /*!< Watchdog Timeout Flag (SW clear) */
 #define WDT_WDINT                      (1 << 3)            /*!< Watchdog Interrupt Flag (RO)     */
 
+#if defined(LPC11XXL)  /* L-series parts have windowed WDT with extra features */
+# define WDT_WDPROTECT                 (1 << 4)            /*!< Reload value protection mode     */
+#endif
+
 /** @} */
 
 /** @addtogroup WDT_TC_Bit_Definitions TC: Watchdog Timer Constant Register
   * @{
   */
 
-#define WDT_TC_Mask                    (0x0fff)            /*!< Usable bits in TC register       */
+#define WDT_TC_Mask                    (0x00ffffffUL)      /*!< Usable bits in TC register       */
 
 /** @} */
 
@@ -721,9 +732,27 @@ typedef struct {
   * @{
   */
 
-#define WDT_TV_Mask                    (0x0fff)            /*!< Usable bits in TV register       */
+#define WDT_TV_Mask                    (0x00ffffffUL)      /*!< Usable bits in TV register       */
 
 /** @} */
+
+#if defined(LPC11XXL)   /* L-series parts have windowed WDT with extra features
+/** @addtogroup WDT_WARNINT_Bit_Definitions WARNINT: Watchdog Timer Warning Interrupt Register
+  * @{
+  */
+
+#define WDT_WARNINT_Mask               (0x03ff)            /*!< Warning Interrupt Compare Value  */
+
+/** @} */
+
+/** @addtogroup WDT_WINDOW_Bit_Definitions WINDOW: Watchdog Timer Window Timer Register
+  * @{
+  */
+
+#define WDT_WINDOW_Mask                (0x00ffffffUL)      /*!< Window Value                     */
+
+/** @} */
+#endif /* #if defined(LPC11XXL) */
 
 /**
   * @}

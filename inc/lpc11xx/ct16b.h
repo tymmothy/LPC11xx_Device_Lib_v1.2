@@ -20,7 +20,7 @@
  * @note
  * This file does not handle the following necessary steps for CT16B use:
  * - The CT16B's (AHB/APB/VPB) bus clock line must be enabled
- * - (if using Match or Capture pins) IO Pins must be set up externally
+ * - (if using Match or Capture pins) IO Pins must be set up
  * - For interrupt use, an interrupt handler must be declared and
  *   the CT16B's interrupt line must be enabled in the microcontroller's
  *   interrupt controller.
@@ -213,7 +213,7 @@ __INLINE static void CT16B_Disable(CT16B_Type *Timer)
   * @param  Timer       The timer
   * @return             1 if the timer/counter is enabled, 0 otherwise.
   */
-__INLINE static uint8_t CT16B_IsEnabled(CT16B_Type *Timer)
+__INLINE static unsigned int CT16B_IsEnabled(CT16B_Type *Timer)
 {
     return (Timer->TCR & CT16B_CE) ? 1:0;
 }
@@ -226,6 +226,7 @@ __INLINE static uint8_t CT16B_IsEnabled(CT16B_Type *Timer)
 __INLINE static void CT16B_SetMode(CT16B_Type *Timer, CT16B_Mode_Type Mode)
 {
     lpclib_assert(CT16B_IS_MODE(Mode));
+
     Timer->CTCR = Mode;
 }
 
@@ -259,7 +260,7 @@ __INLINE static void CT16B_DeassertReset(CT16B_Type *Timer)
 /** @brief Test whether a timer is being held in reset.
   * @return             1 if the timer is being held in reset, 0 otherwise.
   */
-__INLINE static uint8_t CT16B_ResetIsAsserted(CT16B_Type *Timer)
+__INLINE static unsigned int CT16B_ResetIsAsserted(CT16B_Type *Timer)
 {
     return (Timer->TCR & CT16B_CR) ? 1:0;
 }
@@ -268,7 +269,7 @@ __INLINE static uint8_t CT16B_ResetIsAsserted(CT16B_Type *Timer)
   * @param  Timer       The timer
   * @return             A bitmask of pending interrupts.
   */
-__INLINE static uint8_t CT16B_GetPendingIT(CT16B_Type *Timer)
+__INLINE static uint32_t CT16B_GetPendingIT(CT16B_Type *Timer)
 {
     return Timer->IR;
 }
@@ -278,7 +279,7 @@ __INLINE static uint8_t CT16B_GetPendingIT(CT16B_Type *Timer)
   * @param  Interrupts  A bitmask of pending interrupts to clear
   * @return             None.
   */
-__INLINE static void CT16B_ClearPendingIT(CT16B_Type *Timer, uint8_t Interrupts)
+__INLINE static void CT16B_ClearPendingIT(CT16B_Type *Timer, uint32_t Interrupts)
 {
     lpclib_assert((Interrupts & ~CT16B_IT_Mask) == 0);
     Timer->IR = Interrupts;
@@ -364,7 +365,7 @@ __INLINE static uint16_t CT16B_GetPrescalerCount(CT16B_Type *Timer)
   * @param  Control     A bitmask of actions to take on a count match
   * @return             None.
   */
-__INLINE static void CT16B_SetChannelMatchControl(CT16B_Type *Timer, unsigned int Channel, uint8_t Control)
+__INLINE static void CT16B_SetChannelMatchControl(CT16B_Type *Timer, unsigned int Channel, uint32_t Control)
 {
     lpclib_assert(Channel <= 3);
     lpclib_assert((Control & ~CT16B_MatchControl_Mask) == 0);
@@ -372,12 +373,12 @@ __INLINE static void CT16B_SetChannelMatchControl(CT16B_Type *Timer, unsigned in
     Timer->MCR = (Timer->MCR & ~(0x07 << (Channel * 3))) | (Control << (Channel * 3));
 }
 
-/** @brief Set the actions that will happen on a timer's count matching a match register.
+/** @brief Get the actions that will happen on a timer's count matching a match register.
   * @param  Timer       The timer
   * @param  Channel     The timer's channel for which to get actions
   * @return             A bitmask of actions taken on a count match.
   */
-__INLINE static uint8_t CT16B_GetChannelMatchControl(CT16B_Type *Timer, unsigned int Channel)
+__INLINE static uint32_t CT16B_GetChannelMatchControl(CT16B_Type *Timer, unsigned int Channel)
 {
     lpclib_assert(Channel <= 3);
 
@@ -461,7 +462,7 @@ __INLINE static void CT16B_SetChannelExtMatchBit(CT16B_Type *Timer, unsigned int
   * @param  Channel     The timer's channel
   * @return             The external match bit value for the specified timer's channel.
   */
-__INLINE static uint8_t CT16B_GetChannelExtMatchBit(CT16B_Type *Timer, unsigned int Channel)
+__INLINE static unsigned int CT16B_GetChannelExtMatchBit(CT16B_Type *Timer, unsigned int Channel)
 {
     lpclib_assert(Channel <= 3);
 
@@ -506,7 +507,7 @@ __INLINE static void CT16B_DisableChannelPWM(CT16B_Type *Timer, unsigned int Cha
   * If enabled, a PWM channel controls the external match pin / bit; if disabled,
   *  it's under external match control.
   */
-__INLINE static uint8_t CT16B_ChannelPWMIsEnabled(CT16B_Type *Timer, unsigned int Channel)
+__INLINE static unsigned int CT16B_ChannelPWMIsEnabled(CT16B_Type *Timer, unsigned int Channel)
 {
     lpclib_assert(Channel <= 3);
 
@@ -521,7 +522,7 @@ __INLINE static uint8_t CT16B_ChannelPWMIsEnabled(CT16B_Type *Timer, unsigned in
   *
   * MUST be CT16B_CaptureControl_None if counter mode is selected on timer.
   */
-__INLINE static void CT16B_SetCaptureControl(CT16B_Type *Timer, unsigned int Channel, uint8_t Control)
+__INLINE static void CT16B_SetCaptureControl(CT16B_Type *Timer, unsigned int Channel, uint32_t Control)
 {
 #ifdef LPC11XX
     /* LPC11xx has only one capture channel */
@@ -541,7 +542,7 @@ __INLINE static void CT16B_SetCaptureControl(CT16B_Type *Timer, unsigned int Cha
   * @param  Channel     The channel on the timer
   * @return             A bitmask of configuration bits for the specified channel.
   */
-__INLINE static uint8_t CT16B_GetCaptureControl(CT16B_Type *Timer, unsigned int Channel)
+__INLINE static uint32_t CT16B_GetCaptureControl(CT16B_Type *Timer, unsigned int Channel)
 {
 #ifdef LPC11XX
     /* LPC11xx has only one capture channel */
@@ -569,7 +570,7 @@ __INLINE static uint16_t CT16B_GetCaptureValue(CT16B_Type *Timer, unsigned int C
     lpclib_assert(Channel <= 3);
 #endif
 
-    return ((uint16_t *)&(Timer->CR0))[Channel];
+    return (&(Timer->CR0))[Channel];
 }
 
 /**
