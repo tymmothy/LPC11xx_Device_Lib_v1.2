@@ -82,14 +82,8 @@ extern "C" {
   * @{
   */
 
-/*! @brief Type for passing around single ADC Channels */
-typedef unsigned int ADC_Channel_Type;
-
 /*! @brief Number of input channels per ADC */
 #define ADC_NUM_CHANNELS               (7)                 /*!< Number of channels per ADC       */
-
-/*! @brief Macro to test whether parameter is a valid (single) ADC Channel */
-#define ADC_IS_CHANNEL(Channel)        ((Channel) <= ADC_NUM_CHANNELS)
 
 /** @} */
 
@@ -200,8 +194,8 @@ typedef enum {
   */
 
 /** @brief Set the bitmask of enabled ADC channels.
-  * @param  ADC         The ADC peripheral
-  * @param  ChannelMask A bitmask of ADC channels to enable (1 bit per channel)
+  * @param ADC          A pointer to the ADC instance
+  * @param ChannelMask  A bitmask of ADC channels to enable (1 bit per channel)
   * @return             None.
   */
 __INLINE static void ADC_SetEnabledChannelMask(ADC_Type *ADC, ADC_ChannelMask_Type ChannelMask)
@@ -212,7 +206,7 @@ __INLINE static void ADC_SetEnabledChannelMask(ADC_Type *ADC, ADC_ChannelMask_Ty
 }
 
 /** @brief Get a bitmask of the enabled ADC channels.
-  * @param  ADC         The ADC peripheral
+  * @param ADC          A pointer to the ADC instance
   * @return             A bitmask of enabled ADC channels (1 bit per channel)
   */
 __INLINE static ADC_ChannelMask_Type ADC_GetEnabledChannelMask(ADC_Type *ADC)
@@ -221,32 +215,32 @@ __INLINE static ADC_ChannelMask_Type ADC_GetEnabledChannelMask(ADC_Type *ADC)
 }
 
 /** @brief Enable an ADC channel.
-  * @param  ADC         The ADC peripheral
-  * @param  Channel     The ADC channel number to enable (single channel)
+  * @param ADC          A pointer to the ADC instance
+  * @param Channel      The channel number to enable (single channel)
   * @return             None.
   */
-__INLINE static void ADC_EnableChannel(ADC_Type *ADC, ADC_Channel_Type Channel)
+__INLINE static void ADC_EnableChannel(ADC_Type *ADC, unsigned int Channel)
 {
-    lpclib_assert(ADC_IS_CHANNEL(Channel));
+    lpclib_assert(Channel <= ADC_NUM_CHANNELS);
 
     ADC->CR |= (1 << (Channel + ADC_SEL_Shift));
 }
 
 /** @brief Disable an ADC channel.
-  * @param  ADC         The ADC peripheral
-  * @param  Channel     Channel # to disable (single channel)
+  * @param ADC          A pointer to the ADC instance
+  * @param Channel      The channel number to disable (single channel)
   * @return             None.
   */
-__INLINE static void ADC_DisableChannel(ADC_Type *ADC, ADC_Channel_Type Channel)
+__INLINE static void ADC_DisableChannel(ADC_Type *ADC, unsigned int Channel)
 {
-    lpclib_assert(ADC_IS_CHANNEL(Channel));
+    lpclib_assert(Channel <= ADC_NUM_CHANNELS);
 
     ADC->CR &= ~(1 << (Channel + ADC_SEL_Shift));
 }
 
-/** @brief Test whether an ADC Channel is enabled.
-  * @param  ADC         The ADC peripheral
-  * @param  Channel     The channel # to test
+/** @brief Test whether an ADC channel is enabled.
+  * @param ADC          A pointer to the ADC instance
+  * @param Channel      The channel number
   * @return             1 if the channel is enabled, 0 otherwise.
   *
   * @sa ADC_EnableChannel
@@ -259,9 +253,9 @@ __INLINE static unsigned int ADC_ChannelIsEnabled(ADC_Type *ADC, unsigned int Ch
     return (ADC->CR & (1 << (Channel + ADC_SEL_Shift))) ? 1:0;
 }
 
-/** @brief Set the bitmask of enabled ADC channel interrupts.
-  * @param  ADC         The ADC peripheral
-  * @param  ChannelMask Bitmask of ADC inputs for which to enable interrupts (1 bit / channel)
+/** @brief Set the bitmask of ADC channels with enabled interrupts.
+  * @param ADC          A pointer to the ADC instance
+  * @param ChannelMask  ßBitmask of ADC inputs for which to enable interrupts (1 bit / channel)
   * @return             None.
   *
   * This uses a bitmask, _NOT_ a single channel.
@@ -276,8 +270,8 @@ __INLINE static void ADC_SetEnabledITChannelMask(ADC_Type *ADC, ADC_ChannelMask_
     ADC->INTEN = (ADC->INTEN & ~ADC_ADINTEN_Mask) | (ChannelMask << ADC_ADINTEN_Shift);
 }
 
-/** @brief Get a bitmask indicating ADC channels with enabled interrupts.
-  * @param  ADC         The ADC peripheral
+/** @brief Get the bitmask of ADC channels with enabled interrupts.
+  * @param ADC          A pointer to the ADC instance
   * @return             Bitmask of ADC inputs for which interrupts are enabled (1 bit / channel)
   *
   * This uses a bitmask, _NOT_ a single channel.
@@ -290,49 +284,49 @@ __INLINE static ADC_ChannelMask_Type ADC_GetEnabledITChannelMask(ADC_Type *ADC)
 }
 
 /** @brief Enable interrupts for the given ADC channel.
-  * @param  ADC         The ADC peripheral
-  * @param  Channel     The ADC channel (0 - 7)
+  * @param ADC          A pointer to the ADC instance
+  * @param Channel      The ADC channel (0 - 7)
   * @return             None.
   *
   * This enables interrupts on the given ADC Channel (single channel; _NOT_ bitmask)
   */
-__INLINE static void ADC_EnableITForChannel(ADC_Type *ADC, ADC_Channel_Type Channel)
+__INLINE static void ADC_EnableITForChannel(ADC_Type *ADC, unsigned int Channel)
 {
-    lpclib_assert(ADC_IS_CHANNEL(Channel));
+    lpclib_assert(Channel <= ADC_NUM_CHANNELS);
 
     ADC->INTEN |= (1 << Channel);
 }
 
 /** @brief Disable interrupts for the given ADC channel.
-  * @param  ADC         The ADC peripheral
-  * @param  Channel     The ADC channel (0 - 7)
+  * @param ADC          A pointer to the ADC instance
+  * @param Channel      The ADC channel (0 - 7)
   * @return             None.
   *
   * This disables interrupts on the given ADC Channel (single channel; _NOT_ bitmask)
   */
-__INLINE static void ADC_DisableITForChannel(ADC_Type *ADC, ADC_Channel_Type Channel)
+__INLINE static void ADC_DisableITForChannel(ADC_Type *ADC, unsigned int Channel)
 {
-    lpclib_assert(ADC_IS_CHANNEL(Channel));
+    lpclib_assert(Channel <= ADC_NUM_CHANNELS);
 
     ADC->INTEN &= ~(1 << Channel);
 }
 
-/** @brief Determine whether interrupts for a given ADC channel is enabled.
-  * @param  ADC         The ADC peripheral
-  * @param  Channel     The ADC channel (0 - 7)
+/** @brief Test whether interrupts for a given ADC channel are enabled.
+  * @param ADC          A pointer to the ADC instance
+  * @param Channel      The ADC channel (0 - 7)
   * @return             1 if interrupts are enabled on given channel, 0 otherwise.
   *
   * This checks interrupt enable bit on the given ADC Channel (single channel; _NOT_ bitmask)
   */
-__INLINE static unsigned int ADC_ITIsEnabledForChannel(ADC_Type *ADC, ADC_Channel_Type Channel)
+__INLINE static unsigned int ADC_ITIsEnabledForChannel(ADC_Type *ADC, unsigned int Channel)
 {
-    lpclib_assert(ADC_IS_CHANNEL(Channel));
+    lpclib_assert(Channel <= ADC_NUM_CHANNELS);
 
     return (ADC->INTEN & (1 << Channel)) ? 1:0;
 }
 
 /** @brief Get a bitmask indicating ADC channels with completed conversions.
-  * @param  ADC         The ADC peripheral
+  * @param ADC          A pointer to the ADC instance
   * @return             A bitmask of ADC inputs with completed conversions.
   *
   * This uses a bitmask, _NOT_ a single channel.
@@ -344,20 +338,20 @@ __INLINE static ADC_ChannelMask_Type ADC_GetDoneChannelMask(ADC_Type *ADC)
     return (ADC->STAT & ADC_STATDONE_Mask) >> ADC_STATDONE_Shift;
 }
 
-/** @brief Test whether a single ADC channel has completed its conversion.
-  * @param  ADC         The ADC peripheral
-  * @param  Channel     The ADC channel (0 - 7)
+/** @brief Test whether a single ADC channel has completed a conversion.
+  * @param ADC          A pointer to the ADC instance
+  * @param Channel      The ADC channel (0 - 7)
   * @return             1 if the channel's conversion is complete, 0 otherwise.
   */
-__INLINE static unsigned int ADC_ChannelIsDone(ADC_Type *ADC, ADC_Channel_Type Channel)
+__INLINE static unsigned int ADC_ChannelIsDone(ADC_Type *ADC, unsigned int Channel)
 {
-    lpclib_assert(ADC_IS_CHANNEL(Channel));
+    lpclib_assert(Channel <= ADC_NUM_CHANNELS);
 
     return (ADC->STAT & (1 << Channel)) ? 1:0;
 }
 
 /** @brief Get a bitmask indicating ADC channels with overrun conditions.
-  * @param  ADC         The ADC peripheral
+  * @param ADC          A pointer to the ADC instance
   * @return             A bitmask of ADC inputs with overrun conditions.
   *
   * This uses a bitmask, _NOT_ a single channel.
@@ -373,36 +367,36 @@ __INLINE static ADC_ChannelMask_Type ADC_GetOverrunChannelMask(ADC_Type *ADC)
 }
 
 /** @brief Test whether an ADC channel has an overrun condition.
-  * @param  ADC         The ADC peripheral
-  * @param  Channel     The ADC channel (0 - 7)
+  * @param ADC          A pointer to the ADC instance
+  * @param Channel      The ADC channel (0 - 7)
   * @return             1 if the channel has an overrun condition, 0 otherwise.
   *
   * Overruns occur when a conversion is lost -- a new conversion is made on
   * an ADC channel before the last conversion has been read out by software.
   */
-__INLINE static ADC_ChannelMask_Type ADC_ChannelIsOverrun(ADC_Type *ADC, ADC_Channel_Type Channel)
+__INLINE static ADC_ChannelMask_Type ADC_ChannelIsOverrun(ADC_Type *ADC, unsigned int Channel)
 {
     return (ADC->STAT & (1 << (Channel + ADC_STATOVERRUN_Shift))) ? 1:0;
 }
 
-/** @brief Read the value from a single ADC channel.
-  * @param  ADC         The ADC peripheral
-  * @param  Channel     The ADC channel (0 - 7)
+/** @brief Read the value from an ADC channel.
+  * @param ADC          A pointer to the ADC instance
+  * @param Channel      The ADC channel (0 - 7)
   * @return             The conversion value from the given channel.
   *
   * This gets the value on the given ADC Channel (single channel; _NOT_ bitmask).
   *
   * Returned values are 16-bit, left-aligned (max. 10 bit resolution)
   */
-__INLINE static uint16_t ADC_ReadChannel(ADC_Type *ADC, ADC_Channel_Type Channel)
+__INLINE static uint16_t ADC_ReadChannel(ADC_Type *ADC, unsigned int Channel)
 {
-    lpclib_assert(ADC_IS_CHANNEL(Channel));
+    lpclib_assert(Channel <= ADC_NUM_CHANNELS);
 
     return (((uint32_t *)&(ADC->DR0))[Channel] & ADC_V_VREF_Mask) >> ADC_V_VREF_Shift;
 }
 
-/** @brief Enable the ADC's global done interrupt.
-  * @param  ADC         The ADC peripheral
+/** @brief Enable an ADC's global done interrupt.
+  * @param ADC          A pointer to the ADC instance
   * @return             None.
   *
   * The ADC global done interrupt is triggered when any channel completes
@@ -413,8 +407,8 @@ __INLINE static void ADC_EnableGlobalDoneIT(ADC_Type *ADC)
     ADC->INTEN |= ADC_ADGINTEN;
 }
 
-/** @brief Disable the ADC's global done interrupt.
-  * @param  ADC         The ADC peripheral
+/** @brief Disable an ADC's global done interrupt.
+  * @param ADC          A pointer to the ADC instance
   * @return             None.
   *
   * @sa ADC_EnableGlobalDoneIT
@@ -424,8 +418,8 @@ __INLINE static void ADC_DisableGlobalDoneIT(ADC_Type *ADC)
     ADC->INTEN &= ~ADC_ADGINTEN;
 }
 
-/** @brief Test whether the ADC's global done interrupt is enabled.
-  * @param  ADC         The ADC peripheral
+/** @brief Test whether an ADC's global done interrupt is enabled.
+  * @param ADC          A pointer to the ADC instance
   * @return             1 if the global done IRQ is enabled, 0 otherwise.
   *
   * @sa ADC_EnableGlobalDoneIT
@@ -435,8 +429,8 @@ __INLINE static unsigned int ADC_GlobalDoneITIsEnabled(ADC_Type *ADC)
     return (ADC->INTEN & ADC_ADGINTEN) ? 1:0;
 }
 
-/** @brief Read the ADC global result register.
-  * @param  ADC         The ADC peripheral
+/** @brief Read an ADC's global result register.
+  * @param ADC          A pointer to the ADC instance
   * @return             A hybrid value with the last raw ADC reading + done / overrun flags.
   */
 __INLINE static uint32_t ADC_ReadGlobalResult(ADC_Type *ADC)
@@ -444,8 +438,8 @@ __INLINE static uint32_t ADC_ReadGlobalResult(ADC_Type *ADC)
     return ADC->GDR;
 }
 
-/** @brief Test whether the ADC has pending interrupts.
-  * @param  ADC         The ADC peripheral
+/** @brief Test whether an ADC has pending interrupts.
+  * @param ADC          A pointer to the ADC instance
   * @return             1 if there are interrupts pending, 0 otherwise.
   */
 __INLINE static unsigned int ADC_ITIsPending(ADC_Type *ADC)
@@ -453,8 +447,8 @@ __INLINE static unsigned int ADC_ITIsPending(ADC_Type *ADC)
     return (ADC->STAT & ADC_ADINT) ? 1:0;
 }
 
-/** @brief Test whether the ADC is currently busy with a conversion.
-  * @param  ADC         The ADC peripheral
+/** @brief Test whether an ADC is currently busy with a conversion.
+  * @param ADC          A pointer to the ADC instance
   * @return             1 if the ADC is busy, 0 otherwise.
   */
 __INLINE static unsigned int ADC_IsBusy(ADC_Type *ADC)
@@ -462,37 +456,40 @@ __INLINE static unsigned int ADC_IsBusy(ADC_Type *ADC)
     return ((ADC->GDR & ADC_DONE) == 0);
 }
 
-/** @brief Set the ADC clock divisor.
-  * @param  ADC         The ADC peripheral
-  * @param  Divisor     The new ADC clock divisor (valid values are 1 - 256)
+/** @brief Set an ADC's clock divisor.
+  * @param ADC          A pointer to the ADC instance
+  * @param Divisor      The new ADC clock divisor (valid values are 1 - 256)
   * @return             None.
   *
+  * @note
   * The end ADC clock rate should be <= 4.5MHz for proper ADC operation, so if
   * e.g. the AHB clock is running at 48MHz the ADC clock divisor should be
   * at least 11 giving a 4.3636MHz ADC clock rate.
   */
-__INLINE static void ADC_SetClockDivisor(ADC_Type *ADC, uint16_t Divisor)
+__INLINE static void ADC_SetClockDivisor(ADC_Type *ADC, unsigned int Divisor)
 {
     lpclib_assert(Divisor >= 1);
     lpclib_assert(Divisor <= 0x100);
+
     ADC->CR = (ADC->CR & ~ADC_CLKDIV_Mask) | ((Divisor - 1) << ADC_CLKDIV_Shift);
 }
 
-/** @brief Get the current ADC clock divisor.
-  * @param  ADC         The ADC peripheral
+/** @brief Get an ADC's current clock divisor.
+  * @param ADC          A pointer to the ADC instance
   * @return             The Current ADC clock divisor.
   *
   * @sa ADC_SetClockDivisor
   */
-__INLINE static uint16_t ADC_GetClockDivisor(ADC_Type *ADC)
+__INLINE static unsigned int ADC_GetClockDivisor(ADC_Type *ADC)
 {
     return ((ADC->CR & ADC_CLKDIV_Mask) >> ADC_CLKDIV_Shift) + 1;
 }
 
-/** @brief Enable burst mode on the ADC.
-  * @param  ADC         The ADC peripheral
+/** @brief Enable burst mode on an ADC.
+  * @param ADC          A pointer to the ADC instance
   * @return             None.
   *
+  * @note
   * Burst mode is the ADC's hardware-controlled scan mode.  When enabled,
   * the ADC will do repeated conversions on each of the enabled ADC input
   * channels, at the rate specified by the burst resolution.  Channels
@@ -506,8 +503,8 @@ __INLINE static void ADC_EnableBurstMode(ADC_Type *ADC)
     ADC->CR |= ADC_BURST;
 }
 
-/** @brief Disable burst mode on the ADC.
-  * @param  ADC         The ADC peripheral
+/** @brief Disable burst mode on an ADC.
+  * @param ADC          A pointer to the ADC instance
   * @return             None.
   *
   * @sa ADC_EnableBurstMode
@@ -517,8 +514,8 @@ __INLINE static void ADC_DisableBurstMode(ADC_Type *ADC)
     ADC->CR &= ~ADC_BURST;
 }
 
-/** @brief Test whether burst mode is enabled on the ADC.
-  * @param  ADC         The ADC peripheral
+/** @brief Test whether burst mode is enabled on an ADC.
+  * @param ADC          A pointer to the ADC instance
   * @return             1 if burst mode is enabled, 0 otherwise
   *
   * @sa ADC_EnableBurstMode
@@ -528,9 +525,9 @@ __INLINE static unsigned int ADC_BurstModeIsEnabled(ADC_Type *ADC)
     return (ADC->CR & ADC_BURST) ? 1:0;
 }
 
-/** @brief Set the ADC burst mode conversion resolution.
-  * @param  ADC         The ADC peripheral
-  * @param  Resolution  The new conversion resolution
+/** @brief Set an ADC's burst mode resolution.
+  * @param ADC          A pointer to the ADC instance
+  * @param Resolution   The new conversion resolution
   * @return             None.
   *
   * The burst resolution determines the number of valid bits in a
@@ -545,8 +542,8 @@ __INLINE static void ADC_SetBurstResolution(ADC_Type *ADC, ADC_BurstResolution_T
     ADC->CR = (ADC->CR & ~ADC_CLKS_Mask) | (Resolution << ADC_CLKS_Shift);
 }
 
-/** @brief Get the current ADC burst mode conversion resolution.
-  * @param  ADC         The ADC peripheral
+/** @brief Get an ADC's current burst mode resolution.
+  * @param ADC          A pointer to the ADC instance
   * @return             The current burst mode conversion resolution.
   *
   * @sa ADC_SetBurstResolution
@@ -556,9 +553,9 @@ __INLINE static ADC_BurstResolution_Type ADC_GetBurstResolution(ADC_Type *ADC)
     return ((ADC->CR & ADC_CLKS_Mask) >> ADC_CLKS_Shift);
 }
 
-/** @brief Set the ADC conversion trigger source.
-  * @param  ADC         The ADC peripheral
-  * @param  Start       The new conversion trigger
+/** @brief Set an ADC's conversion trigger source.
+  * @param ADC          A pointer to the ADC instance
+  * @param Start        The new conversion trigger
   * @return             None.
   *
   * Sets the event that will trigger an ADC conversion.  The events can
@@ -569,12 +566,15 @@ __INLINE static ADC_BurstResolution_Type ADC_GetBurstResolution(ADC_Type *ADC)
 __INLINE static void ADC_SetStartConversionTrigger(ADC_Type *ADC, ADC_StartConversion_Type Start)
 {
     lpclib_assert(ADC_IS_STARTCONVERSION(Start));
-    /* Note: EDGE is the bit above the START bits which is why this works */
+
+    /* Note: EDGE is the bit above the START bits which is why this works with the
+     *       composite edge / start type.
+     */
     ADC->CR = (ADC->CR & ~(ADC_START_Mask | ADC_EDGE)) | (Start << ADC_START_Shift);
 }
 
-/** @brief Get the current ADC conversion trigger source.
-  * @param  ADC         The ADC peripheral
+/** @brief Get an ADC's current conversion trigger source.
+  * @param ADC          A pointer to the ADC instance
   * @return             The current ADC start mode.
   *
   * @sa ADC_SetStartConversionMode

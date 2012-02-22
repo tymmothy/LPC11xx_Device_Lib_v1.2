@@ -1,6 +1,6 @@
 /**************************************************************************//**
  * @file     ssp.h
- * @brief    SSP Serial Interface Header for NXP LPC Microcontrollers
+ * @brief   SSP Serial Interface Header for NXP LPC Microcontrollers
  * @version  V1.0
  * @author   Tymm Twillman
  * @date     1. January 2012
@@ -206,128 +206,151 @@ typedef enum {
   * @{
   */
 
-/** @brief  Send a Word via the SSP
-  * @param  SSP         The SSP device to send the word on
-  * @param  Word        The word to send
-  * @return None.
+/** @brief Send a word via an SSP.
+  * @param SSP          A pointer to the SSP instance
+  * @param Word         The word to send
+  * @return             None.
   */
 __INLINE static void SSP_Send(SSP_Type *SSP, uint16_t Word)
 {
     SSP->DR = Word;
 }
 
-/** @brief  Retrieve a Word from the SSP's incoming FIFO
-  * @param  SSP         The SSP device to retrieve the word from
-  * @return The word read from the SSP's FIFO.
+/** @brief Retrieve a word from an SSP's incoming FIFO
+  * @param SSP          A pointer to the SSP instance
+  * @return             The word read from the SSP's FIFO.
   */
 __INLINE static uint16_t SSP_Recv(SSP_Type *SSP)
 {
     return SSP->DR;
 }
 
-/** @brief  Enable Loopback Mode on an SSP Peripheral
-  * @param  SSP         The SSP device for which to enable loopback mode
-  * @return None.
+/** @brief Send & Receive a Word via the SSP's Outgoing FIFO
+  * @param SSP          A pointer to the SSP instance
+  * @param WordOut      The word to send
+  * @return The word read from the SSP's FIFO.
+  */
+__INLINE static uint16_t SSP_Xfer(SSP_Type *SSP, uint16_t WordOut)
+{
+    SSP->DR = WordOut;
+    while (!SSP_RxIsAvailable(SSP));
+    return SSP->DR;
+}
+
+/** @brief Flush an SSP's receive FIFO.
+  * @param SSP          A pointer to the SSP instance
+  * @return             None.
+  */
+__INLINE static void SSP_FlushRxFifo(SSP_Type *SSP)
+{
+    while (SSP_RxIsAvailable(SSP)) {
+        SSP_Recv(SSP);
+    }
+}
+
+/** @brief Enable loopback mode on an SSP.
+  * @param SSP          A pointer to the SSP instance
+  * @return             None.
   */
 __INLINE static void SSP_EnableLoopback(SSP_Type *SSP)
 {
     SSP->CR1 |= SSP_LBM;
 }
 
-/** @brief  Disable Loopback Mode on an SSP Peripheral
-  * @param  SSP         The SSP device for which to disable loopback mode
-  * @return None.
+/** @brief Disable loopback mode on an SSP.
+  * @param SSP          A pointer to the SSP instance
+  * @return             None.
   */
 __INLINE static void SSP_DisableLoopback(SSP_Type *SSP)
 {
     SSP->CR1 &= ~SSP_LBM;
 }
 
-/** @brief  Determine Whether Loopback Mode is Enabled on the SSP Peripheral
-  * @param  SSP         The SSP device for which to check loopback mode
-  * @return None.
+/** @brief Test whether loopback mode is enabled on an SSP.
+  * @param SSP          A pointer to the SSP instance
+  * @return             1 if loopback mode is enabled, 0 otherwise.
   */
 __INLINE static unsigned int SSP_LoopbackIsEnabled(SSP_Type *SSP)
 {
     return (SSP->CR1 & SSP_LBM) ? 1:0;
 }
 
-/** @brief  Enable an SSP Peripheral
-  * @param  SSP         The SSP device to enable
-  * @return None.
+/** @brief Enable an SSP.
+  * @param SSP          A pointer to the SSP instance
+  * @return             None.
   */
 __INLINE static void SSP_Enable(SSP_Type *SSP)
 {
     SSP->CR1 |= SSP_SSE;
 }
 
-/** @brief  Disable an SSP Peripheral
-  * @param  SSP         The SSP device to disable
-  * @return None.
+/** @brief Disable an SSP.
+  * @param SSP          A pointer to the SSP instance
+  * @return             None.
   */
 __INLINE static void SSP_Disable(SSP_Type *SSP)
 {
     SSP->CR1 &= ~SSP_SSE;
 }
 
-/** @brief  Determine Whether an SSP Peripheral is Enabled
-  * @param  SSP         The SSP device to check
-  * @return None.
+/** @brief Test whether an SSP is enabled
+  * @param SSP          A pointer to the SSP instance
+  * @return             1 if the SSP is enabled, 0 otherwise.
   */
 __INLINE static unsigned int SSP_IsEnabled(SSP_Type *SSP)
 {
     return (SSP->CR1 & SSP_SSE) ? 1:0;
 }
 
-/** @brief Test whether an SSP's Transmit FIFO is Empty
-  * @param  SSP         The SSP device to check for an empty FIFO
-  * @return 1 if the SSP's transmit FIFO is empty, 0 otherwise
+/** @brief Test whether an SSP's transmit FIFO is empty.
+  * @param SSP          A pointer to the SSP instance
+  * @return             1 if the transmit FIFO is empty, 0 otherwise.
   */
 __INLINE static unsigned int SSP_TxFIFOIsEmpty(SSP_Type *SSP)
 {
     return (SSP->SR & SSP_TFE) ? 1:0;
 }
 
-/** @brief Test whether an SSP has Space in the Transmit FIFO
-  * @param  SSP         The SSP device to check for space in the transmit FIFO
-  * @return 1 if the SSP's transmit FIFO has space available, 0 otherwise
+/** @brief Test whether an SSP has space available in the transmit FIFO.
+  * @param SSP          A pointer to the SSP instance
+  * @return             1 if the transmit FIFO has space available, 0 otherwise.
   */
 __INLINE static unsigned int SSP_TxIsReady(SSP_Type *SSP)
 {
     return (SSP->SR & SSP_TNF) ? 1:0;
 }
 
-/** @brief Test whether an SSP has Data in the Receive FIFO
-  * @param  SSP         The SSP device to test for data in the receive FIFO
-  * @return 1 if the SSP's receive FIFO has data available, 0 otherwise
+/** @brief Test whether an SSP has data in the receive FIFO.
+  * @param SSP          A pointer to the SSP instance
+  * @return             1 if the receive FIFO has data available, 0 otherwise.
   */
 __INLINE static unsigned int SSP_RxIsAvailable(SSP_Type *SSP)
 {
     return (SSP->SR & SSP_RNE) ? 1:0;
 }
 
-/** @brief Test whether an SSP's Receive FIFO is Full
-  * @param  SSP         The SSP device for which to test whether the receive FIFO is full
-  * @return 1 if the SSP's receive FIFO is full, 0 otherwise
+/** @brief Test whether an SSP's receive FIFO is full.
+  * @param SSP          A pointer to the SSP instance
+  * @return             1 if the receive FIFO is full, 0 otherwise.
   */
 __INLINE static unsigned int SSP_RxFIFOIsFull(SSP_Type *SSP)
 {
     return (SSP->SR & SSP_RFF) ? 1:0;
 }
 
-/** @brief Test whether an SSP is Currently Transferring Data
-  * @param  SSP         The SSP device to check for busy state
-  * @return 1 if the SSP is busy, 0 otherwise
+/** @brief Test whether an SSP is currently busy (transferring data).
+  * @param SSP          A pointer to the SSP instance
+  * @return             1 if the SSP is busy, 0 otherwise.
   */
 __INLINE static unsigned int SSP_IsBusy(SSP_Type *SSP)
 {
     return (SSP->SR & SSP_BSY) ? 1:0;
 }
 
-/** @brief Enable Specific Interrupts on an SSP Peripheral
-  * @param  SSP         The SSP device for which to enable interrupts
-  * @param  IT          ORed SSP interrupts to enable
-  * @return None.
+/** @brief Enable specific interrupts on an SSP.
+  * @param SSP          A pointer to the SSP instance
+  * @param IT           A bitmask of SSP interrupts to enable
+  * @return             None.
   */
 __INLINE static void SSP_EnableIT(SSP_Type *SSP, SSP_IT_Type IT)
 {
@@ -336,10 +359,10 @@ __INLINE static void SSP_EnableIT(SSP_Type *SSP, SSP_IT_Type IT)
     SSP->IMSC |= IT;
 }
 
-/** @brief Disable Specific Interrupts on an SSP Peripheral
-  * @param  SSP         The SSP device for which to disable interrupts
-  * @param  IT          ORed SSP interrupts to disable
-  * @return None.
+/** @brief Disable specific interrupts on an SSP.
+  * @param SSP          A pointer to the SSP instance
+  * @param  IT          A bitmask of SSP interrupts to disable
+  * @return             None.
   */
 __INLINE static void SSP_DisableIT(SSP_Type *SSP, SSP_IT_Type IT)
 {
@@ -348,28 +371,32 @@ __INLINE static void SSP_DisableIT(SSP_Type *SSP, SSP_IT_Type IT)
     SSP->IMSC &= ~IT;
 }
 
-/** @brief Get Enabled Interrupts for an SSP Peripheral
-  * @param  SSP    The SSP device to check for enabled interrupts
-  * @return        ORed interrupts that are currently pending
+/** @brief Get a bitmask of the enabled interrupts on an SSP.
+  * @param SSP          A pointer to the SSP instance
+  * @return             A bitmask of the SSP's enabled interrupts.
   */
 __INLINE static SSP_IT_Type SSP_GetEnabledIT(SSP_Type *SSP)
 {
     return SSP->IMSC;
 }
 
-/** @brief Get the Interrupts Currently Pending on an SSP Peripheral
-  * @param  SSP         The SSP device for which to get pending interrupts
-  * @return ORed values of all pending interrupts
+/** @brief Get a bitmask of interrupts currently pending on an SSP.
+  * @param SSP          A pointer to the SSP instance
+  * @return             A bitmask of the SSP's pending interrupt bits
   */
 __INLINE static uint32_t SSP_GetPendingIT(SSP_Type *SSP)
 {
     return SSP->MIS;
 }
 
-/** @brief Clear Pending Receiver Overrun or Receiver Timer Interrupts on an SSP Peripheral
-  * @param  SSP         The SSP device on which to clear the pending interrupt(s)
-  * @param  IT          Interrupt types for which to clear pending status
-  * @return None.
+/** @brief Clear currently pending interrupts on an SSP.
+  * @param SSP          A pointer to the SSP instance
+  * @param IT           A bitmask of pending SSP interrupts to clear
+  * @return             None.
+  *
+  * @note
+  * Only SSP_IT_RxOverrun and SSP_IT_RxTimer interrupts can be cleared (others
+  * are wired to the FIFO status).
   */
 __INLINE static void SSP_ClearPendingIT(SSP_Type *SSP, SSP_IT_Type IT)
 {
@@ -378,15 +405,10 @@ __INLINE static void SSP_ClearPendingIT(SSP_Type *SSP, SSP_IT_Type IT)
     SSP->ICR |= IT;
 }
 
-/** @brief Set Master/Slave Modes on SSP
-  * @param  SSP         The SSP device to set the mode on
-  * @param  Mode        Token indicating mode to operate in (of SSP_ModeType type)
-  * @return None.
-  *
-  * Mode may be:
-  *  SSP_ModeMaster
-  *  SSP_ModeSlave
-  *  SSP_ModeSlaveInputOnly
+/** @brief Set the operating mode (master or slave or input-only slave) of an SSP.
+  * @param SSP          A pointer to the SSP instance
+  * @param Mode         Token indicating the new operating mode
+  * @return             None.
   */
 __INLINE static void SSP_SetMode(SSP_Type *SSP, SSP_Mode_Type Mode)
 {
@@ -395,83 +417,128 @@ __INLINE static void SSP_SetMode(SSP_Type *SSP, SSP_Mode_Type Mode)
     SSP->CR1 = (SSP->CR1 & ~SSP_CR1_MODE_Mask) | Mode;
 }
 
-/** @brief Set Word Size for IO on SSP
-  * @param  SSP         The SSP device to set word size on
-  * @param  WordLength  Token indicating size of words to send/receive on SSP
-  * @return None.
-  *
-  * WordLength can be one of SSP_WordLength_4 ... SSP_WordLength_16.
+/** @brief Get the operating mode (master or slave or input-only slave) of an SSP.
+  * @param SSP          A pointer to the SSP instance
+  * @return             The current operating mode of the SSP.
   */
-__INLINE static void SSP_SetWordSize(SSP_Type *SSP, SSP_WordLength_Type WordLength)
+__INLINE static SSP_Mode_Type SSP_GetMode(SSP_Type *SSP)
+{
+    return SSP->CR1 & SSP_CR1_MODE_Mask;
+}
+
+/** @brief Set an SSP's word length.
+  * @param SSP          A pointer to the SSP instance
+  * @param WordLength   A token indicating the new SSP transfer word length
+  * @return             None.
+  */
+__INLINE static void SSP_SetWordLength(SSP_Type *SSP, SSP_WordLength_Type WordLength)
 {
     lpclib_assert(SSP_IS_WORD_LENGTH(WordLength));
 
     SSP->CR0 = (SSP->CR0 & ~(SSP_DSS_Mask)) | (WordLength - 1);
 }
 
-/** @brief Set Frame Format for IO on SSP
-  * @param  SSP          The SSP device for which to set the frame format
-  * @param  FrameFormat  Token indicating frame format for SSP to use
-  * @return None.
-  *
-  * FrameFormat may be:
-  *  FrameFormat_SPI: SPI frames
-  *  FrameFormat_TI:  TI frames
-  *  FrameFormat_MW:  MicroWire Frames
+/** @brief Get an SSP's transfer word length.
+  * @param SSP          A pointer to the SSP instance
+  * @return             A token indicating the SSP's current transfer word length.
+  */
+__INLINE static SSP_WordLength_Type SSP_GetWordLength(SSP_Type *SSP)
+{
+    return (SSP->CR0 & SSP_DSS_Mask) + 1;
+}
+
+/** @brief Set the format of frames transferred on an SSP.
+  * @param SSP          A pointer to the SSP instance
+  * @param FrameFormat  A token indicating the new format of SSP frames
+  * @return             None.
   */
 __INLINE static void SSP_SetFrameFormat(SSP_Type *SSP, SSP_FrameFormat_Type FrameFormat)
 {
+    lpclib_assert(SSP_IS_FRAMEFORMAT(FrameFormat));
+
     SSP->CR0 = (SSP->CR0 & ~(SSP_FRF_Mask)) | FrameFormat;
 }
 
-/** @brief Set the Idle State Clock Line Polarity on SSP
-  * @param  SSP         The SSP device to set clock polarity on
-  * @param  Polarity    Token indicating clock line polarity on idle (low or high)
-  * @return None.
-  *
-  * Polarity may be:
-  *  SSP_ClockPolarityLow:  Normal Polarity (1 = high, 0 = low)
-  *  SSP_ClockPolarityHigh: Inverted Polarity (1 = low, 0 = high)
+/** @brief Get the current format of frames transferred on an SSP.
+  * @param SSP          A pointer to the SSP instance
+  * @return             A token indicating the current format of SSP frames.
+  */
+__INLINE static SSP_FrameFormat_Type SSP_GetFrameFormat(SSP_Type *SSP)
+{
+    return (SSP->CR0 & SSP_FRF_Mask);
+}
+
+/** @brief Set the idle-state polarity of an SSP's clock line.
+  * @param SSP          A pointer to the SSP instance
+  * @param Polarity     A token indicating the new idle-stat clock line polarity
+  * @return             None.
   */
 __INLINE static void SSP_SetClockPolarity(SSP_Type *SSP, SSP_ClockPolarity_Type Polarity)
 {
     SSP->CR0 = (SSP->CR0 & ~(SSP_CPOL)) | Polarity;
 }
 
-/** @brief Set the Clock Phase on which Eata is Latched on SSP
-  * @param  SSP       The SSP device
-  * @param  Phase     Token indicating clock line phase on idle (A or B)
-  * @return None.
-  *
-  * Polarity may be:
-  *  SSP_ClockPhaseA: Data is latched on first clock transition (away from idle)
-  *  SSP_ClockPhaseB: Data is latched on second clock transition (back to idle)
+/** @brief Get the idle-state polarity of an SSP's clock line.
+  * @param SSP          A pointer to the SSP instance
+  * @return             A token indicating the SSP's current idle-state clock line polarity.
+  */
+__INLINE static SSP_ClockPolarity_Type SSP_SetClockPolarity(SSP_Type *SSP,
+                                                            SSP_ClockPolarity_Type Polarity)
+{
+    return (SSP->CR0 & SSP_CPOL);
+}
+
+/** @brief Set the clock line phase on which an SSP latches data.
+  * @param SSP          A pointer to the SSP instance
+  * @param Phase        A token indicating the new clock line phase on which to latch data
+  * @return             None.
   */
 __INLINE static void SSP_SetClockPhase(SSP_Type *SSP, SSP_ClockPhase_Type Phase)
 {
     SSP->CR0 = (SSP->CR0 & ~(SSP_CPHA)) | Phase;
 }
 
-/** @brief Set # of Prescaler Counts per Bit for an SSP
-  * @param  SSP         The SSP device
-  * @param  Clocks      # of clocks between 1 & 256
-  * @return None.
-  *
-  * @note
-  * - This function takes the actual # of clocks, and subtracts 1 for setting the register value.
-  * - Final bit frequency = PCLK / (CPSDVSR * (SCR + 1)).
+/** @brief Get the current clock line phase on which an SSP latches data.
+  * @param SSP          A pointer to the SSP instance
+  * @return             A token indicating the clock line phase on which the SSP latches data.
   */
-__INLINE static void SSP_SetClockRate(SSP_Type *SSP, unsigned int Clocks)
+__INLINE static SSP_ClockPhase_Type SSP_SetClockPhase(SSP_Type *SSP)
 {
-    lpclib_assert((Clocks > 0) && (Clocks <= 256));
-
-    SSP->CR0 = (SSP->CR0 & ~(SSP_SCR_Mask)) | ((Clocks - 1) << SSP_SCR_Shift);
+    return (SSP->CR0 & SSP_CPHA);
 }
 
-/** @brief Set # of PCLK Counts per SSP Prescaler Count for an SSP
-  * @param  SSP         The SSP device to set clock phase on
-  * @param  Prescaler   The new prescaler count (an even number; 2 <= n <= 254)
-  * @return None.
+/** @brief Set the number of prescaler ticks per bit transferred on an SSP.
+  * @param SSP          A pointer to the SSP instance
+  * @param Ticks        The new number of prescaler ticks per bit
+  * @return             None.
+  *
+  * @note
+  * - This function takes the actual # of prescaler counts, not the (off-by-1) SCR value
+  * - Final bit frequency = PCLK / (Prescale_Divisor * Count).
+  */
+__INLINE static void SSP_SetPrescalerTicksPerBit(SSP_Type *SSP, unsigned int Ticks)
+{
+    lpclib_assert((Ticks > 0) && (Ticks <= 256));
+
+    SSP->CR0 = (SSP->CR0 & ~(SSP_SCR_Mask)) | ((Ticks - 1) << SSP_SCR_Shift);
+}
+
+/** @brief Set the current number of prescaler counts per bit transferred on an SSP.
+  * @param SSP          A pointer to the SSP instance
+  * @return             The current number of SSP prescaler counts per bit.
+  *
+  * @note
+  * - This function returns the actual # of prescaler counts, not the (off-by-1) SCR value
+  */
+__INLINE static unsigned int SSP_GetPrescalerTicksPerBit(SSP_Type *SSP, unsigned int Ticks)
+{
+    return ((SSP->CR0 & SSP_SCR_Mask) >> SSP_SCR_Shift) + 1;
+}
+
+/** @brief Set the input clock prescaler value on an SSP.
+  * @param SSP          A pointer to the SSP instance
+  * @param Prescaler    The new prescaler value (must be an even number; 2 <= n <= 254)
+  * @return             None.
   */
 __INLINE static void SSP_SetClockPrescaler(SSP_Type *SSP, unsigned int Prescaler)
 {
@@ -481,22 +548,13 @@ __INLINE static void SSP_SetClockPrescaler(SSP_Type *SSP, unsigned int Prescaler
     SSP->CPSR = Prescaler;
 }
 
-/** @brief  Send & Receive a Word via the SSP's Outgoing FIFO
-  * @param  SSP         The SSP device to send the word on
-  * @param  WordOut     The word to send
-  * @return The word read from the SSP's FIFO.
+/** @brief Get the current input clock prescaler value on an SSP.
+  * @param SSP          A pointer to the SSP instance
+  * @return             The SSP's current prescaler value.
   */
-__INLINE static uint16_t SSP_Xfer(SSP_Type *SSP, uint16_t WordOut)
+__INLINE static unsigned int SSP_GetClockPrescaler(SSP_Type *SSP)
 {
-    while (SSP_IsBusy(SSP));
-    while (SSP_RxIsAvailable(SSP)) {
-        SSP_Recv(SSP);
-    }
-
-    SSP->DR = WordOut;
-
-    while (!SSP_RxIsAvailable(SSP));
-    return SSP->DR;
+    return SSP->CPSR;
 }
 
 /**
