@@ -122,19 +122,19 @@ typedef enum {
 
 /***** LPC11xx Specific Interrupt Numbers ************************************/
 
-    START0_IRQn         = 0,      /*!< StartLogic0 (GPIO0.0) Interrupt  */
-    StartLogic1_IRQn         = 1,      /*!< StartLogic1 (GPIO0.1) Interrupt  */
-    StartLogic2_IRQn         = 2,      /*!< StartLogic2 (GPIO0.2) Interrupt  */
-    StartLogic3_IRQn         = 3,      /*!< StartLogic3 (GPIO0.3) Interrupt  */
-    StartLogic4_IRQn         = 4,      /*!< StartLogic4 (GPIO0.4) Interrupt  */
-    StartLogic5_IRQn         = 5,      /*!< StartLogic5 (GPIO0.5) Interrupt  */
-    StartLogic6_IRQn         = 6,      /*!< StartLogic6 (GPIO0.6) Interrupt  */
-    StartLogic7_IRQn         = 7,      /*!< StartLogic7 (GPIO0.7) Interrupt  */
-    StartLogic8_IRQn         = 8,      /*!< StartLogic8 (GPIO0.8) Interrupt  */
-    StartLogic9_IRQn         = 9,      /*!< StartLogic9 (GPIO0.9) Interrupt  */
-    StartLogic10_IRQn        = 10,     /*!< StartLogic10 (GPIO0.10) Int.     */
-    StartLogic11_IRQn        = 11,     /*!< StartLogic11 (GPIO0.11) Int.     */
-    StartLogic12_IRQn        = 12,     /*!< StartLogic12 (GPIO1.0) Interrupt */
+    WAKEUP0_IRQn             = 0,      /*!< Wake up 0  (GPIO0.0) Interrupt   */
+    WAKEUP1_IRQn             = 1,      /*!< Wake up 1  (GPIO0.1) Interrupt   */
+    WAKEUP2_IRQn             = 2,      /*!< Wake up 2  (GPIO0.2) Interrupt   */
+    WAKEUP3_IRQn             = 3,      /*!< Wake up 3  (GPIO0.3) Interrupt   */
+    WAKEUP4_IRQn             = 4,      /*!< Wake up 4  (GPIO0.4) Interrupt   */
+    WAKEUP5_IRQn             = 5,      /*!< Wake up 5  (GPIO0.5) Interrupt   */
+    WAKEUP6_IRQn             = 6,      /*!< Wake up 6  (GPIO0.6) Interrupt   */
+    WAKEUP7_IRQn             = 7,      /*!< Wake up 7  (GPIO0.7) Interrupt   */
+    WAKEUP8_IRQn             = 8,      /*!< Wake up 8  (GPIO0.8) Interrupt   */
+    WAKEUP9_IRQn             = 9,      /*!< Wake up 9  (GPIO0.9) Interrupt   */
+    WAKEUP10_IRQn            = 10,     /*!< Wake up 10 (GPIO0.10) Interrupt  */
+    WAKEUP11_IRQn            = 11,     /*!< Wake up 11 (GPIO0.11) Interrupt  */
+    WAKEUP12_IRQn            = 12,     /*!< Wake up 12 (GPIO1.0) Interrupt   */
     SSP1_IRQn                = 14,     /*!< SSP1 Peripheral Interrupt        */
     I2C0_IRQn                = 15,     /*!< I2C0 Peripheral Interrupt        */
     CT16B0_IRQn              = 16,     /*!< 16-bit Counter/Timer 0 Interrupt */
@@ -736,7 +736,7 @@ typedef struct {
 
 /** @} */
 
-#if defined(LPC11XXL)   /* L-series parts have windowed WDT with extra features
+#if defined(LPC11XXL)   /* L-series parts have windowed WDT with extra features */
 /** @addtogroup WDT_WARNINT_Bit_Definitions WARNINT: Watchdog Timer Warning Interrupt Register
   * @{
   */
@@ -1264,11 +1264,11 @@ typedef struct {
 
 /** @} */
 
-/** @defgroup SSP_IMR_Bit_Definitions IMR: Interrupt Mask Set/Clear Register
+/** @defgroup SSP_IMSC_Bit_Definitions IMSC: Interrupt Mask Set/Clear Register
   * @{
   */
 
-#define SSP_IMR_Mask                   (0x0f)              /*!< Usable bits in IMR register      */
+#define SSP_IMSC_Mask                  (0x0f)              /*!< Usable bits in IMSC register     */
 
 #define SSP_RORIM                      (1 << 0)            /*!< Receive Overrun IRQ Enable       */
 #define SSP_RTIM                       (1 << 1)            /*!< Receive Timeout IRQ Enable       */
@@ -1340,7 +1340,7 @@ typedef struct {
 #define IOCON_MODE_PULLUP              (0x02 << 3)         /*!< Pullup Resistor Enabled          */
 #define IOCON_MODE_REPEATER            (0x03 << 3)         /*!< Repeater Mode                    */
 
-#define IOCON_I2C_Mask                 (0x0300)            /*!< Pin I2C Setting Mask             */
+#define IOCON_I2C_Mask                 (0x03 << 8)         /*!< Pin I2C Setting Mask             */
 #define IOCON_I2C_Shift                (8)                 /*!< Bit shift of I2C Mask            */
 #define IOCON_I2C_I2C                  (0x00)              /*!< Standard I2C                     */
 #define IOCON_I2C_GPIO                 (0x01 << 8)         /*!< Standard GPIO                    */
@@ -1837,7 +1837,7 @@ typedef struct {
   * @{
   */
 
-#define SYSCON_PDAWAKECFG_Mask         (0x0f)              /*!< Awake Mode PowerDown Config Mask */
+#define SYSCON_PDAWAKECFG_Mask         (0xff)              /*!< Awake Mode PowerDown Config Mask */
 #define SYSCON_PDAWAKECFG_Required     (0x00000ed00UL)     /*!< Required Bits for PDAWAKECFG     */
 #define SYSCON_PDAWAKECFG_IRCOUT_PD    (1 << 0)            /*!< Power Down IRC Out in Wake Mode  */
 #define SYSCON_PDAWAKECFG_IRC_PD       (1 << 1)            /*!< Power Down IRC Clk in Wake Mode  */
@@ -1854,7 +1854,7 @@ typedef struct {
   * @{
   */
 
-#define SYSCON_PDRUNCFG_Mask           (0x0f)              /*!< Run Mode Power-Down Config Mask  */
+#define SYSCON_PDRUNCFG_Mask           (0xff)              /*!< Run Mode Power-Down Config Mask  */
 #define SYSCON_PDRUNCFG_Required       (0x00000ed00UL)     /*!< Required Bits for PDRUNCFG       */
 #define SYSCON_IRCOUT_PD               (1 << 0)            /*!< Power down IRC Out in Run Mode   */
 #define SYSCON_IRC_PD                  (1 << 1)            /*!< Power down IRC clock in Run Mode */
@@ -2882,6 +2882,36 @@ typedef struct {
   */
 
 #endif /* #if defined(LPC11CXX) */
+
+
+/* Device ID Values -----------------------------------------------------------------------------*/
+
+/** @defgroup LPC11xx_DeviceIDs LPC11xx Device ID Values
+  * @{
+  */
+
+#define DeviceID_LPC1111_101           (0x041e502bUL)         /*!< LPC1111  w/8K  FLASH / 2K RAM */
+#define DeviceID_LPC1111_102           (0x2516d02bUL)         /*!< LPC1111L w/8K  FLASH / 2K RAM */
+#define DeviceID_LPC1111_201           (0x0416502bUL)         /*!< LPC1111  w/8K  FLASH / 4K RAM */
+#define DeviceID_LPC1111_202           (0x2516902bUL)         /*!< LPC1111L w/8K  FLASH / 4K RAM */
+#define DeviceID_LPC1112_101           (0x042d502bUL)         /*!< LPC1112  w/16K FLASH / 2K RAM */
+#define DeviceID_LPC1112_102           (0x2524d02bUL)         /*!< LPC1112L w/16K FLASH / 2K RAM */
+#define DeviceID_LPC1112_201           (0x0425502bUL)         /*!< LPC1112  w/16K FLASH / 4K RAM */
+#define DeviceID_LPC1112_202           (0x2524902bUL)         /*!< LPC1112L w/16K FLASH / 2K RAM */
+#define DeviceID_LPC1113_201           (0x0434502bUL)         /*!< LPC1113  w/24K FLASH / 4K RAM */
+#define DeviceID_LPC1113_202           (0x2532902bUL)         /*!< LPC1113L w/24K FLASH / 4K RAM */
+#define DeviceID_LPC1113_301           (0x0434102bUL)         /*!< LPC1113  w/24K FLASH / 8K RAM */
+#define DeviceID_LPC1113_302           (0x2532102bUL)         /*!< LPC1113L w/24K FLASH / 4K RAM */
+#define DeviceID_LPC1114_201           (0x0444502bUL)         /*!< LPC1114  w/32K FLASH / 4K RAM */
+#define DeviceID_LPC1114_202           (0x2540902bUL)         /*!< LPC1114L w/32K FLASH / 4K RAM */
+#define DeviceID_LPC1114_301           (0x0444102bUL)         /*!< LPC1114  w/32K FLASH / 8K RAM */
+#define DeviceID_LPC1114_302           (0x2540102bUL)         /*!< LPC1114L w/32K FLASH / 8K RAM */
+#define DeviceID_LPC11C12_301          (0x1421102bUL)         /*!< LPC11C12 w/16K FLASH / 8K RAM */
+#define DeviceID_LPC11C14_301          (0x1440102bUL)         /*!< LPC11C14 w/32K FLASH / 8K RAM */
+#define DeviceID_LPC11C22_301          (0x1431102bUL)         /*!< LPC11C22 w/16K FLASH / 8K RAM */
+#define DeviceID_LPC11C24_301          (0x1430102bUL)         /*!< LPC11C24 w/32K FLASH / 8K RAM */
+
+/** @} */
 
 
 /* Peripheral Memory Locations ------------------------------------------------------------------*/

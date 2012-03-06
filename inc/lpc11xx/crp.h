@@ -3,13 +3,13 @@
  * @brief    Code Protection Interface Header for NXP LPC Microcontrollers.
  * @version  V1.0
  * @author   Tymm Twillman
- * @date     1. January 2012
+ * @date     January 2012
  ******************************************************************************
  * @section Overview
  * This file gives a basic interface to NXP LPC Code Read Protection.
  *
- * Protection is controlled by a special coded byte at a given location in
- * Flash memory; it indicates the degree and type of restrictions placed
+ * Protection is controlled by a special coded word at a specific location in
+ * Flash memory; it indicates the types of restrictions placed
  * on the boot loader and debugging interfaces.
  *
  * @note
@@ -98,7 +98,7 @@ extern "C" {
   * @{
   */
 
-/*! @brief Code Read Protection Configuration Location */
+/*! @brief Firmware Code Read Protection Configuration */
 extern const uint32_t CodeProtection;
 
 /**

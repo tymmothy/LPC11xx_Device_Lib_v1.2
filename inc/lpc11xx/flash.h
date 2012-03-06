@@ -10,6 +10,11 @@
  *
  * It allows setting of Flash wait states & generating 128-bit signatures
  * of Flash memory ranges.
+ *
+ * @note
+ * This file does not handle the following necessary steps for FLASH controller
+ * use:
+ * - The FLASHCTRL (AHB or APB/VPB) bus clock line must be enabled
  ******************************************************************************
  * @section License
  * Licensed under a Simplified BSD License:
@@ -72,37 +77,35 @@ extern "C" {
   */
 
 /** @brief Set the Flash fetch latency.
-  * @param  Latency     The new number of wait states per Flash access (0-2)
-  * @return             None.
+  * @param[in]  waits        The new number of wait states per Flash access (0 - 2)
   *
-  * Must have minimum 1 cycle latency @ >=20Mhz; minimum 2 cycles @ >=40Mhz.
+  * Must have 1 or 2 cycle latency @ >=20Mhz; 2 cycles @ >=40Mhz.
   */
-__INLINE static void FLASH_SetWaitStates(unsigned int Latency)
+__INLINE static void FLASH_SetWaitStates(unsigned int waits)
 {
-    lpclib_assert(Latency <= 2);
+    lpclib_assert(waits <= 2);
 
-    FLASH->FLASHCFG = (FLASH->FLASHCFG & ~FLASH_FLASHTIM_Mask) | Latency;
+    FLASH->FLASHCFG = (FLASH->FLASHCFG & ~FLASH_FLASHTIM_Mask) | waits;
 }
 
 /** @brief Get the currently configured Flash fetch latency.
-  * @return             The number of configured wait states per Flash access.
+  * @return                  The number of configured wait states per Flash access.
   */
 __INLINE static unsigned int FLASH_GetWaitStates(void)
 {
     return FLASH->FLASHCFG & (FLASH_FLASHTIM_Mask);
 }
 
-/** @brief Generate a signature for a (16-byte aligned) range of flash memory.
-  * @param  start_addr  The (16-byte aligned) start address of the flash memory
-  * @param  end_addr    The (16-byte aligned) end address of the flash memory
-  * @param  result      Where the (128-bit / 4 word) resulting signature is put
-  * @return             None.
+/** @brief Generate a signature for a range of flash memory.
+  * @param[in]  start_addr   The start address of the flash memory (16-byte aligned)
+  * @param[in]  end_addr     The end address of the flash memory   (16-byte aligned)
+  * @param[out] result       Pointer to location to store the resulting signature (4x32b words)
   */
 __INLINE static void FLASH_GenerateSignature(uint32_t start_addr,
                                              uint32_t end_addr,
                                              uint32_t result[4])
 {
-    /* Start/end addresses should be 16-byte aligned. */
+    /* Verify start & end are 16-byte aligned. */
     lpclib_assert((start_addr & 0x0f) == 0);
     lpclib_assert((end_addr & 0x0f) == 0);
 

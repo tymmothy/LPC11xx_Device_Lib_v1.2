@@ -8,6 +8,15 @@
  * @section Overview
  * This file gives a basic interface to NXP LPC11Cxx microcontroller
  * ROM-based OpenCAN driver for Controller Area Network communication.
+ *
+ * @note
+ * This file does not handle the following necessary steps for CAN use:
+ * - The CAN controller's (AHB or APB/VPB) input clock line must be configured
+ *   & enabled.
+ * - IO Pins must be configured for CAN use
+ * - For interrupt use, an interrupt handler must be declared and
+ *   the CAN controller's interrupt line must be enabled in the
+ *   microcontroller's interrupt controller.
  ******************************************************************************
  * @section License
  * Licensed under a Simplified BSD License:

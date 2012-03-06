@@ -75,19 +75,15 @@ extern uint32_t SystemAHBClock;                            /*!< Speed of AHB Bus
   * @{
   */
 
-/** @brief  Set up system clocks & low-level hardware.
+/** @brief Hardware initialization function.
   *
-  * @return None.
-  *
-  * Called on bring-up of CPU for hardware configuration.
+  * Sets up system clocks, Flash wait states, misc. hardware configuration.
   */
 extern void SystemInit(void);
 
-/** @brief  Update SystemCoreClock and SystemAHBClock variables to match current clock config
+/** @brief  Update SystemCoreClock and SystemAHBClock variables to match current clock config.
   *
-  * @return None.
-  *
-  * Checks system clocking registers to determine current CPU core clock speed.
+  * Checks system clocking registers to determine current CPU core / bus clock speeds.
   */
 extern void SystemCoreClockUpdate(void);
 

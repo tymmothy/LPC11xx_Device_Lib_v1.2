@@ -7,9 +7,14 @@
  ******************************************************************************
  * @section Overview
  * This file gives a basic interface to NXP LPC11xx microcontroller
- * system configuration blocks.  It abstracts such things as setting
- * remapping ISR memory, enabling/disabling system clock lines, configuring
- * the system brownout detector, and getting device ID's.
+ * system configuration blocks.  It abstracts the interfaces to:
+ *  - Memory remapping
+ *  - Peripheral resetting
+ *  - System, WDT, peripheral, IRC, PLL, AHB clocks
+ *  - Brownout detector
+ *  - System start logic
+ *  - System power down / wake settings
+ *  - Reading LPC11xx device ID's
  ******************************************************************************
  * @section License License
  * Licensed under a Simplified BSD License:
@@ -41,16 +46,6 @@
  * The views and conclusions contained in the software and documentation are
  * those of the authors and should not be interpreted as representing official
  * policies, either expressed or implied, of Timothy Twillman.
- ******************************************************************************
- * This file defines types and functions for using the LPC11xx System Control
- * block:
- *  - Memory Remapping
- *  - Peripheral Resetting
- *  - System, WDT, Peripheral, IRC, PLL, AHB Clocks
- *  - Brownout Detector
- *  - System Start Logic
- *  - System Power Down / Wake Settings
- *  - LPC11xx Device ID's
  *****************************************************************************/
 
 #ifndef LPC_SYSCON_H_
@@ -174,11 +169,11 @@ typedef enum {
   * @{
   */
 
-#define SYSCON_ResetSource_POR            (1 << 0)         /*!< System reset from power on reset */
-#define SYSCON_ResetSource_EXT            (1 << 1)         /*!< System reset from external reset */
-#define SYSCON_ResetSource_WDT            (1 << 2)         /*!< System reset from watchdog timer */
-#define SYSCON_ResetSource_BOD            (1 << 3)         /*!< System reset from brownout       */
-#define SYSCON_ResetSource_SYSRST         (1 << 4)         /*!< System reset from NVIC reset     */
+#define SYSCON_ResetSource_PowerOn        (1 << 0)         /*!< System reset from power on reset */
+#define SYSCON_ResetSource_External       (1 << 1)         /*!< System reset from external reset */
+#define SYSCON_ResetSource_Watchdog       (1 << 2)         /*!< System reset from watchdog timer */
+#define SYSCON_ResetSource_Brownout       (1 << 3)         /*!< System reset from brownout       */
+#define SYSCON_ResetSource_SysReset       (1 << 4)         /*!< System reset from NVIC reset     */
 
 /** @} */
 
@@ -317,10 +312,10 @@ typedef enum {
 } SYSCON_BODResetVoltage_Type;
 
 /*! @brief Macro to test whether parameter is a valid brownout detector reset voltage value */
-#define SYSCON_IS_BOD_RESET_VOLTAGE(Voltage) (((Voltage) == SYSCON_BODResetVoltage_1V46) \
-                                           || ((Voltage) == SYSCON_BODResetVoltage_2V06) \
-                                           || ((Voltage) == SYSCON_BODResetVoltage_2V35) \
-                                           || ((Voltage) == SYSCON_BODResetVoltage_2V80))
+#define SYSCON_IS_BODRESETVOLTAGE(Voltage) (((Voltage) == SYSCON_BODResetVoltage_1V46) \
+                                         || ((Voltage) == SYSCON_BODResetVoltage_2V06) \
+                                         || ((Voltage) == SYSCON_BODResetVoltage_2V35) \
+                                         || ((Voltage) == SYSCON_BODResetVoltage_2V80))
 
 /** @} */
 
@@ -337,56 +332,54 @@ typedef enum {
 } SYSCON_BODInterruptVoltage_Type;
 
 /*! @brief Macro to test whether parameter is a valid brownout detector interrupt voltage value */
-#define SYSCON_IS_BOD_INTERRUPT_VOLTAGE(Voltage) (((Voltage) == SYSCON_BODInterruptVoltage_1V65) \
-                                               || ((Voltage) == SYSCON_BODInterruptVoltage_2V22) \
-                                               || ((Voltage) == SYSCON_BODInterruptVoltage_2V52) \
-                                               || ((Voltage) == SYSCON_BODInterruptVoltage_2V80))
+#define SYSCON_IS_BODINTERRUPTVOLTAGE(Voltage) (((Voltage) == SYSCON_BODInterruptVoltage_1V65) \
+                                             || ((Voltage) == SYSCON_BODInterruptVoltage_2V22) \
+                                             || ((Voltage) == SYSCON_BODInterruptVoltage_2V52) \
+                                             || ((Voltage) == SYSCON_BODInterruptVoltage_2V80))
 
 /** @} */
 
-/** @defgroup SYSCON_StartLogicEdges Start Logic Edge Triggers
+/** @defgroup SYSCON_WakeupEdges Wake-up (Start Logic) Edge Triggers
   * @{
   */
 
-/*! @brief Start Logic Trigger Edges */
+/*! @brief Wake-up trigger edge settings */
 typedef enum {
-    SYSCON_StartLogicEdge_Falling = 0x00,                  /*!< Start logic trig on falling edge */
-    SYSCON_StartLogicEdge_Rising                           /*!< Start logic trig on rising edge  */
-} SYSCON_StartLogicEdge_Type;
+    SYSCON_WakeupEdge_Falling = 0x00,                  /*!< Wake-up triggers on falling edge */
+    SYSCON_WakeupEdge_Rising                           /*!< Wake-up triggers on rising edge  */
+} SYSCON_WakeupEdge_Type;
 
-/*! @brief Macro to test whether parameter is a valid start logic edge value */
-#define SYSCON_IS_START_LOGIC_EDGE(Edge) (((Edge) == SYSCON_StartLogicEdge_Falling) \
-                                       || ((Edge) == SYSCON_StartLogicEdge_Rising))
+/*! @brief Macro to test whether parameter is a valid wake-up edge value */
+#define SYSCON_IS_WAKEUPEDGE(Edge) (((Edge) == SYSCON_WakeupEdge_Falling) \
+                                       || ((Edge) == SYSCON_WakeupEdge_Rising))
 
 /** @} */
 
-/** @defgroup SYSCON_StartLogicInputs Start Logic Input Pins
+/** @defgroup SYSCON_WakeupInputs Start Logic Input Pins
   * @{
   */
 
-#define SYSCON_StartLogicInput_PIO0_0  (1 << 0)            /*!< System start logic input PIO0_0  */
-#define SYSCON_StartLogicInput_PIO0_1  (1 << 1)            /*!< System start logic input PIO0_1  */
-#define SYSCON_StartLogicInput_PIO0_2  (1 << 2)            /*!< System start logic input PIO0_2  */
-#define SYSCON_StartLogicInput_PIO0_3  (1 << 3)            /*!< System start logic input PIO0_3  */
-#define SYSCON_StartLogicInput_PIO0_4  (1 << 4)            /*!< System start logic input PIO0_4  */
-#define SYSCON_StartLogicInput_PIO0_5  (1 << 5)            /*!< System start logic input PIO0_5  */
-#define SYSCON_StartLogicInput_PIO0_6  (1 << 6)            /*!< System start logic input PIO0_6  */
-#define SYSCON_StartLogicInput_PIO0_7  (1 << 7)            /*!< System start logic input PIO0_7  */
-#define SYSCON_StartLogicInput_PIO0_8  (1 << 8)            /*!< System start logic input PIO0_8  */
-#define SYSCON_StartLogicInput_PIO0_9  (1 << 9)            /*!< System start logic input PIO0_9  */
-#define SYSCON_StartLogicInput_PIO0_10 (1 << 10)           /*!< System start logic input PIO0_10 */
-#define SYSCON_StartLogicInput_PIO0_11 (1 << 11)           /*!< System start logic input PIO0_11 */
-#define SYSCON_StartLogicInput_PIO1_0  (1 << 12)           /*!< System start logic input PIO1_0  */
+#define SYSCON_WakeupInput_Mask        (0x1fff)            /*!< Bitmask of all wakeup inputs     */
 
-/*! @brief Type for passing start logic input masks */
-typedef uint32_t SYSCON_StartLogicInputs_Type;
+#define SYSCON_WakeupInput_0           (1 << 0)            /*!< Wakeup input 0  (PIO0_0)         */
+#define SYSCON_WakeupInput_1           (1 << 1)            /*!< Wakeup input 1  (PIO0_1)         */
+#define SYSCON_WakeupInput_2           (1 << 2)            /*!< Wakeup input 2  (PIO0_2)         */
+#define SYSCON_WakeupInput_3           (1 << 3)            /*!< Wakeup input 3  (PIO0_3)         */
+#define SYSCON_WakeupInput_4           (1 << 4)            /*!< Wakeup input 4  (PIO0_4)         */
+#define SYSCON_WakeupInput_5           (1 << 5)            /*!< Wakeup input 5  (PIO0_5)         */
+#define SYSCON_WakeupInput_6           (1 << 6)            /*!< Wakeup input 6  (PIO0_6)         */
+#define SYSCON_WakeupInput_7           (1 << 7)            /*!< Wakeup input 7  (PIO0_7)         */
+#define SYSCON_WakeupInput_8           (1 << 8)            /*!< Wakeup input 8  (PIO0_8)         */
+#define SYSCON_WakeupInput_9           (1 << 9)            /*!< Wakeup input 9  (PIO0_9)         */
+#define SYSCON_WakeupInput_10          (1 << 10)           /*!< Wakeup input 10 (PIO0_10)        */
+#define SYSCON_WakeupInput_11          (1 << 11)           /*!< Wakeup input 11 (PIO0_11)        */
+#define SYSCON_WakeupInput_12          (1 << 12)           /*!< Wakeup input 12 (PIO1_0)         */
 
 /** @} */
 
 /** @defgroup SYSCON_AnalogPowerLines System Analog Power Line Control Bits
   * @{
   */
-
 
 #define SYSCON_AnalogPowerLine_IRCOut  (1 << 0)            /*!< Power for IRC osc output         */
 #define SYSCON_AnalogPowerLine_IRC     (1 << 1)            /*!< Power for internal RC osc        */
@@ -396,9 +389,6 @@ typedef uint32_t SYSCON_StartLogicInputs_Type;
 #define SYSCON_AnalogPowerLine_SysOsc  (1 << 5)            /*!< Power for system oscillator      */
 #define SYSCON_AnalogPowerLine_WDTOsc  (1 << 6)            /*!< Power for WDT oscillator         */
 #define SYSCON_AnalogPowerLine_SysPLL  (1 << 7)            /*!< Power for system PLL             */
-
-/*! @brief Type for passing analog power line control bits */
-typedef uint32_t SYSCON_AnalogPowerLines_Type;
 
 /** @} */
 
@@ -414,36 +404,9 @@ typedef enum {
 } SYSCON_PowerMode_Type;
 
 /*! @brief Macro to test whether parameter is a valid system power mode value */
-#define SYSCON_IS_POWER_MODE(Mode)  (((Mode) == SYSCON_PowerMode_Sleep) \
-                                  || ((Mode) == SYSCON_PowerMode_Awake) \
-                                  || ((Mode) == SYSCON_PowerMode_Run))
-
-/** @} */
-
-/** @defgroup LPC11xx_DeviceIDs LPC11xx Device ID Values
-  * @{
-  */
-
-#define DeviceID_LPC1111_101           (0x041e502bUL)         /*!< LPC1111  w/8K  FLASH / 2K RAM */
-#define DeviceID_LPC1111_102           (0x2516d02bUL)         /*!< LPC1111L w/8K  FLASH / 2K RAM */
-#define DeviceID_LPC1111_201           (0x0416502bUL)         /*!< LPC1111  w/8K  FLASH / 4K RAM */
-#define DeviceID_LPC1111_202           (0x2516902bUL)         /*!< LPC1111L w/8K  FLASH / 4K RAM */
-#define DeviceID_LPC1112_101           (0x042d502bUL)         /*!< LPC1112  w/16K FLASH / 2K RAM */
-#define DeviceID_LPC1112_102           (0x2524d02bUL)         /*!< LPC1112L w/16K FLASH / 2K RAM */
-#define DeviceID_LPC1112_201           (0x0425502bUL)         /*!< LPC1112  w/16K FLASH / 4K RAM */
-#define DeviceID_LPC1112_202           (0x2524902bUL)         /*!< LPC1112L w/16K FLASH / 2K RAM */
-#define DeviceID_LPC1113_201           (0x0434502bUL)         /*!< LPC1113  w/24K FLASH / 4K RAM */
-#define DeviceID_LPC1113_202           (0x2532902bUL)         /*!< LPC1113L w/24K FLASH / 4K RAM */
-#define DeviceID_LPC1113_301           (0x0434102bUL)         /*!< LPC1113  w/24K FLASH / 8K RAM */
-#define DeviceID_LPC1113_302           (0x2532102bUL)         /*!< LPC1113L w/24K FLASH / 4K RAM */
-#define DeviceID_LPC1114_201           (0x0444502bUL)         /*!< LPC1114  w/32K FLASH / 4K RAM */
-#define DeviceID_LPC1114_202           (0x2540902bUL)         /*!< LPC1114L w/32K FLASH / 4K RAM */
-#define DeviceID_LPC1114_301           (0x0444102bUL)         /*!< LPC1114  w/32K FLASH / 8K RAM */
-#define DeviceID_LPC1114_302           (0x2540102bUL)         /*!< LPC1114L w/32K FLASH / 8K RAM */
-#define DeviceID_LPC11C12_301          (0x1421102bUL)         /*!< LPC11C12 w/16K FLASH / 8K RAM */
-#define DeviceID_LPC11C14_301          (0x1440102bUL)         /*!< LPC11C14 w/32K FLASH / 8K RAM */
-#define DeviceID_LPC11C22_301          (0x1431102bUL)         /*!< LPC11C22 w/16K FLASH / 8K RAM */
-#define DeviceID_LPC11C24_301          (0x1430102bUL)         /*!< LPC11C24 w/32K FLASH / 8K RAM */
+#define SYSCON_IS_POWERMODE(Mode) (((Mode) == SYSCON_PowerMode_Sleep) \
+                                || ((Mode) == SYSCON_PowerMode_Awake) \
+                                || ((Mode) == SYSCON_PowerMode_Run))
 
 /** @} */
 
@@ -459,147 +422,137 @@ typedef enum {
   * @{
   */
 
-/** @brief  Remap the ISR vector area of memory to the specified region
-  * @param  RemapMem  The area to map to the ISR vector area
-  * @return None.
+/** @brief Map the ISR vector to the specified memory area.
+  * @param[in]  remap        The area to which to map the ISR vector
   *
   * This is used to change memory area where the interrupt vectors are found.
   */
-__INLINE static void SYSCON_SetMemRemap(SYSCON_RemapMem_Type RemapMem)
+__INLINE static void SYSCON_SetMemRemap(SYSCON_RemapMem_Type remap)
 {
-    lpclib_assert(SYSCON_IS_REMAP_MEM(RemapMem));
+    lpclib_assert(SYSCON_IS_REMAP_MEM(remap));
 
-    SYSCON->SYSMEMREMAP = RemapMem;
+    SYSCON->SYSMEMREMAP = remap;
 }
 
-/** @brief  Return the area of memory currently remapped to the ISR Vector Memory Region
-  * @return The currently remapped region
+/** @brief Return the area of memory to which the ISR vector is mapped.
+  * @return                  The current area to which the ISR vector is mapped.
   */
 __INLINE static SYSCON_RemapMem_Type SYSCON_GetMemRemap(void)
 {
     return SYSCON->SYSMEMREMAP;
 }
 
-/** @brief  Assert the reset lines of specified peripherals.
-  * @param  PeripheralResets  Mask of the peripherals to assert reset on
-  * @return None.
+/** @brief Assert the reset lines of the specified peripherals.
+  * @param[in]  reset_mask   A bitmask of the peripherals for which to assert reset.
   */
-__INLINE static void SYSCON_AssertPeripheralResets(unsigned int PeripheralResets)
+__INLINE static void SYSCON_AssertPeripheralResets(unsigned int reset_mask)
 {
-    lpclib_assert((PeripheralResets & ~SYSCON_PRESETCTRL_RESET_Mask) == 0);
+    lpclib_assert((reset_mask & ~SYSCON_PRESETCTRL_RESET_Mask) == 0);
 
     /* Note: Reset lines are active low */
-    SYSCON->PRESETCTRL &= ~PeripheralResets;
+    SYSCON->PRESETCTRL &= ~reset_mask;
 }
 
-/** @brief  De-assert the reset lines of specified peripherals.
-  * @param  PeripheralResets  Mask of the peripherals to de-assert reset on
-  * @return None.
+/** @brief De-Assert the reset lines of the specified peripherals.
+  * @param[in]  reset_mask   A bitmask of the peripherals for which to de-assert reset.
   */
-__INLINE static void SYSCON_DeassertPeripheralResets(unsigned int PeripheralResets)
+__INLINE static void SYSCON_DeassertPeripheralResets(unsigned int reset_mask)
 {
-    lpclib_assert((PeripheralResets & ~SYSCON_PRESETCTRL_RESET_Mask) == 0);
+    lpclib_assert((reset_mask & ~SYSCON_PRESETCTRL_RESET_Mask) == 0);
 
     /* Note: Reset lines are active low */
-    SYSCON->PRESETCTRL |= PeripheralResets;
+    SYSCON->PRESETCTRL |= reset_mask;
 }
 
-/** @brief  Get the mask specifying peripherals currently held in reset.
-  * @return A mask of the peripherals being held in reset.
+/** @brief Get a bitmask of peripherals for which reset is currently asserted.
+  * @return                  A bitmask of the peripherals for which reset is asserted.
   */
 __INLINE static unsigned int SYSCON_GetAssertedPeripheralResets(void)
 {
     return (~(SYSCON->PRESETCTRL)) & SYSCON_PRESETCTRL_RESET_Mask;
 }
 
-/** @brief  Test whether the system PLL is locked.
-  * @return 1 if the System PLL is locked, 0 otherwise.
+/** @brief Test whether the system PLL is locked.
+  * @return                  1 if the system PLL is locked, 0 otherwise.
   */
 __INLINE static unsigned int SYSCON_SysPLLIsLocked(void)
 {
     return (SYSCON->SYSPLLSTAT & SYSCON_SYSPLLSTAT_LOCKED) ? 1:0;
 }
 
-/** @brief  Enable bypass of the system oscillator.
-  * @return None.
+/** @brief Enable bypass of the system oscillator.
   */
 __INLINE static void SYSCON_EnableSysOscBypass(void)
 {
     SYSCON->SYSOSCCTRL |= SYSCON_SYSOSCCTRL_BYPASS;
 }
 
-/** @brief  Disable bypass of the system oscillator.
-  * @return None.
+/** @brief Disable bypass of the system oscillator.
   */
 __INLINE static void SYSCON_DisableSysOscBypass(void)
 {
     SYSCON->SYSOSCCTRL &= ~SYSCON_SYSOSCCTRL_BYPASS;
 }
 
-/** @brief  Test whether the system oscillator is currently bypassed.
-  * @return 1 if the system oscillator is bypassed, 0 otherwise.
+/** @brief Test whether the system oscillator is currently bypassed.
+  * @return                  1 if the system oscillator is bypassed, 0 otherwise.
   */
 __INLINE static unsigned int SYSCON_SysOscBypassIsEnabled(void)
 {
     return (SYSCON->SYSOSCCTRL & SYSCON_SYSOSCCTRL_BYPASS) ? 1:0;
 }
 
-/** @brief  Set the frequency range of the xtal feeding the system oscillator.
-  * @param  Range    Value specifying the frequency range of the xtal.
-  * @return None.
+/** @brief Set the frequency range of the crystal feeding the system oscillator.
+  * @param[in]  range        The new frequency range of the xtal.
   */
-__INLINE static void SYSCON_SetSysOscFreqRange(SYSCON_SysOscFreqRange_Type Range)
+__INLINE static void SYSCON_SetSysOscFreqRange(SYSCON_SysOscFreqRange_Type range)
 {
-    lpclib_assert(SYSCON_IS_SYSOSC_FREQ_RANGE(Range));
+    lpclib_assert(SYSCON_IS_SYSOSC_FREQ_RANGE(range));
 
-    SYSCON->SYSOSCCTRL = (SYSCON->SYSOSCCTRL & ~SYSCON_SYSOSCCTRL_FREQRANGE) | Range;
+    SYSCON->SYSOSCCTRL = (SYSCON->SYSOSCCTRL & ~SYSCON_SYSOSCCTRL_FREQRANGE) | range;
 }
 
-/** @brief  Get the set frequency range of the xtal feeding the system oscillator.
-  * @return A value specifying the frequency range of the xtal.
+/** @brief Get the current (configured) frequency range of the crystal feeding the system oscillator.
+  * @return                  The frequency range of the crystal.
   */
 __INLINE static SYSCON_SysOscFreqRange_Type SYSCON_GetSysOscFreqRange(void)
 {
     return SYSCON->SYSOSCCTRL & SYSCON_SYSOSCCTRL_FREQRANGE;
 }
 
-/** @brief  Set the divider of the watchdog timer's oscillator
-  * @param  Divider   The value by which to divide the WDT clock
-  * @return None.
-  *
-  * Divider must be an even # between 2 and 64 inclusive.
+/** @brief Set the watchdog timer oscillator divider.
+  * @param[in]  divider      The new divider value (an even number between 2 & 64)
   */
-__INLINE static void SYSCON_SetWDTOscDivider(unsigned int Divider)
+__INLINE static void SYSCON_SetWDTOscDivider(unsigned int divider)
 {
-    lpclib_assert((Divider <= 64) && (Divider != 0));
-    lpclib_assert((Divider & 1) == 0);
+    lpclib_assert((divider <= 64) && (divider != 0));
+    lpclib_assert((divider & 1) == 0);
 
     SYSCON->WDTOSCCTRL = (SYSCON->WDTOSCCTRL & ~SYSCON_WDTOSCCTRL_DIV_Mask)
-                          | ((Divider >> 1) - 1);
+                          | ((divider >> 1) - 1);
 }
 
-/** @brief  Get the current divider of the watchdog timer's oscillator.
-  * @return The current divider value (# between 2 & 64 inclusive)
+/** @brief Get the current divider of the watchdog timer oscillator.
+  * @return                  The current watchdog timer oscillator divider (even #; 2 <= n <= 64).
   */
 __INLINE static unsigned int SYSCON_GetWDTOscDivider(void)
 {
     return ((SYSCON->WDTOSCCTRL & SYSCON_WDTOSCCTRL_DIV_Mask) + 1) << 1;
 }
 
-/** @brief  Set the frequency of the watchdog timer's oscillator.
-  * @param  OscFreq  The WDT oscillator frequency setting (of WDT_OscFreq_Type)
-  * @return None.
+/** @brief Set the frequency of the watchdog timer oscillator.
+  * @param[in]  freq         The new watchdog timer oscillator frequency setting
   */
-__INLINE static void SYSCON_SetWDTOscFreq(SYSCON_WDTOscFreq_Type OscFreq)
+__INLINE static void SYSCON_SetWDTOscFreq(SYSCON_WDTOscFreq_Type freq)
 {
-    lpclib_assert(SYSCON_IS_WDT_OSC_FREQ(OscFreq));
+    lpclib_assert(SYSCON_IS_WDT_OSC_FREQ(freq));
 
     SYSCON->WDTOSCCTRL = (SYSCON->WDTOSCCTRL & ~SYSCON_WDTOSCCTRL_FREQSEL_Mask)
-                         | (OscFreq << SYSCON_WDTOSCCTRL_FREQSEL_Shift);
+                         | (freq << SYSCON_WDTOSCCTRL_FREQSEL_Shift);
 }
 
-/** @brief  Get the current frequency setting of the watchdog timer oscillator.
-  * @return The currently configured WDT oscillator frequency setting.
+/** @brief Get the current frequency setting of the watchdog timer oscillator.
+  * @return                  The currently watchdog timer oscillator frequency setting.
   */
 __INLINE static SYSCON_WDTOscFreq_Type SYSCON_GetWDTOscFreq(void)
 {
@@ -607,74 +560,78 @@ __INLINE static SYSCON_WDTOscFreq_Type SYSCON_GetWDTOscFreq(void)
             >> SYSCON_WDTOSCCTRL_FREQSEL_Shift);
 }
 
-/** @brief  Set the internal RC oscillator's trim value.
-  * @param  Trim Value to set (0 - 255)
-  * @return None.
+/** @brief Set the internal RC oscillator trim value.
+  * @param[in]  trim         The new RC oscillator trim value (0 - 255)
   *
-  * Not normally necessary to be adjusted; set by system boot ROM.
+  * @note
+  * This does not normally need to be adjusted; it's set by the system boot ROM.
   */
-__INLINE static void SYSCON_SetIRCTrim(unsigned int Trim)
+__INLINE static void SYSCON_SetIRCTrim(unsigned int trim)
 {
-    lpclib_assert((Trim & ~SYSCON_IRCCTL_TRIM_Mask) == 0);
+    lpclib_assert(trim <= 255);
 
-    SYSCON->IRCCTRL = Trim;
+    SYSCON->IRCCTRL = trim;
 }
 
-/** @brief  Get the configured internal RC oscillator's trim value (0 - 255).
-  * @return The configured IRC trim value.
+/** @brief Get the current internal RC oscillator trim value.
+  * @return                  The current RC oscillator trim value (0-255).
   */
 __INLINE static unsigned int SYSCON_GetIRCTrim(void)
 {
     return SYSCON->IRCCTRL;
 }
 
-/** @brief  Get the source(s) that triggered the previous system reset(s).
-  * @return A bitmask of the reset sources.
+/** @brief Get a bitmask of sources that triggered the previous system reset(s).
+  * @return                  A bitmask of the previous reset sources.
   *
-  * Sources are sticky & must be cleared by the application.
+  * @note
+  * Sources are sticky & must be cleared by the application each reset or they
+  * will stay set through the next reset.
   */
 __INLINE static uint32_t SYSCON_GetResetSources(void)
 {
     return SYSCON->SYSRESSTAT;
 }
 
-/** @brief  Clear reset trigger sources.
-  * @param  sources  A bitmask of reset sources to clear
-  * @return None.
-  */
-__INLINE static void SYSCON_ClearResetSources(uint32_t sources)
-{
-    lpclib_assert((sources & ~SYSCON_SYSRESSTAT_STAT_Mask) == 0);
-
-    SYSCON->SYSRESSTAT = sources;
-}
-
-/** @brief  Set the system PLL's clock source.
-  * @param  Source   The new clock source
-  * @return None.
+/** @brief Clear the system reset trigger sources.
+  * @param[in]  reset_mask   A bitmask of reset sources to clear.
   *
-  * Need to call SYSPLL_EnableSourceUpdate after setting, and wait for
-  *  the source to be updated (SYSPLL_SourceIsUpdated() == 1)
+  * @sa SYSCON_GetResetSources
   */
-__INLINE static void SYSCON_SetSysPLLClockSource(SYSCON_SysPLLClockSource_Type Source)
+__INLINE static void SYSCON_ClearResetSources(uint32_t reset_mask)
 {
-    lpclib_assert(SYSCON_IS_SYSPLL_CLOCK_SOURCE(Source));
+    lpclib_assert((reset_mask & ~SYSCON_SYSRESSTAT_STAT_Mask) == 0);
 
-    SYSCON->SYSPLLCLKSEL = Source;
+    SYSCON->SYSRESSTAT = reset_mask;
 }
 
-/** @brief  Get the system PLL's current clock source.
-  * @return The current clock source.
+/** @brief Set the system PLL clock source.
+  * @param[in]  source       The new clock source
+  *
+  * @note
+  * Need to call SYSCON_EnableSysPLLClockSourceUpdate after setting, and wait for
+  * the source to be updated (SYSCON_SysPLLClockSourceIsUpdated() == 1)
+  */
+__INLINE static void SYSCON_SetSysPLLClockSource(SYSCON_SysPLLClockSource_Type source)
+{
+    lpclib_assert(SYSCON_IS_SYSPLL_CLOCK_SOURCE(source));
+
+    SYSCON->SYSPLLCLKSEL = source;
+}
+
+/** @brief Get the current system PLL clock source.
+  * @return                  The current clock source.
   */
 __INLINE static SYSCON_SysPLLClockSource_Type SYSCON_GetSysPLLClockSource(void)
 {
     return SYSCON->SYSPLLCLKSEL;
 }
 
-/** @brief  Enable updating of the system PLL's clock source.
-  * @return None.
+/** @brief Enable updating of the system PLL clock source.
   *
-  * Used after changing the system PLL clock source to make the change active.
+  * @note
+  * This is required after updating the clock source in order for the actual
+  * change to occur.
   */
 __INLINE static void SYSCON_EnableSysPLLClockSourceUpdate(void)
 {
@@ -683,34 +640,37 @@ __INLINE static void SYSCON_EnableSysPLLClockSourceUpdate(void)
     SYSCON->SYSPLLCLKUEN = SYSCON_SYSPLLUEN_ENA;
 }
 
-/** @brief  Test whether the system PLL's clock source has successfully updated.
-  * @return 1 if the source has updated, 0 otherwise.
+/** @brief Test whether the system PLL clock source has updated.
+  * @return                  1 if an update has occurred, 0 otherwise.
   *
+  * @note
   * Generally will be called in a while() loop after the source has been updated
-  * and SYSPLL_EnableSourceUpdate() has been called.
+  * and SYSCON_EnableSysPLLClockSourceUpdate() has been called to ensure the
+  * update happens before continuing.
   */
 __INLINE static unsigned int SYSCON_SysPLLClockSourceIsUpdated(void)
 {
     return (SYSCON->SYSPLLCLKUEN & SYSCON_SYSPLLUEN_ENA) ? 1:0;
 }
 
-/** @brief  Set the system PLL's clock scaler setting.
-  * @param  Scaler  The new clock scaler setting
-  * @return None.
+/** @brief Set the system PLL clock scaler.
+  * @param[in]  scaler       The new clock scaler setting
   *
+  * @note
   * The scaler value is a hybrid of PLL M (multiplier) and P (divider)
   * values.
   */
-__INLINE static void SYSCON_SetSysPLLClockScaler(unsigned int Scaler)
+__INLINE static void SYSCON_SetSysPLLClockScaler(unsigned int scaler)
 {
-    lpclib_assert((Scaler & ~(SYSCON_SYSPLLCTRL_MSEL_Mask | SYSCON_SYSPLLCTRL_PSEL_Mask)) == 0);
+    lpclib_assert((scaler & ~(SYSCON_SYSPLLCTRL_MSEL_Mask | SYSCON_SYSPLLCTRL_PSEL_Mask)) == 0);
 
-    SYSCON->SYSPLLCTRL = Scaler;
+    SYSCON->SYSPLLCTRL = scaler;
 }
 
-/** @brief  Get the system PLL's current scaler (M and P) setting.
-  * @return The system PLL's current scaler setting.
+/** @brief Get the current system PLL scaler (M and P) setting.
+  * @return                  The current system PLL scaler setting.
   *
+  * @note
   * The scaler value is a hybrid of PLL M (multiplier) and P (divider)
   * values.
   */
@@ -719,39 +679,37 @@ __INLINE static unsigned int SYSCON_GetSysPLLClockScaler(void)
     return (SYSCON->SYSPLLCTRL & (SYSCON_SYSPLLCTRL_MSEL_Mask | SYSCON_SYSPLLCTRL_PSEL_Mask));
 }
 
-/** @brief  Set the system PLL's M (multiplier) value
-  * @param  MVal  The new PLL multiplier value
-  * @return None.
+/** @brief Set the system PLL M (multiplier) value.
+  * @param[in]  m            The new PLL multiplier value
   */
-__INLINE static void SYSCON_SetSysPLLMVal(unsigned int MVal)
+__INLINE static void SYSCON_SetSysPLLMVal(unsigned int m)
 {
-    lpclib_assert((MVal & ~(SYSCON_SYSPLLCTRL_MSEL_Mask)) == 0);
+    lpclib_assert((m & ~(SYSCON_SYSPLLCTRL_MSEL_Mask)) == 0);
 
-    SYSCON->SYSPLLCTRL = (SYSCON->SYSPLLCTRL & ~SYSCON_SYSPLLCTRL_MSEL_Mask) | MVal;
+    SYSCON->SYSPLLCTRL = (SYSCON->SYSPLLCTRL & ~SYSCON_SYSPLLCTRL_MSEL_Mask) | m;
 }
 
-/** @brief  Get the system PLL's current M (multiplier) value.
-  * @return The current system PLL M value
+/** @brief  Get the current system PLL M (multiplier) value.
+  * @return                  The current system PLL M value.
   */
 __INLINE static uint8_t SYSCON_GetSysPLLMVal(void)
 {
     return (SYSCON->SYSPLLCTRL & SYSCON_SYSPLLCTRL_MSEL_Mask);
 }
 
-/** @brief  Set the system PLL's P (divider) value.
-  * @param  PVal  The new PLL divider value
-  * @return None.
+/** @brief Set the system PLL P (divider) value.
+  * @param[in]  p            The new PLL divider value
   */
-__INLINE static void SYSCON_SetSysPLLPVal(unsigned int PVal)
+__INLINE static void SYSCON_SetSysPLLPVal(unsigned int p)
 {
-    lpclib_assert(SYSCON_IS_SYSPLL_PVAL_TYPE(PVal));
+    lpclib_assert(SYSCON_IS_SYSPLL_PVAL_TYPE(p));
 
     SYSCON->SYSPLLCTRL = (SYSCON->SYSPLLCTRL & ~SYSCON_SYSPLLCTRL_PSEL_Mask)
-                          | (PVal << SYSCON_SYSPLLCTRL_PSEL_Shift);
+                          | (p << SYSCON_SYSPLLCTRL_PSEL_Shift);
 }
 
-/** @brief  Get the system PLL's current P (divider) value.
-  * @return The current system PLL P value
+/** @brief Get the current system PLL P (divider) value.
+  * @return                  The current system PLL P value.
   */
 __INLINE static unsigned int SYSCON_GetSysPLLPVal(void)
 {
@@ -759,32 +717,33 @@ __INLINE static unsigned int SYSCON_GetSysPLLPVal(void)
             >> SYSCON_SYSPLLCTRL_PSEL_Shift;
 }
 
-/** @brief  Set the main system clock source.
-  * @param  Source  The new clock source.
-  * @return None.
+/** @brief Set the main system clock source.
+  * @param[in]  source       The new clock source.
   *
-  * Call MAINCLK_EnableSourceUpdate after setting, and wait for
-  *  the source to be updated (MAINCLK_SourceIsUpdated() == 1)
+  * @note
+  * Call SYSCON_EnableMainClockSourceUpdate after setting, and wait for
+  * the source to be updated (SYSCON_MainClockSourceIsUpdated() == 1)
   */
-__INLINE static void SYSCON_SetMainClockSource(SYSCON_MainClockSource_Type Source)
+__INLINE static void SYSCON_SetMainClockSource(SYSCON_MainClockSource_Type source)
 {
-    lpclib_assert(SYSCON_IS_MAIN_CLOCK_SOURCE(Source));
+    lpclib_assert(SYSCON_IS_MAIN_CLOCK_SOURCE(source));
 
-    SYSCON->MAINCLKSEL = Source;
+    SYSCON->MAINCLKSEL = source;
 }
 
-/** @brief  Get the main clock's currently configured clock source.
-  * @return The current clock source.
+/** @brief  Get the current main clock source.
+  * @return                  The current clock source.
   */
 __INLINE static SYSCON_MainClockSource_Type SYSCON_GetMainClockSource(void)
 {
     return SYSCON->MAINCLKSEL;
 }
 
-/** @brief  Enable updating of the main system clock's source.
-  * @return None.
+/** @brief Enable updating of the main clock source.
   *
-  * Used after changing the main system clock source to make the change active.
+  * @note
+  * This is required after updating the clock source in order for the actual
+  * change to occur.
   */
 __INLINE static void SYSCON_EnableMainClockSourceUpdate(void)
 {
@@ -793,157 +752,146 @@ __INLINE static void SYSCON_EnableMainClockSourceUpdate(void)
     SYSCON->MAINCLKUEN = SYSCON_MAINCLKUEN_ENA;
 }
 
-/** @brief  Test whether the main system clock source has successfully updated.
-  * @return 1 if the source has updated, 0 otherwise.
+/** @brief Test whether the main clock source has updated.
+  * @return                  1 if an update has occurred, 0 otherwise.
   *
+  * @note
   * Generally will be called in a while() loop after the source has been updated
-  * and MAINCLK_EnableSourceUpdate() has been called.
+  * and SYSCON_EnableMainClockSourceUpdate() has been called to ensure the update
+  * happens before continuing.
   */
 __INLINE static unsigned int SYSCON_MainClockSourceIsUpdated(void)
 {
     return (SYSCON->MAINCLKUEN & SYSCON_MAINCLKUEN_ENA) ? 1:0;
 }
 
-/** @brief  Set the value by which the main clock will be divided to feed the AHB clock.
-  * @param  Divider  The new AHB clock divider.
-  * @return None.
-  *
-  * Divider must be an integer from 0-255 inclusive (0 == disabled)
+/** @brief Set the divider for the AHB clock.
+  * @param[in]  divider      The new AHB clock divider (0-255; 0 means disabled).
   */
-__INLINE static void SYSCON_SetAHBClockDivider(unsigned int Divider)
+__INLINE static void SYSCON_SetAHBClockDivider(unsigned int divider)
 {
-    lpclib_assert((Divider & ~SYSCON_SYSAHBCLKDIV_Mask) == 0);
+    lpclib_assert(divider <= 255);
 
-    SYSCON->SYSAHBCLKDIV = Divider;
+    SYSCON->SYSAHBCLKDIV = divider;
 }
 
-/** @brief  Get the value by which the main clock is divided to feed the AHB clock.
-  * @return The current clock divider.
+/** @brief Get the current AHB clock divider.
+  * @return                  The current clock divider.
   */
 __INLINE static unsigned int SYSCON_GetAHBClockDivider(void)
 {
     return SYSCON->SYSAHBCLKDIV;
 }
 
-/** @brief  Enable the specified clock lines to devices on the AHB bus.
-  * @param  Clocklines  A bitmask of clock lines to enable
-  * @return None.
+/** @brief Enable the specified clock lines to devices on the AHB bus.
+  * @param[in]  clockline_mask   A bitmask of AHB clock lines
   */
-__INLINE static void SYSCON_EnableAHBClockLines(uint32_t Clocklines)
+__INLINE static void SYSCON_EnableAHBClockLines(uint32_t clockline_mask)
 {
-    lpclib_assert((Clocklines & ~SYSCON_SYSAHBCLKCTRL_Mask) == 0);
+    lpclib_assert((clockline_mask & ~SYSCON_SYSAHBCLKCTRL_Mask) == 0);
 
-    SYSCON->SYSAHBCLKCTRL |= Clocklines;
+    SYSCON->SYSAHBCLKCTRL |= clockline_mask;
 }
 
-/** @brief  Disable the specified clock lines from devices on the AHB bus.
-  * @param  Clocklines  A bitmask of clock lines to disable
-  * @return None.
+/** @brief Disable the specified clock lines to devices on the AHB bus.
+  * @param[in]  clockline_mask   A bitmask of AHB clock lines
   */
-__INLINE static void SYSCON_DisableAHBClockLines(uint32_t Clocklines)
+__INLINE static void SYSCON_DisableAHBClockLines(uint32_t clockline_mask)
 {
-    lpclib_assert((Clocklines & ~SYSCON_SYSAHBCLKCTRL_Mask) == 0);
+    lpclib_assert((clockline_mask & ~SYSCON_SYSAHBCLKCTRL_Mask) == 0);
 
-    SYSCON->SYSAHBCLKCTRL &= ~Clocklines;
+    SYSCON->SYSAHBCLKCTRL &= ~clockline_mask;
 }
 
-/** @brief  Get the currently enabled clock lines to devices on the AHB Bus.
-  * @return A bitmask of the currently enabled AHB bus clock lines.
+/** @brief Get a bitmask of the currently enabled AHB clock lines.
+  * @return                  A bitmask of currently enabled AHB clock lines.
   */
 __INLINE static uint32_t SYSCON_GetEnabledAHBClockLines(void)
 {
     return SYSCON->SYSAHBCLKCTRL & SYSCON_SYSAHBCLKCTRL_Mask;
 }
 
-/** @brief  Set the value by which the main clock will be divided to feed the SSP0 clock.
-  * @param  Divider  The new SSP0 clock divider.
-  * @return None.
-  *
-  * Divider must be an integer from 0-255 inclusive (0 == disabled)
+/** @brief Set SSP0's main clock divider.
+  * @param[in]  divider      The new clock divider (0-255; 0 disables).
   */
-__INLINE static void SYSCON_SetSSP0ClockDivider(unsigned int Divider)
+__INLINE static void SYSCON_SetSSP0ClockDivider(unsigned int divider)
 {
-    lpclib_assert((Divider & ~SYSCON_SSP0CLKDIV_Mask) == 0);
+    lpclib_assert(divider <= 255);
 
-    SYSCON->SSP0CLKDIV = Divider;
+    SYSCON->SSP0CLKDIV = divider;
 }
 
-/** @brief  Get the value by which the main clock is divided to feed the SSP0 clock.
-  * @return The current SSP0 clock divider.
+/** @brief Get SSP0's main clock divider.
+  * @return                  The current SSP0 main clock divider.
   */
 __INLINE static unsigned int SYSCON_GetSSP0ClockDivider(void)
 {
     return SYSCON->SSP0CLKDIV;
 }
 
-/** @brief  Set the value by which the main clock will be divided to feed the SSP1 clock.
-  * @param  Divider  The new SSP1 clock divider.
-  * @return None.
-  *
-  * Divider must be an integer from 0-255 inclusive (0 == disabled)
+/** @brief Set SSP1's main clock divider.
+  * @param[in]  divider      The new SSP1 main clock divider (0-255; 0 disables).
   */
-__INLINE static void SYSCON_SetSSP1ClockDivider(unsigned int Divider)
+__INLINE static void SYSCON_SetSSP1ClockDivider(unsigned int divider)
 {
-    lpclib_assert((Divider & ~SYSCON_SSP1CLKDIV_Mask) == 0);
+    lpclib_assert(divider <= 255);
 
-    SYSCON->SSP1CLKDIV = Divider;
+    SYSCON->SSP1CLKDIV = divider;
 }
 
-/** @brief  Get the value by which the main clock is divided to feed the SSP1 clock.
-  * @return The current SSP1 clock divider.
+/** @brief Get SSP1's main clock divider.
+  * @return                  The current clock divider.
   */
 __INLINE static unsigned int SYSCON_GetSSP1ClockDivider(void)
 {
     return SYSCON->SSP1CLKDIV;
 }
 
-/** @brief  Set the value by which the main clock will be divided to feed the UART0 clock.
-  * @param  Divider  The new UART0 clock divider.
-  * @return None.
-  *
-  * Divider must be an integer from 0-255 inclusive (0 == disabled)
+/** @brief Set UART0's main clock divider.
+  * @param[in]  divider      The new UART0 main clock divider (0-255; 0 disables).
   */
-__INLINE static void SYSCON_SetUART0ClockDivider(unsigned int Divider)
+__INLINE static void SYSCON_SetUART0ClockDivider(unsigned int divider)
 {
-    lpclib_assert((Divider & ~SYSCON_UART0CLKDIV_Mask) == 0);
+    lpclib_assert(divider <= 255);
 
-    SYSCON->UART0CLKDIV = Divider;
+    SYSCON->UART0CLKDIV = divider;
 }
 
-/** @brief  Get the value by which the main clock is divided to feed the UART0 clock.
-  * @return The current UART0 clock divider.
+/** @brief Get UART0's main clock divider.
+  * @return                  The current clock divider.
   */
 __INLINE static unsigned int SYSCON_GetUART0ClockDivider(void)
 {
     return SYSCON->UART0CLKDIV;
 }
 
-/** @brief  Set the watchdog timer's clock source.
-  * @param  Source   The new WDT clock source
-  * @return None.
+/** @brief Set the watchdog timer clock source.
+  * @param[in]  source       The new clock source.
   *
-  * Call WDTCLK_EnableSourceUpdate after setting, and wait for
-  *  the source to be updated (WDTCLK_SourceIsUpdated() == 1)
+  * @note
+  * Call SYSCON_EnableWDTClockSourceUpdate after setting, and wait for
+  * the source to be updated (SYSCON_WDTClockSourceIsUpdated() == 1)
   */
-__INLINE static void SYSCON_SetWDTClockSource(SYSCON_WDTClockSource_Type Source)
+__INLINE static void SYSCON_SetWDTClockSource(SYSCON_WDTClockSource_Type source)
 {
-    lpclib_assert(SYSCON_IS_WDT_CLOCK_SOURCE(Source));
+    lpclib_assert(SYSCON_IS_WDT_CLOCK_SOURCE(source));
 
-    SYSCON->WDTCLKSEL = Source;
+    SYSCON->WDTCLKSEL = source;
 }
 
 /** @brief  Get the current watchdog timer clock source.
-  * @return The current WDT clock source.
+  * @return                  The current clock source.
   */
 __INLINE static SYSCON_WDTClockSource_Type SYSCON_GetWDTClockSource(void)
 {
     return SYSCON->WDTCLKSEL;
 }
 
-/** @brief  Enable updating of the watchdog timer's clock source.
-  * @return None.
+/** @brief Enable updating of the watchdog timer clock source.
   *
-  * Used after changing the watchdog timer's clock source to make the change active.
+  * @note
+  * This is required after updating the clock source in order for the actual
+  * change to occur.
   */
 __INLINE static void SYSCON_EnableWDTClockSourceUpdate(void)
 {
@@ -963,53 +911,51 @@ __INLINE static unsigned int SYSCON_WDTClockSourceIsUpdated(void)
     return (SYSCON->WDTCLKUEN & SYSCON_WDTCLKUEN_ENA) ? 1:0;
 }
 
-/** @brief  Set the value by which the watchdog timer's clock input will be divided.
-  * @param  Divider  The new clock divider.
-  * @return None.
-  *
-  * Divider must be an integer from 0 to 255 inclusive (0 == WDT clock disabled).
+/** @brief Set the divider for the watchdog timer input clock.
+  * @param[in]  divider      The new AHB clock divider (0-255; 0 means disabled).
   */
-__INLINE static void SYSCON_SetWDTClockDivider(unsigned int Divider)
+__INLINE static void SYSCON_SetWDTClockDivider(unsigned int divider)
 {
-    lpclib_assert((Divider & ~SYSCON_WDTCLKDIV_Mask) == 0);
+    lpclib_assert(divider <= 255);
 
-    SYSCON->WDTCLKDIV = Divider;
+    SYSCON->WDTCLKDIV = divider;
 }
 
-/** @brief  Get the watchdog timer's current clock divider.
-  * @return The current WDT clock divider.
+/** @brief Get the current watchdog timer input clock divider.
+  * @return                  The current clock divider.
   */
 __INLINE static unsigned int SYSCON_GetWDTClockDivider(void)
 {
     return SYSCON->WDTCLKDIV;
 }
 
-/** @brief  Set the clock source for the CLKOUT pin.
-  * @param  Source   The new CLKOUT clock source.
-  * @return None.
+/** @brief Set the CLKOUT clock source.
+  * @param[in]  source       The new clock source
   *
-  * Call CLKOUT_EnableSourceUpdate after setting, and wait for
-  *  the source to be updated (CLKOUT_SourceIsUpdated() == 1)
+  * @note
+  * Need to call SYSCON_EnableCLKOUTSourceUpdate after setting, and wait for
+  * the source to be updated (SYSCON_CLKOUTSourceIsUpdated() == 1)
   */
-__INLINE static void SYSCON_SetCLKOUTSource(SYSCON_CLKOUTSource_Type Source)
+__INLINE static void SYSCON_SetCLKOUTSource(SYSCON_CLKOUTSource_Type source)
 {
-    lpclib_assert(SYSCON_IS_CLKOUT_SOURCE(Source));
+    lpclib_assert(SYSCON_IS_CLKOUT_SOURCE(source));
 
-    SYSCON->CLKOUTCLKSEL = Source;
+    SYSCON->CLKOUTCLKSEL = source;
 }
 
-/** @brief  Get the current CLKOUT clock source.
-  * @return The current CLKOUT source.
+/** @brief Get the current CLKOUT clock source.
+  * @return                  The current clock source.
   */
 __INLINE static SYSCON_CLKOUTSource_Type SYSCON_GetCLKOUTSource(void)
 {
     return SYSCON->CLKOUTCLKSEL;
 }
 
-/** @brief  Enable updating of CLKOUT's clock source.
-  * @return None.
+/** @brief Enable updating of the CLKOUT clock source.
   *
-  * Used after changing the CLKOUT clock source to make the change active.
+  * @note
+  * This is required after updating the clock source in order for the actual
+  * change to occur.
   */
 __INLINE static void SYSCON_EnableCLKOUTSourceUpdate(void)
 {
@@ -1018,8 +964,8 @@ __INLINE static void SYSCON_EnableCLKOUTSourceUpdate(void)
     SYSCON->CLKOUTUEN = SYSCON_CLKOUTUEN_ENA;
 }
 
-/** @brief  Test whether CLKOUT's clock source has successfully updated.
-  * @return 1 if the source has updated, 0 otherwise.
+/** @brief Test whether the CLKOUT clock source has successfully updated.
+  * @return                  1 if the source has updated, 0 otherwise.
   *
   * Generally will be called in a while() loop after the source has been updated
   * and CLKOUT_EnableSourceUpdate() has been called.
@@ -1029,278 +975,255 @@ __INLINE static unsigned int SYSCON_CLKOUTSourceIsUpdated(void)
     return (SYSCON->CLKOUTUEN & SYSCON_CLKOUTUEN_ENA) ? 1:0;
 }
 
-/** @brief  Set the value by which CLKOUT's input clock will be divided.
-  * @param  Divider  The new clock divider.
-  * @return None.
-  *
-  * Divider must be an integer from 0 to 255 inclusive (0 == CLKOUT clock disabled).
+/** @brief Set the CLKOUT input clock divider.
+  * @param[in] divider       The new clock divider (0-255; 0 means disabled).
   */
-__INLINE static void SYSCON_SetCLKOUTDivider(unsigned int Divider)
+__INLINE static void SYSCON_SetCLKOUTDivider(unsigned int divider)
 {
-    lpclib_assert((Divider & ~SYSCON_CLKOUTDIV_Mask) == 0);
+    lpclib_assert(divider <= 255);
 
-    SYSCON->CLKOUTDIV = Divider;
+    SYSCON->CLKOUTDIV = divider;
 }
 
-/** @brief  Get CLKOUT's current clock divider.
-  * @return The current CLKOUT input clock divider.
+/** @brief Get the current CLKOUT clock divider.
+  * @return                  The current clock divider.
   */
 __INLINE static unsigned int SYSCON_GetCLKOUTDivider(void)
 {
     return SYSCON->CLKOUTDIV;
 }
 
-/** @brief  Set the brownout detector's reset trigger voltage.
-  * @param  Voltage   The new reset trigger voltage
-  * @return None.
+/** @brief Set the brownout detector's reset trigger voltage.
+  * @param[in]  voltage      The new reset trigger voltage
   */
-__INLINE static void SYSCON_SetBODResetVoltage(SYSCON_BODResetVoltage_Type Voltage)
+__INLINE static void SYSCON_SetBODResetVoltage(SYSCON_BODResetVoltage_Type voltage)
 {
-    lpclib_assert(SYSCON_IS_BOD_RESET_VOLTAGE(Voltage));
+    lpclib_assert(SYSCON_IS_BODRESETVOLTAGE(voltage));
 
-    SYSCON->BODCTRL = (SYSCON->BODCTRL & ~SYSCON_BODCTRL_BODRSTLEV_Mask) | Voltage;
+    SYSCON->BODCTRL = (SYSCON->BODCTRL & ~SYSCON_BODCTRL_BODRSTLEV_Mask) | voltage;
 }
 
-/** @brief  Get the brownout detector's current reset trigger voltage.
-  * @return The current reset trigger voltage.
+/** @brief Get the brownout detector's current reset trigger voltage.
+  * @return                  The current reset trigger voltage.
   */
 __INLINE static SYSCON_BODResetVoltage_Type SYSCON_GetBODResetVoltage(void)
 {
     return SYSCON->BODCTRL & SYSCON_BODCTRL_BODRSTLEV_Mask;
 }
 
-/** @brief  Set the brownout detector's interrupt trigger voltage
-  * @param  Voltage   The new interrupt trigger voltage
-  * @return None.
+/** @brief Set the brownout detector interrupt trigger voltage.
+  * @param[in]  voltage      The new interrupt trigger voltage
   */
-__INLINE static void SYSCON_SetBODInterruptVoltage(SYSCON_BODInterruptVoltage_Type Voltage)
+__INLINE static void SYSCON_SetBODInterruptVoltage(SYSCON_BODInterruptVoltage_Type voltage)
 {
-    lpclib_assert(SYSCON_IS_BOD_INTERRUPT_VOLTAGE(Voltage));
+    lpclib_assert(SYSCON_IS_BODINTERRUPTVOLTAGE(voltage));
 
-    SYSCON->BODCTRL = (SYSCON->BODCTRL & ~SYSCON_BODCTRL_BODINTVAL_Mask) | Voltage;
+    SYSCON->BODCTRL = (SYSCON->BODCTRL & ~SYSCON_BODCTRL_BODINTVAL_Mask) | voltage;
 }
 
-/** @brief  Get the brownout detector's current interrupt trigger voltage.
-  * @return The current interrupt trigger voltage.
+/** @brief Get the brownout detector's current interrupt trigger voltage.
+  * @return                  The current interrupt trigger voltage.
   */
 __INLINE static SYSCON_BODInterruptVoltage_Type SYSCON_GetBODInterruptVoltage(void)
 {
     return SYSCON->BODCTRL & SYSCON_BODCTRL_BODINTVAL_Mask;
 }
 
-/** @brief  Enable resetting of the chip by the brownout detector.
-  * @return None.
+/** @brief Enable chip resets from the brownout detector.
   */
 __INLINE static void SYSCON_EnableBODChipReset(void)
 {
     SYSCON->BODCTRL |= SYSCON_BODCTRL_BODRSTENA;
 }
 
-/** @brief  Disable resetting of the chip by the brownout detector.
-  * @return None.
+/** @brief Disable chip resets from the brownout detector.
   */
 __INLINE static void SYSCON_DisableBODChipReset(void)
 {
     SYSCON->BODCTRL |= SYSCON_BODCTRL_BODRSTENA;
 }
 
-/** @brief  Test whether the brownout detector is configured to reset the chip on low voltage.
-  * @return 1 if BOD chip reset is enabled, 0 otherwise.
+/** @brief Test whether brownout detector chip resets are enabled.
+  * @return                  1 if chip resets are enabled, 0 otherwise.
   */
 __INLINE static unsigned int SYSCON_BODChipResetIsEnabled(void)
 {
     return (SYSCON->BODCTRL & SYSCON_BODCTRL_BODRSTENA) ? 1:0;
 }
 
-/** @brief  Set the SysTick calibration value.
-  * @param  Calibration  The new SysTick calibration value (0-4095)
-  * @return None.
+/** @brief Set the SysTick calibration value.
+  * @param[in]  cal          The new calibration value (0-4095)
   */
-__INLINE static void SYSCON_SetSysTickCalibration(uint32_t Calibration)
+__INLINE static void SYSCON_SetSysTickCalibration(uint32_t cal)
 {
-    lpclib_assert((Calibration & ~SYSCON_SYSTCKCAL_CAL_Mask) == 0);
+    lpclib_assert(cal <= 4095);
 
-    SYSCON->SYSTCKCAL = Calibration;
+    SYSCON->SYSTCKCAL = cal;
 }
 
-/** @brief  Get the current SysTick calibration value.
-  * @return The current SysTick calibration value (0-4095).
+/** @brief Get the current SysTick calibration value.
+  * @return                  The current SysTick calibration value (0-4095).
   */
 __INLINE static uint32_t SYSCON_GetSysTickCalibration(void)
 {
     return SYSCON->SYSTCKCAL;
 }
 
-/** @brief  Set the start logic edges for the specified inputs.
-  * @param  Inputs      A bitmask of start logic inputs
-  * @param  Edge        The edge setting on which to trigger start logic on those inputs
-  * @return None.
+/** @brief Set the edges that will trigger a wake-up ("start logic") on the specified inputs.
+  * @param[in]  input_mask   A bitmask of wake-up inputs
+  * @param[in]  edge         The edge setting on which to trigger a wake-up on those inputs
   */
-__INLINE static void SYSCON_SetStartLogicEdges(SYSCON_StartLogicInputs_Type Inputs,
-                                               SYSCON_StartLogicEdge_Type Edge)
+__INLINE static void SYSCON_SetWakeupEdgesForInputs(uint32_t input_mask,
+                                                    SYSCON_WakeupEdge_Type edge)
 {
-    lpclib_assert((Inputs & ~SYSCON_STARTAPRP0_Mask) == 0);
-    lpclib_assert(SYSCON_IS_START_LOGIC_EDGE(Edge));
+    lpclib_assert((input_mask & ~SYSCON_WakeupInput_Mask) == 0);
+    lpclib_assert(SYSCON_IS_WAKEUPEDGE(edge));
 
-    if (Edge == SYSCON_StartLogicEdge_Falling) {
-        SYSCON->STARTAPRP0 &= ~Inputs;
+    if (edge == SYSCON_WakeupEdge_Falling) {
+        SYSCON->STARTAPRP0 &= ~input_mask;
     } else {
-        SYSCON->STARTAPRP0 |= Inputs;
+        SYSCON->STARTAPRP0 |= input_mask;
     }
 }
 
-/** @brief  Get the start logic inputs configured to trigger on the given edge.
-  * @return A bitmask of start logic inputs configured to trigger on the given edge type.
+/** @brief Get a bitmask of wake-up ("start logic") inputs configured to trigger on the given edge.
+  * @return             A bitmask of wake-up inputs configured to trigger on the given edge type.
   */
-__INLINE static SYSCON_StartLogicInputs_Type SYSCON_GetStartLogicInputsWithEdge(SYSCON_StartLogicEdge_Type Edge)
+__INLINE static uint32_t SYSCON_GetStartLogicInputsWithEdge(SYSCON_WakeupEdge_Type edge)
 {
-     lpclib_assert(SYSCON_IS_START_LOGIC_EDGE(Edge));
+     lpclib_assert(SYSCON_IS_WAKEUPEDGE(edge));
 
-    if (Edge == SYSCON_StartLogicEdge_Falling) {
-        return (~SYSCON->STARTAPRP0) & SYSCON_STARTAPRP0_Mask;
+    if (edge == SYSCON_WakeupEdge_Falling) {
+        return (~SYSCON->STARTAPRP0) & SYSCON_WakeupInput_Mask;
     } else {
         return SYSCON->STARTAPRP0;
     }
 }
 
-/** @brief  Enable start logic for the specified inputs.
-  * @param  Inputs      A bitmask of start logic inputs.
-  * @return None.
+/** @brief Enable wake-up ("start logic") triggers from the specified inputs.
+  * @param[in]  input_mask       A bitmask of wake-up inputs
   */
-__INLINE static void SYSCON_EnableStartLogicInputs(SYSCON_StartLogicInputs_Type Inputs)
+__INLINE static void SYSCON_EnableWakeupInputs(uint32_t input_mask)
 {
-    lpclib_assert((Inputs & ~SYSCON_STARTEPRP0_Mask) == 0);
+    lpclib_assert((input_mask & ~SYSCON_WakeupInput_Mask) == 0);
 
-    SYSCON->STARTERP0 |= Inputs;
+    SYSCON->STARTERP0 |= input_mask;
 }
 
-/** @brief  Disable start logic for the specified inputs.
-  * @param  Inputs      A bitmask of start logic inputs.
-  * @return None.
+/** @brief Disable wake-up ("start logic") triggers from the specified inputs.
+  * @param[in]  input_mask       A bitmask of wake-up inputs
   */
-__INLINE static void SYSCON_DisableStartLogicInputs(SYSCON_StartLogicInputs_Type Inputs)
+__INLINE static void SYSCON_DisableWakeupInputs(uint32_t input_mask)
 {
-    lpclib_assert((Inputs & ~SYSCON_STARTEPRP0_Mask) == 0);
+    lpclib_assert((input_mask & ~SYSCON_WakeupInput_Mask) == 0);
 
-    SYSCON->STARTERP0 &= ~Inputs;
+    SYSCON->STARTERP0 &= ~input_mask;
 }
 
-/** @brief  Get the currently enabled start logic inputs.
-  * @return A bitmask of start logic inputs for which start logic is enabled.
+/** @brief Get a bitmask of currently enabled wake-up ("start logic") inputs.
+  * @return              A bitmask of the enabled wake-up inputs.
   */
-__INLINE static SYSCON_StartLogicInputs_Type SYSCON_GetEnabledStartLogicInputs(void)
+__INLINE static uint32_t SYSCON_GetEnabledWakeupInputs(void)
 {
     return SYSCON->STARTERP0;
 }
 
-/** @brief  Reset the specified start logic inputs.
-  * @param  Inputs   A bitmask of start logic inputs to reset
-  * @return None.
+/** @brief Reset the specified wake-up ("start logic") inputs.
+  * @param[in]  input_mask   A bitmask of wake-up inputs to reset
   *
+  * @note
   * Start logic inputs need to be reset each time they are used to re-enable
   * triggering.
   */
-__INLINE static void SYSCON_ResetStartLogicInputs(SYSCON_StartLogicInputs_Type Inputs)
+__INLINE static void SYSCON_ResetWakeupInputs(uint32_t input_mask)
 {
-    lpclib_assert((Inputs & ~SYSCON_STARTRSRP0CLR_Mask) == 0);
+    lpclib_assert((input_mask & ~SYSCON_WakeupInput_Mask) == 0);
 
-    SYSCON->STARTRSRP0CLR |= Inputs;
+    SYSCON->STARTRSRP0CLR |= input_mask;
 }
 
-/** @brief  Get the triggered states for all start logic inputs.
-  * @return A bitmask of inputs for which start logic has been triggered.
+/** @brief Get the triggered states for all wake-up ("start logic") inputs.
+  * @return             A bitmask of inputs for which start logic has been triggered.
   *
+  * @note
   * Start logic inputs need to be reset each time they are used to re-enable
   * triggering.
   */
-__INLINE static SYSCON_StartLogicInputs_Type SYSCON_GetTriggeredStartLogicInputs(void)
+__INLINE static uint32_t SYSCON_GetTriggeredStartLogicInputs(void)
 {
     return SYSCON->STARTSRP0;
 }
 
-/** @brief  Initialize the system's analog power configuration
-  * @return None.
-  *
-  * Sets reserved bits to required values.  Clears sleep config.
+/** @brief Initialize the system's analog power configuration.
+  * This function sets reserved bits to required values and clears the
+  * sleep configuration.
   */
 __INLINE static void SYSCON_InitAnalogPowerLines(void)
 {
     SYSCON->PDSLEEPCFG = SYSCON_PDSLEEPCFG_Required;
-    SYSCON->PDAWAKECFG = (SYSCON->PDAWAKECFG & 0xff) | SYSCON_PDAWAKECFG_Required;
-    SYSCON->PDRUNCFG = (SYSCON->PDRUNCFG & 0xff) | SYSCON_PDRUNCFG_Required;
+    SYSCON->PDAWAKECFG = (SYSCON->PDAWAKECFG & SYSCON_PDAWAKECFG_Mask) | SYSCON_PDAWAKECFG_Required;
+    SYSCON->PDRUNCFG = (SYSCON->PDRUNCFG & SYSCON_PDRUNCFG_Mask) | SYSCON_PDRUNCFG_Required;
 }
 
-/** @brief  Enable power to analog power blocks for the specified power mode.
-  * @param  PowerMode  The power mode in which this setting should apply
-  * @param  PowerLines The blocks to which power should be enabled
-  * @return None.
-  *
-  * Valid PowerModes:
-  * - SYSCON_PowerMode_Sleep
-  * - SYSCON_PowerMode_Awake
-  * - SYSCON_PowerMode_Run
+/** @brief Enable power to specified analog power blocks for the given power mode.
+  * @param[in]  mode           A system power mode
+  * @param[in]  powerline_mask A bitmask of analog power control lines
   */
-__INLINE static void SYSCON_EnableAnalogPowerLines(SYSCON_PowerMode_Type PowerMode,
-                                                   SYSCON_AnalogPowerLines_Type PowerLines)
+__INLINE static void SYSCON_EnableAnalogPowerLinesForMode(SYSCON_PowerMode_Type mode,
+                                                          uint32_t powerline_mask)
 {
-    lpclib_assert(SYSCON_IS_POWER_MODE(PowerMode));
+    lpclib_assert(SYSCON_IS_POWERMODE(mode));
 
-    if (PowerMode == SYSCON_PowerMode_Sleep) {
-        lpclib_assert((PowerLines & ~SYSCON_PDSLEEPCFG_Mask) == 0);
-        SYSCON->PDSLEEPCFG = (SYSCON->PDSLEEPCFG & ~PowerLines) | SYSCON_PDSLEEPCFG_Required;
-    } else if (PowerMode == SYSCON_PowerMode_Awake) {
-        lpclib_assert((PowerLines & ~SYSCON_PDAWAKECFG_Mask) == 0);
-        SYSCON->PDAWAKECFG = (SYSCON->PDAWAKECFG & ~PowerLines) | SYSCON_PDAWAKECFG_Required;
+    if (mode == SYSCON_PowerMode_Sleep) {
+        lpclib_assert((powerline_mask & ~SYSCON_PDSLEEPCFG_Mask) == 0);
+        SYSCON->PDSLEEPCFG = (SYSCON->PDSLEEPCFG & ~powerline_mask) | SYSCON_PDSLEEPCFG_Required;
+    } else if (mode == SYSCON_PowerMode_Awake) {
+        lpclib_assert((powerline_mask & ~SYSCON_PDAWAKECFG_Mask) == 0);
+        SYSCON->PDAWAKECFG = (SYSCON->PDAWAKECFG & ~powerline_mask) | SYSCON_PDAWAKECFG_Required;
     } else { /* SYSCON_PowerMode_Run */
-        lpclib_assert((PowerLines & ~SYSCON_PDRUNCFG_Mask) == 0);
-        SYSCON->PDRUNCFG = (SYSCON->PDRUNCFG & ~PowerLines) | SYSCON_PDRUNCFG_Required;
+        lpclib_assert((powerline_mask & ~SYSCON_PDRUNCFG_Mask) == 0);
+        SYSCON->PDRUNCFG = (SYSCON->PDRUNCFG & ~powerline_mask) | SYSCON_PDRUNCFG_Required;
     }
 }
 
-/** @brief  Disable power to analog power blocks for the specified power mode.
-  * @param  PowerMode  The power mode in which this setting should apply
-  * @param  PowerLines The analog blocks to which power should be disabled
-  * @return None.
-  *
-  * Valid PowerModes:
-  * - SYSCON_PowerMode_Sleep
-  * - SYSCON_PowerMode_Awake
-  * - SYSCON_PowerMode_Run
+/** @brief Disable power to specified analog power blocks for the given power mode.
+  * @param[in]  mode           A system power mode
+  * @param[in]  powerline_mask A bitmask of analog power control lines
   */
-__INLINE static void SYSCON_DisableAnalogPowerLines(SYSCON_PowerMode_Type PowerMode,
-                                                    SYSCON_AnalogPowerLines_Type PowerLines)
+__INLINE static void SYSCON_DisableAnalogPowerLinesForMode(SYSCON_PowerMode_Type mode,
+                                                           uint32_t powerline_mask)
 {
-    lpclib_assert(SYSCON_IS_POWER_MODE(PowerMode));
+    lpclib_assert(SYSCON_IS_POWERMODE(mode));
 
-    if (PowerMode == SYSCON_PowerMode_Sleep) {
-        lpclib_assert((PowerLines & ~SYSCON_PDSLEEPCFG_Mask) == 0);
-        SYSCON->PDSLEEPCFG |= (SYSCON_PDSLEEPCFG_Required | PowerLines);
-    } else if (PowerMode == SYSCON_PowerMode_Awake) {
-        lpclib_assert((PowerLines & ~SYSCON_PDAWAKECFG_Mask) == 0);
-        SYSCON->PDAWAKECFG |= (SYSCON_PDAWAKECFG_Required | PowerLines);
+    if (mode == SYSCON_PowerMode_Sleep) {
+        lpclib_assert((powerline_mask & ~SYSCON_PDSLEEPCFG_Mask) == 0);
+        SYSCON->PDSLEEPCFG |= (SYSCON_PDSLEEPCFG_Required | powerline_mask);
+    } else if (mode == SYSCON_PowerMode_Awake) {
+        lpclib_assert((powerline_mask & ~SYSCON_PDAWAKECFG_Mask) == 0);
+        SYSCON->PDAWAKECFG |= (SYSCON_PDAWAKECFG_Required | powerline_mask);
     } else { /* SYSCON_PowerMode_Run */
-        lpclib_assert((PowerLines & ~SYSCON_PDRUNCFG_Mask) == 0);
-        SYSCON->PDRUNCFG |= (SYSCON_PDRUNCFG_Required | PowerLines);
+        lpclib_assert((powerline_mask & ~SYSCON_PDRUNCFG_Mask) == 0);
+        SYSCON->PDRUNCFG |= (SYSCON_PDRUNCFG_Required | powerline_mask);
     }
 }
 
-/** @brief  Get Enabled Power Settings for System Analog Power Blocks
-  * @param  PowerMode  The power mode to get the power settings for
-  * @return Bits specifying powered analog peripherals in given mode
+/** @brief Get a bitmask of analog power lines that are enabled for the given power mode.
+  * @param[in]  mode         A system power mode
+  * @return                  A bitmask of analog power lines that are enabled for the given mode.
   */
-__INLINE static SYSCON_AnalogPowerLines_Type SYSCON_GetEnabledAnalogPowerLines(SYSCON_PowerMode_Type PowerMode)
+__INLINE static uint32_t SYSCON_GetEnabledAnalogPowerLinesForMode(SYSCON_PowerMode_Type mode)
 {
-    if (PowerMode == SYSCON_PowerMode_Sleep) {
+    if (mode == SYSCON_PowerMode_Sleep) {
         return ~(SYSCON->PDSLEEPCFG & SYSCON_PDSLEEPCFG_Mask);
-    } else if (PowerMode == SYSCON_PowerMode_Awake) {
+    } else if (mode == SYSCON_PowerMode_Awake) {
         return ~(SYSCON->PDAWAKECFG & SYSCON_PDAWAKECFG_Mask);
     } else { /* SYSCON_PowerMode_Run */
         return ~(SYSCON->PDRUNCFG & SYSCON_PDRUNCFG_Mask);
     }
 }
 
-/** @brief  Get the MCU's Device ID
-  * @return The device's ID.
+/** @brief Get the microcontroller device ID.
+  * @return                  The device ID.
   */
 __INLINE static uint32_t SYSCON_GetDeviceID(void)
 {

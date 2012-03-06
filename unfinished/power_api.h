@@ -114,21 +114,21 @@ typedef enum {
   * @{
   */
 
-/** @brief  Set the system PLL to a something like the given frequency via Power Profile interface
-  * @param  desiredSystemClock  The desired clock rate at which to run the CPU
-  * @param  PLLMatchMode        The
-  * @param  maxTries
+/** @brief Set the system PLL to a something like the given frequency via Power Profile interface
+  * @param[in]  desired_sysclock  The desired clock rate at which to run the CPU
+  * @param[in]  pll_match_mode        The
+  * @param[in]  max_tries
   * @return PowerAPI_Status_Type value giving success or the reason the call failed.
   */
-PowerAPI_Status_Type PowerAPI_SetPLLFreq(uint32_t desiredSystemClock,
-                                                 PowerAPI_PLLMode_Type PLLMode,
-                                                 uint32_t maxTries);
+PowerAPI_Status_Type PowerAPI_SetPLLFreq(uint32_t desired_sysclock,
+                                                 PowerAPI_PLLMode_Type pll_mode,
+                                                 uint32_t max_tries);
 
 /** @brief  Set the system power mode to the desired setting via Power Profile interface
-  * @param  powerMode           The desired power mode (performance, efficiency, etc.)
+  * @param  power_mode           The desired power mode (performance, efficiency, etc.)
   * @return PowerAPI_Status_Type value giving success or the reason the call failed.
   */
-PowerAPI_Status_Type PowerAPI_SetPowerMode(PowerAPI_PowerMode_Type powerMode);
+PowerAPI_Status_Type PowerAPI_SetPowerMode(PowerAPI_PowerMode_Type power_mode);
 
 /** @} */
 

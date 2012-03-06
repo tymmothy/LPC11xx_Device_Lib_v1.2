@@ -13,7 +13,7 @@
  *
  * @note
  * This file does not handle the following necessary steps for IOCON use:
- * - The IOCON (AHB/APB/VPB) bus clock line must be enabled
+ * - The IOCON (AHB or APB/VPB) bus clock line must be enabled
  ******************************************************************************
  * @section License
  * Licensed under a Simplified BSD License:
@@ -126,24 +126,24 @@ typedef enum {
 } IOCON_Pin_Type;
 
 /*! @brief Macro to test whether parameter is a valid IO Pin */
-#define IOCON_IS_PIN(Pin)  (((Pin) >= IOCON_Pin_2_6)     \
-                                  && ((Pin) <= IOCON_Pin_3_3) \
-                                  && ((Pin) != 0x01)          \
-                                  && ((Pin) != 0x06))
+#define IOCON_IS_PIN(Pin)  (((Pin) >= IOCON_Pin_2_6) \
+                         && ((Pin) <= IOCON_Pin_3_3) \
+                         && ((Pin) != 0x01)          \
+                         && ((Pin) != 0x06))
 
 /*! @brief Macro to test whether parameter is a valid ADC Pin */
 #define IOCON_IS_AD_PIN(Pin)   (((Pin) == IOCON_Pin_0_11) \
-                                  || ((Pin) == IOCON_Pin_1_0)  \
-                                  || ((Pin) == IOCON_Pin_1_1)  \
-                                  || ((Pin) == IOCON_Pin_1_2)  \
-                                  || ((Pin) == IOCON_Pin_1_3)  \
-                                  || ((Pin) == IOCON_Pin_1_4)  \
-                                  || ((Pin) == IOCON_Pin_1_10) \
-                                  || ((Pin) == IOCON_Pin_1_11))
+                             || ((Pin) == IOCON_Pin_1_0)  \
+                             || ((Pin) == IOCON_Pin_1_1)  \
+                             || ((Pin) == IOCON_Pin_1_2)  \
+                             || ((Pin) == IOCON_Pin_1_3)  \
+                             || ((Pin) == IOCON_Pin_1_4)  \
+                             || ((Pin) == IOCON_Pin_1_10) \
+                             || ((Pin) == IOCON_Pin_1_11))
 
 /*! @brief Macro to test whether parameter is a valid I2C Pin */
 #define IOCON_IS_I2C_PIN(Pin)  (((Pin) == IOCON_Pin_0_4) \
-                                  || ((Pin) == IOCON_Pin_0_5))
+                             || ((Pin) == IOCON_Pin_0_5))
 
 #if defined(LPC11XXL) /* L-series Parts Only */
 /*! @brief Macro to test whether parameter is a valid (pseudo) Open Drain Pin */
@@ -175,11 +175,10 @@ typedef enum {
                                 || ((Function) == IOCON_Function_Alt3))
 
 #define IOCON_Function_Mask            (0x03)              /*!< Function bits in IOCON registers */
-#define IOCON_Function_Shift           (0)                 /*!< Shift of IOCON pin function bits */
 
 /** @} */
 
-/** @defgroup IOCON_Modes  IO Configuration Pin Pullup / Pulldown Modes
+/** @defgroup IOCON_Modes IO Configuration Pin Pullup / Pulldown Modes
   * N/A on I2C Pins IOCON_Pin_PIO_0_4, IOCON_Pin_PIO_0_5
   * @{
   */
@@ -221,7 +220,6 @@ typedef enum {
                               || ((Mode) == IOCON_I2CMode_I2CFastPlus))
 
 #define IOCON_I2CMode_Mask             (0x03 << 8)         /*!< I2C Mode Bits in IOCON registers */
-#define IOCON_I2CMode_Shift            (8)                 /*!< Shift of IOCON I2C mode bits     */
 
 /** @} */
 
@@ -242,9 +240,6 @@ typedef enum {
 #define IOCON_IS_AD_MODE(Mode) (((Mode) == IOCON_ADMode_Analog) \
                              || ((Mode) == IOCON_ADMode_Digital))
 
-#define IOCON_ADMode_Mask              (1 << 7)            /*!< Analog Mode bits in IOCON reg's  */
-#define IOCON_ADMode_Shift             (7)                 /*!< Shift of IOCON analog mode bits  */
-
 /** @} */
 
 #if defined(LPC11XXL)  /* L-series parts only */
@@ -261,11 +256,8 @@ typedef enum {
 } IOCON_ODMode_Type;
 
 /*! @brief Macro to test whether parameter is a valid IOCON Open Drain Mode */
-#define IOCON_IS_AD_MODE(Mode) (((Mode) == IOCON_ODMode_Normal) \
+#define IOCON_IS_OD_MODE(Mode) (((Mode) == IOCON_ODMode_Normal) \
                              || ((Mode) == IOCON_ODMode_OpenDrain))
-
-#define IOCON_ODMode_Mask              (1 << 10)           /*!< OpenDrain Mode bits in IOCON reg */
-#define IOCON_ODMode_Shift             (10)                /*!< Shift of IOCON OpenDrain bits    */
 
 /** @} */
 
@@ -456,7 +448,7 @@ typedef enum {
 #define IOCON_PinConfig_3_3_RI0          (((((uint16_t)IOCON_Function_Alt1) << 8))    | IOCON_Pin_3_3)  /*!< Pin 3.3 configured as UART0 RI               */
 
 /*! @brief Type used for passing pin configuration settings */
-typedef uint16_t IOCON_PinConfig_Type;
+typedef uint32_t IOCON_PinConfig_Type;
 
 /** @} */
 
@@ -471,268 +463,248 @@ typedef uint16_t IOCON_PinConfig_Type;
   * @{
   */
 
-/** @brief  Set the Function of a Pin
-  * @param  Pin      ID of the pin on which to set the function
-  * @param  Function Function to configure for pin
-  * @return None.
+/** @brief Set the function for an IO pin.
+  * @param[in]  pin          An IOCON pin number
+  * @param[in]  function     The new pin function
   */
-__INLINE static void IOCON_SetPinFunction(IOCON_Pin_Type Pin, IOCON_Function_Type Function)
+__INLINE static void IOCON_SetPinFunction(IOCON_Pin_Type pin, IOCON_Function_Type function)
 {
-    lpclib_assert(IOCON_IS_PIN(Pin));
-    lpclib_assert(IOCON_IS_FUNCTION(Function));
+    lpclib_assert(IOCON_IS_PIN(pin));
+    lpclib_assert(IOCON_IS_FUNCTION(function));
 
-    ((__IO uint32_t *)IOCON)[Pin] = (((__IO uint32_t *)IOCON)[Pin] & ~IOCON_Function_Mask)
-                                    | Function;
+    ((__IO uint32_t *)IOCON)[pin] = (((__IO uint32_t *)IOCON)[pin] & ~IOCON_Function_Mask)
+                                    | function;
 }
 
-/** @brief  Get the Currently Configured Function of a Pin
-  * @param  Pin      ID of the pin for which to get the function
-  * @return The Configured Pin Function
+/** @brief Get the current function of an IO pin.
+  * @param[in]  pin          An IOCON pin number
+  * @return                  A token indicating the current pin function.
   */
-__INLINE static IOCON_Function_Type IOCON_GetPinFunction(IOCON_Pin_Type Pin)
+__INLINE static IOCON_Function_Type IOCON_GetPinFunction(IOCON_Pin_Type pin)
 {
-    return (((__IO uint32_t *)IOCON)[Pin] & IOCON_Function_Mask) >> IOCON_Function_Shift;
+    return ((__IO uint32_t *)IOCON)[pin] & IOCON_Function_Mask;
 }
 
-/** @brief Quick Pin Configuration Function
-  * @param  PinConfig   Pin configuration setting
-  * @param  PinMode     The resistor/repeater mode to configure for the pin
-  * @return None.
+/** @brief Simple IO pin configuration function.
+  * @param[in]  config       A pin/function hybrid configuration setting
+  * @param[in]  mode         The resistor/repeater mode to configure for the pin
   */
-__INLINE static void IOCON_SetPinConfig(IOCON_PinConfig_Type PinConfig, IOCON_Mode_Type PinMode)
+__INLINE static void IOCON_SetPinConfig(IOCON_PinConfig_Type config, IOCON_Mode_Type mode)
 {
-    uint16_t Pin = PinConfig & 0xff;
+    uint16_t pin = config & 0xff;
 
-    lpclib_assert(IOCON_IS_PIO_PIN(Pin));
-    lpclib_assert(IOCON_IS_FUNCTION(PinConfig >> 8));
-    lpclib_assert(IOCON_IS_MODE(PinMode));
 
-    ((__IO uint32_t *)IOCON)[Pin] =
-        (((__IO uint32_t *)IOCON)[Pin] & ~(IOCON_Function_Mask | IOCON_Mode_Mask)) | (PinConfig >> 8) | PinMode;
+    lpclib_assert(IOCON_IS_PIO_PIN(pin));
+    lpclib_assert(IOCON_IS_FUNCTION(config >> 8));
+    lpclib_assert(IOCON_IS_MODE(mode));
+
+    ((__IO uint32_t *)IOCON)[pin] =
+        (((__IO uint32_t *)IOCON)[pin] & ~(IOCON_Function_Mask | IOCON_Mode_Mask))
+        | (config >> 8) | mode;
 }
 
-/** @brief  Enable Hysteresis on a Pin
-  * @param  Pin        Pin on which to enable hysteresis
-  * @return None.
+/** @brief Enable hysteresis on an IO pin.
+  * @param[in]  pin          An IOCON pin number
   */
-__INLINE static void IOCON_EnablePinHysteresis(IOCON_Pin_Type Pin)
+__INLINE static void IOCON_EnablePinHysteresis(IOCON_Pin_Type pin)
 {
-    lpclib_assert(IOCON_IS_PIN(Pin));
+    lpclib_assert(IOCON_IS_PIN(pin));
 
-    ((__IO uint32_t *)IOCON)[Pin] |= IOCON_HYS;
+    ((__IO uint32_t *)IOCON)[pin] |= IOCON_HYS;
 }
 
-/** @brief  Disable Hysteresis on a Pin
-  * @param  Pin        Pin on which to disable hysteresis
-  * @return None.
+/** @brief  Disable hysteresis on an IO pin.
+  * @param[in]  pin          An IOCON pin number
   */
-__INLINE static void IOCON_DisablePinHysteresis(IOCON_Pin_Type Pin)
+__INLINE static void IOCON_DisablePinHysteresis(IOCON_Pin_Type pin)
 {
-    lpclib_assert(IOCON_IS_PIN(Pin));
+    lpclib_assert(IOCON_IS_PIN(pin));
 
-    ((__IO uint32_t *)IOCON)[Pin] &= ~IOCON_HYS;
+    ((__IO uint32_t *)IOCON)[pin] &= ~IOCON_HYS;
 }
 
-/** @brief  Get the Currently Configured Hysteresis Setting of a Pin
-  * @param  Pin      ID of the pin for which to get the function
-  * @return The Configured Pin Function
+/** @brief  Get the current hysteresis setting of an IO pin.
+  * @param[in]  pin          An IOCON pin number
+  * @return                  1 if hysteresis is enabled on the pin, 0 otherwise.
   */
-__INLINE unsigned int IOCON_PinHysteresisIsEnabled(IOCON_Pin_Type Pin)
+__INLINE unsigned int IOCON_PinHysteresisIsEnabled(IOCON_Pin_Type pin)
 {
-    return (((__IO uint32_t *)IOCON)[Pin] & IOCON_HYS) ? 1:0;
+    return (((__IO uint32_t *)IOCON)[pin] & IOCON_HYS) ? 1:0;
 }
 
-/** @brief Set Pin (resistor) Mode
-  * @param  Pin     Pin on which to set the mode
-  * @param  Mode    Mode to Set on Pin
-  * @return None.
-  *
-  * Valid Modes:
-  *  IOCON_Mode_Normal   (No Pullups, Pulldowns or Repeater Mode)
-  *  IOCON_Mode_PU       (Pullup enabled)
-  *  IOCON_Mode_PD       (Pulldown enabled)
-  *  IOCON_Mode_Repeater (Repeater Mode enabled)
+/** @brief Set the mode (resistor/repeater setting) of an IO pin.
+  * @param[in]  pin          An IOCON pin number
+  * @param[in]  mode         The new mode setting
   */
-__INLINE static void IOCON_SetPinMode(IOCON_Pin_Type Pin,
-                                          IOCON_Mode_Type Mode)
+__INLINE static void IOCON_SetPinMode(IOCON_Pin_Type pin,
+                                      IOCON_Mode_Type mode)
 {
-    lpclib_assert(IOCON_IS_PIN(Pin));
-    lpclib_assert(IOCON_IS_MODE(Mode));
+    lpclib_assert(IOCON_IS_PIN(pin));
+    lpclib_assert(IOCON_IS_MODE(mode));
 
-    ((__IO uint32_t *)IOCON)[Pin] = (((__IO uint32_t *)IOCON)[Pin] & ~IOCON_Mode_Mask)
-                                    | Mode;
+    ((__IO uint32_t *)IOCON)[pin] = (((__IO uint32_t *)IOCON)[pin] & ~IOCON_Mode_Mask)
+                                    | mode;
 }
 
-/** @brief  Get the Currently Configured (resistor) Mode for a Pin
-  * @param  Pin      ID of the pin for which to get the mode
-  * @return The Configured Pin Mode
+/** @brief  Get the current mode (resistor/repeater setting) of an IO pin.
+  * @param[in]  pin          An IOCON pin number
+  * @return                  The current pin mode.
   */
-__INLINE static IOCON_Mode_Type IOCON_GetPinMode(IOCON_Pin_Type Pin)
+__INLINE static IOCON_Mode_Type IOCON_GetPinMode(IOCON_Pin_Type pin)
 {
-    lpclib_assert(IOCON_IS_PIN(Pin));
+    lpclib_assert(IOCON_IS_PIN(pin));
 
-    return (((__IO uint32_t *)IOCON)[Pin] & IOCON_Mode_Mask);
+    return (((__IO uint32_t *)IOCON)[pin] & IOCON_Mode_Mask);
 }
 
 /** @brief Set Pin I2C Mode
-  * @param  Pin     Pin on which to set the I2C mode (IOCON_Pin_Pin_PIO_0_4/0_5 Only)
-  * @param  I2CMode I2C Mode to Set on Pin
-  * @return None.
-  *
-  * Valid Modes:
-  *  IOCON_I2CMode_I2C (Standard / Fast I2C with glitch filter)
-  *  IOCON_I2CMode_PIO (Open-Drain PIO Mode)
-  *  IOCON_I2CMode_I2CPlus (I2C Fast-mode Plus, w/current sinks)
+  * @param[in]  pin          An IOCON pin number (IOCON_Pin_Pin_PIO_0_4/0_5 Only)
+  * @param[in]  i2c_mode     The new I2C mode
   */
-__INLINE static void IOCON_SetPinI2CMode(IOCON_Pin_Type Pin,
-                                       IOCON_I2CMode_Type I2CMode)
+__INLINE static void IOCON_SetPinI2CMode(IOCON_Pin_Type pin,
+                                         IOCON_I2CMode_Type i2c_mode)
 {
-    lpclib_assert(IOCON_IS_I2C_PIN(Pin));
-    lpclib_assert(IOCON_IS_I2C_MODE(I2CMode));
+    lpclib_assert(IOCON_IS_I2C_PIN(pin));
+    lpclib_assert(IOCON_IS_I2C_MODE(i2c_mode));
 
-    ((__IO uint32_t *)IOCON)[Pin] = (((__IO uint32_t *)IOCON)[Pin] & ~IOCON_I2CMode_Mask)
-                                    | I2CMode;
+    ((__IO uint32_t *)IOCON)[pin] = (((__IO uint32_t *)IOCON)[pin] & ~IOCON_I2C_Mask)
+                                    | i2c_mode;
 }
 
-/** @brief Get the Currently Configured I2C Mode on a Pin
-  * @param  Pin     Pin for which to get the I2C mode (IOCON_Pin_Pin_PIO_0_4/0_5 Only)
-  * @return The Configured I2C Mode on the Pin
+/** @brief Get the current I2C mode of an IO pin.
+  * @param[in]  pin          An IOCON pin number (IOCON_Pin_Pin_PIO_0_4/0_5 Only)
+  * @return                  The current I2C mode of the pin.
   */
-__INLINE static IOCON_I2CMode_Type IOCON_GetPinI2CMode(IOCON_Pin_Type Pin)
+__INLINE static IOCON_I2CMode_Type IOCON_GetPinI2CMode(IOCON_Pin_Type pin)
 {
-    lpclib_assert(IOCON_IS_I2C_PIN(Pin));
+    lpclib_assert(IOCON_IS_I2C_PIN(pin));
 
-    return ((__IO uint32_t *)IOCON)[Pin] & IOCON_I2CMode_Mask;
+    return ((__IO uint32_t *)IOCON)[pin] & IOCON_I2C_Mask;
 }
 
-/** @brief Enable Analog Mode on a Pin
-  * @param  Pin     Pin on which to enable Analog Mode (for AD pins only)
-  * @return None.
+/** @brief Enable analog mode on an IO pin.
+  * @param[in]  pin          An IOCON pin number (ADC input pins only)
   */
-__INLINE static void IOCON_EnablePinAnalogMode(IOCON_Pin_Type Pin)
+__INLINE static void IOCON_EnablePinAnalogMode(IOCON_Pin_Type pin)
 {
-    lpclib_assert(IOCON_IS_AD_PIN(Pin));
+    lpclib_assert(IOCON_IS_AD_PIN(pin));
 
     /* Note: AD bit is 0 when Analog Mode is enabled */
-    ((__IO uint32_t *)IOCON)[Pin] &= ~IOCON_AD;
+    ((__IO uint32_t *)IOCON)[pin] &= ~IOCON_AD;
 }
 
-/** @brief Disable Analog Mode on a Pin
-  * @param  Pin     Pin on which to disable Analog Mode (for AD pins only)
-  * @return None.
+/** @brief Disable analog mode on an IO pin.
+  * @param[in]  pin          An IOCON pin number (ADC input pins only)
   */
-__INLINE static void IOCON_DisablePinAnalogMode(IOCON_Pin_Type Pin)
+__INLINE static void IOCON_DisablePinAnalogMode(IOCON_Pin_Type pin)
 {
-    lpclib_assert(IOCON_IS_AD_PIN(Pin));
+    lpclib_assert(IOCON_IS_AD_PIN(pin));
 
     /* Note: AD bit is 0 when Analog Mode is enabled */
-    ((__IO uint32_t *)IOCON)[Pin] |= IOCON_AD;
+    ((__IO uint32_t *)IOCON)[pin] |= IOCON_AD;
+}
+
+/** @brief Test whether analog mode is enabled on an IO pin.
+  * @param[in]  pin          An IOCON pin number (ADC input pins only)
+  * @return                  1 if AD mode is enabled on the pin, 0 otherwise.
+  */
+__INLINE static void IOCON_EnablePinAnalogMode(IOCON_Pin_Type pin)
+{
+   lpclib_assert(IOCON_IS_AD_PIN(pin));
+
+    return (((__IO uint32_t *)IOCON)[pin] & IOCON_AD) ? 0:1;
 }
 
 #if defined(LPC11XXL)  /* L-series parts only; pseudo Open-Drain Mode */
 
-/** @brief Enable pseudo Open Drain Mode on a Pin
-  * @param  Pin     Pin on which to enable Open Drain Mode
-  * @return None.
+/** @brief Enable pseudo open-drain mode on an IO pin.
+  * @param[in]  pin          An IOCON pin number (non-I2C pins only)
   */
-__INLINE static void IOCON_EnablePinODMode(IOCON_Pin_Type Pin)
+__INLINE static void IOCON_EnablePinODMode(IOCON_Pin_Type pin)
 {
-    lpclib_assert(IOCON_IS_OD_PIN(Pin));
+    lpclib_assert(IOCON_IS_OD_PIN(pin));
 
-    ((__IO uint32_t *)IOCON)[Pin] |= IOCON_OD;
+    ((__IO uint32_t *)IOCON)[pin] |= IOCON_OD;
 }
 
-/** @brief Disable pseudo Open Drain Mode on a Pin
-  * @param  Pin     Pin on which to disable Open Drain Mode
-  * @return None.
+/** @brief Disable pseudo open-drain mode on an IO pin.
+  * @param[in]  pin          An IOCON pin number (non-I2C pins only)
   */
-__INLINE static void IOCON_DisablePinOpenDrainMode(IOCON_Pin_Type Pin)
+__INLINE static void IOCON_DisablePinOpenDrainMode(IOCON_Pin_Type pin)
 {
-    lpclib_assert(IOCON_IS_OD_PIN(Pin));
+    lpclib_assert(IOCON_IS_OD_PIN(pin));
 
-    ((__IO uint32_t *)IOCON)[Pin] &= ~IOCON_OD;
+    ((__IO uint32_t *)IOCON)[pin] &= ~IOCON_OD;
 }
 
 #endif /* #if defined(LPC11XXL) */
 
-/** @brief Determine whether Analog Mode is Enabled on a Pin
-  * @param  Pin     Pin which to check for Analog Mode
-  * @return 1 if AD mode is enabled on the pin, 0 otherwise
+/** @brief Set the location of SSP0's SCK pin.
+  * @param[in]  loc          The location to route the signal.
   */
-__INLINE static unsigned int IOCON_PinAnalogModeIsEnabled(IOCON_Pin_Type Pin)
+__INLINE static void IOCON_SetSCK0Location(IOCON_SCK0Location_Type loc)
 {
-    lpclib_assert(IOCON_IS_AD_PIN(Pin));
+    lpclib_assert(IOCON_IS_SCK0_LOCATION(loc));
 
-    /* Note: AD bit is 0 when Analog Mode is enabled */
-    return     (((__IO uint32_t *)IOCON)[Pin] & IOCON_AD) ? 1:0;
+    IOCON->SCK0_LOC = loc;
 }
 
-/** @brief Set Pin Location of SSP0 SCK Pin
-  * @param  Location  Pin on which to route SSP0 SCK Pin
-  * @return None.
-  */
-__INLINE static void IOCON_SetSCK0Location(IOCON_SCK0Location_Type Location)
-{
-    lpclib_assert(IOCON_IS_SCK0_LOCATION(Location));
-    IOCON->SCK0_LOC = Location;
-}
-
-/** @brief Get Location of SSP0 SCK Pin
-  * @return Location of SSP0 SCK Pin
+/** @brief Get the current location of SSP0's SCK pin.
+  * @return                  The current location of the SCK pin.
   */
 __INLINE static IOCON_SCK0Location_Type IOCON_GetSCK0Location(void)
 {
     return IOCON->SCK0_LOC;
 }
 
-/** @brief Set Pin Location of UART 0 DSR Pin
-  * @param  Location  Pin on which to route UART DSR Pin
-  * @return None.
+/** @brief Set the location of UART0's DSR pin.
+  * @param[in]  loc          The location to route the signal.
   */
-__INLINE static void IOCON_SetDSR0Location(IOCON_DSR0Location_Type Location)
+__INLINE static void IOCON_SetDSR0Location(IOCON_DSR0Location_Type loc)
 {
-    lpclib_assert(IOCON_IS_DSR0_LOCATION(Location));
-    IOCON->DSR0_LOC = Location;
+    lpclib_assert(IOCON_IS_DSR0_LOCATION(loc));
+
+    IOCON->DSR0_LOC = loc;
 }
 
-/** @brief Get Location of UART 0 DSR Pin
-  * @return Location of UART DSR Pin
+/** @brief Get the current location of UART0's DSR pin.
+  * @return                  The current location of the DSR pin.
   */
 __INLINE static IOCON_DSR0Location_Type IOCON_GetDSR0Location(void)
 {
     return IOCON->DSR0_LOC;
 }
 
-/** @brief Set Pin Location of UART 0 DCD Pin
-  * @param  Location  Pin on which to route UART DCD Pin
-  * @return None.
+/** @brief Set the location of UART0's DCD pin.
+  * @param[in]  loc          The location to route the signal.
   */
-__INLINE static void IOCON_SetDCD0Location(IOCON_DCD0Location_Type Location)
+__INLINE static void IOCON_SetDCD0Location(IOCON_DCD0Location_Type loc)
 {
-    lpclib_assert(IOCON_IS_DCD0_LOCATION(Location));
-    IOCON->DCD0_LOC = Location;
+    lpclib_assert(IOCON_IS_DCD0_LOCATION(loc));
+
+    IOCON->DCD0_LOC = loc;
 }
 
-/** @brief Get Location of UART 0 DCD Pin
-  * @return Location of UART DCD Pin
+/** @brief Get the current location of UART0's DCD pin.
+  * @return                  The current location of the DCD pin.
   */
 __INLINE static IOCON_DCD0Location_Type IOCON_GetDCD0Location(void)
 {
     return IOCON->DCD0_LOC;
 }
 
-/** @brief Set Pin Location of UART RI Pin
-  * @param  Location  Pin on which to route UART RI Pin
-  * @return None.
+/** @brief Set the location of UART0's RI pin.
+  * @param[in]  loc          The location to route the signal.
   */
-__INLINE static void IOCON_SetRI0Location(IOCON_RI0Location_Type Location)
+__INLINE static void IOCON_SetRI0Location(IOCON_RI0Location_Type loc)
 {
-    lpclib_assert(IOCON_IS_RI0_LOCATION(Location));
-    IOCON->RI0_LOC = Location;
+    lpclib_assert(IOCON_IS_RI0_LOCATION(loc));
+
+    IOCON->RI0_LOC = loc;
 }
 
-/** @brief Get Location of UART RI Pin
-  * @return Location of UART RI Pin
+/** @brief Get the current location of UART0's RI pin.
+  * @return                  The current location of the RI pin.
   */
 __INLINE static IOCON_RI0Location_Type IOCON_GetRI0Location(void)
 {

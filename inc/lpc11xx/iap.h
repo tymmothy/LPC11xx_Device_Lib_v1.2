@@ -81,6 +81,7 @@ extern "C" {
 #define IAP_KHz()            (SystemCoreClock / 1024) /*!< System Frequency in KHz               */
 #define IAP_ENTRY_POINT      (0x1fff1ff1UL)           /*!< Location of IAP entry function in ROM */
 #define IAP_SECTOR_SIZE      (4096)                   /*!< Flash Sector Size                     */
+#define IAP_SECTOR_Shift     (12)                     /*!< Number of bits in sector page addrs   */
 
 /**
   * @}
@@ -179,19 +180,19 @@ typedef enum {
   * @{
   */
 
-/** @brief  Call into the IAP system
-  * @param  Command     The IAP Command to Execute
-  * @param  p0          First argument to pass to IAP (call-dependent)
-  * @param  p1          Second argument to pass to IAP (call-dependent)
-  * @param  p2          Third argument to pass to IAP (call-dependent)
-  * @param  p3          Fourth argument to pass to IAP (call-dependent)
-  * @param  Result      Location to write any results passed back from IAP
-  * @return             An IAP Status Code giving status of operation.
+/** @brief Call into the IAP system
+  * @param[in]  command      The IAP Command to Execute
+  * @param[in]  p0           First argument to pass to IAP  (call-dependent)
+  * @param[in]  p1           Second argument to pass to IAP (call-dependent)
+  * @param[in]  p2           Third argument to pass to IAP  (call-dependent)
+  * @param[in]  p3           Fourth argument to pass to IAP (call-dependent)
+  * @param[out] result       Pointer to location to write any results passed back from IAP
+  * @return                  An IAP Status Code giving status of operation.
   *
   * Result can be set to NULL if no result is necessary.
   */
-IAP_StatusType IAP_Call(IAP_CommandType Command, uint32_t p0, uint32_t p1,
-                        uint32_t p2, uint32_t p3, uint32_t *Result);
+IAP_StatusType IAP_Call(IAP_CommandType command, uint32_t p0, uint32_t p1,
+                        uint32_t p2, uint32_t p3, uint32_t *result);
 
 /** @} */
 
@@ -202,136 +203,135 @@ IAP_StatusType IAP_Call(IAP_CommandType Command, uint32_t p0, uint32_t p1,
   * @{
   */
 
-/** @brief  Prepare Flash sectors for erase / write operations
-  * @param  StartAddr   4096-byte aligned location in memory to start prepping
-  * @param  NumSectors  Number of sectors to prepare
-  * @return             0 on success, negative IAP status value on error.
+/** @brief Prepare Flash sectors for erase or write operations.
+  * @param[in]  start_addr   The (sector-aligned) location in memory to start preparing
+  * @param[in]  nsectors     The number of sectors to prepare
+  * @return                  0 on success, negative IAP status value on error.
   */
-static __INLINE int IAP_PrepareSectors(uint32_t StartAddr, uint32_t NumSectors)
+static __INLINE int IAP_PrepareSectors(uint32_t start_addr, uint32_t nsectors)
 {
     int ret;
 
+    lpclib_assert((start_addr & (IAP_SECTOR_SIZE - 1)) == 0);
 
-    lpclib_assert((StartAddr & (IAP_SECTOR_SIZE - 1)) == 0);
-
-    ret = IAP_Call(IAP_Command_PrepareSectors, (StartAddr >> 12),
-                  (StartAddr >> 12) + (NumSectors - 1), 0, 0, 0);
+    ret = IAP_Call(IAP_Command_PrepareSectors, (start_addr >> IAP_SECTOR_Shift),
+                  (start_addr >> IAP_SECTOR_Shift) + (nsectors - 1), 0, 0, 0);
     return -ret;
 }
 
 /**
-  * @brief  Copy data from RAM to Flash pages
-  * @param  DestAddr    256-byte aligned location in memory to copy to
-  * @param  SrcAddr     word aligned location in memory to end copy
-  * @param  ByteCount   # of Bytes to Copy (should be 256/512/1024/4096)
-  * @return             0 on success, negative IAP status value on error.
+  * @brief Copy data from RAM to Flash pages.
+  * @param[in]  dest_addr    The (256 byte-aligned) location in Flash to copy to
+  * @param[in]  src_addr     The (word-aligned) location in memory to end copy
+  * @param[in]  nbytes       The number of bytes to copy (should be 256/512/1024/4096)
+  * @return                  0 on success, negative IAP status value on error.
   */
-static __INLINE int IAP_CopyRamToFlash(uint32_t DestAddr, uint32_t SrcAddr,
-                                     IAP_ByteCountType ByteCount)
+static __INLINE int IAP_CopyRamToFlash(uint32_t dest_addr, uint32_t src_addr,
+                                       IAP_ByteCountType nbytes)
+{
+    int ret;
+
+    lpclib_assert((dest_addr & 0xff) == 0);
+    lpclib_assert((src_addr & 0xff) == 0);
+    lpclib_assert(IAP_IS_BYTE_COUNT_TYPE(nbytes));
+
+    ret = IAP_Call(IAP_Command_CopyRamToFlash, dest_addr, src_addr,
+                   nbytes, IAP_KHz(), 0);
+    return -ret;
+}
+
+/** @brief Erase Flash pages.
+  * @param[in]  start_addr   The (sector-aligned) location in memory to start erase
+  * @param[in]  nsectors     The number of sectors to erase
+  * @return                  0 on success, negative IAP status value on error.
+  *
+  * @note
+  * IAP_PrepareSectors must be called on the sectors that are going to be
+  * erased before this function is called.
+  */
+static __INLINE int IAP_EraseSectors(uint32_t start_addr, uint32_t nsectors)
 {
     int ret;
 
 
-    lpclib_assert((DestAddr & 0xff) == 0);
-    lpclib_assert((SrcAddr & 0xff) == 0);
-    lpclib_assert(IAP_IS_BYTE_COUNT_TYPE(ByteCount));
+    lpclib_assert((start_addr & (IAP_SECTOR_SIZE - 1)) == 0);
 
-    ret = IAP_Call(IAP_Command_CopyRamToFlash, DestAddr, SrcAddr,
-                   ByteCount, IAP_KHz(), 0);
+    ret = IAP_Call(IAP_Command_EraseSectors, (start_addr >> IAP_SECTOR_Shift),
+                   (start_addr >> IAP_SECTOR_Shift) + (nsectors - 1), IAP_KHz(), 0, 0);
+
     return -ret;
 }
 
-
-/** @brief  Erase Flash pages
-  * @param  StartAddr   4096-byte aligned location in memory to start erase
-  * @param  NumSectors  Number of sectors to erase
-  * @return             0 on success, negative IAP status value on error.
+/** @brief Blank-check Flash memory.
+  * @param[in]   start_addr  The (sector-aligned) location in memory to start check
+  * @param[in]   nsectors    The number of sectors to blank-check
+  * @param[out]  nb_offset   The offset of the first non-blank location
+  * @return                  0 on success, negative IAP status value on error.
   */
-static __INLINE int IAP_EraseSectors(uint32_t StartAddr, uint32_t NumSectors)
+static __INLINE int IAP_BlankCheckSectors(uint32_t start_addr,
+                                 uint32_t nsectors, uint32_t *nb_offset)
 {
     int ret;
 
 
-    lpclib_assert((StartAddr & (IAP_SECTOR_SIZE - 1)) == 0);
+    lpclib_assert((start_addr & (IAP_SECTOR_SIZE -1)) == 0);
 
-    ret = IAP_Call(IAP_Command_EraseSectors, (StartAddr >> 12),
-                   (StartAddr >> 12) + (NumSectors - 1), IAP_KHz(), 0, 0);
+    ret = IAP_Call(IAP_Command_BlankCheckSectors, (start_addr >> IAP_SECTOR_Shift),
+                   (start_addr >> IAP_SECTOR_Shift) + (nsectors - 1), 0, 0, nb_offset);
     return -ret;
 }
 
-/** @brief  Blank Check Flash Sectors
-  * @param  StartAddr   4096-byte aligned location in memory to start check
-  * @param  NumSectors  Number of sectors to blank-check
-  * @param  NonBlankOffset Offset if the first non-blank location
-  * @return             0 on success, negative IAP status value on error.
+/** @brief Read the MCU's Part ID.
+  * @param[out]  id          The returned MCU's part ID
+  * @return                  0 on success, negative IAP status value on error.
   */
-static __INLINE int IAP_BlankCheckSectors(uint32_t StartAddr,
-                                 uint32_t NumSectors, uint32_t *NonBlankOffset)
+static __INLINE int IAP_ReadPartID(uint32_t *id)
 {
     int ret;
 
 
-    lpclib_assert((StartAddr & (IAP_SECTOR_SIZE -1)) == 0);
+    ret = IAP_Call(IAP_Command_ReadPartID, 0, 0, 0, 0, id);
 
-    ret = IAP_Call(IAP_Command_BlankCheckSectors, (StartAddr >> 12),
-                   (StartAddr >> 12) + (NumSectors - 1), 0, 0, NonBlankOffset);
     return -ret;
 }
 
-
-/** @brief  Read the MCU's Part ID
-  * @param  PartID      Address at which to save the MCU's Part ID
-  * @return             0 on success, negative IAP status value on error.
+/** @brief Read the MCU's boot code version.
+  * @param[out] version      The returned boot code version
+  * @return                  0 on success, negative IAP status value on error.
   */
-static __INLINE int IAP_ReadPartID(uint32_t *PartID)
+static __INLINE int IAP_ReadBootCodeVersion(uint32_t *version)
 {
     int ret;
 
 
-    ret = IAP_Call(IAP_Command_ReadPartID, 0, 0, 0, 0, PartID);
+    ret = IAP_Call(IAP_Command_ReadBootCodeVersion, 0, 0, 0, 0, version);
+
     return -ret;
 }
 
-
-/** @brief  Read the MCU's Boot Code Version
-  * @param  BootCodeVersion Address at which to save the Boot Code Version
-  * @return             0 on success, negative IAP status value on error.
+/** @brief Compare RAM or Flash contents, returning offset of first difference.
+  * @param[in]  addr1        The (word-aligned) location of first segment to compare
+  * @param[in]  addr2        The (word-aligned) location of second segment to compare
+  * @param[in]  nbytes       The number of bytes to compare (a multiple of 4 bytes)
+  * @param[out] diff_offset  The offset of the first difference between segments
+  * @return                  0 on success, negative IAP status value on error.
   */
-static __INLINE int IAP_ReadBootCodeVersion(uint32_t *BootCodeVersion)
+static __INLINE int IAP_Compare(uint32_t addr1, uint32_t addr2,
+                              uint32_t nbytes, uint32_t *diff_offset)
 {
     int ret;
 
 
-    ret = IAP_Call(IAP_Command_ReadBootCodeVersion, 0, 0, 0, 0,
-                   BootCodeVersion);
+    lpclib_assert((nbytes & 0x03) == 0);
+    lpclib_assert((addr1 & 0x03) == 0);
+    lpclib_assert((addr2 & 0x03) == 0);
+
+    ret = IAP_Call(IAP_Command_Compare, addr1, addr2, nbytes, 0, diff_offset);
+
     return -ret;
 }
 
-/** @brief  Compare RAM or Flash contents; returns offset of first difference
-  * @param  Addr1       4-byte aligned location of first segment to compare
-  * @param  Addr2       4-byte aligned location of second segment to compare
-  * @param  NumBytes    Multiple of 4 bytes; number of bytes to compare
-  * @param  MismatchOffset Offset of first difference between segments
-  * @return             0 on success, negative IAP status value on error.
-  */
-static __INLINE int IAP_Compare(uint32_t Addr1, uint32_t Addr2,
-                              uint32_t NumBytes, uint32_t *MismatchOffset)
-{
-    int ret;
-
-
-    lpclib_assert((NumBytes & 0x03) == 0);
-    lpclib_assert((Addr1 & 0x03) == 0);
-    lpclib_assert((Addr2 & 0x03) == 0);
-
-    ret = IAP_Call(IAP_Command_Compare, Addr1, Addr2, NumBytes, 0,
-                   MismatchOffset);
-    return -ret;
-}
-
-
-/** @brief  Execute In System Programming Function
-  * @return             Does Not Return.
+/** @brief Execute the microcontroller's in-system programming function.
   */
 static __INLINE void IAP_ReinvokeISP(void) __attribute__((noreturn));
 static __INLINE void IAP_ReinvokeISP(void)

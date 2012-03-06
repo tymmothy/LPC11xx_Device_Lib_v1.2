@@ -82,19 +82,19 @@ typedef struct isr_vector {
     void (* Reserved13)(void);                      /*!<   (unused)                   */
     void (* PendSV_Handler_Vect)(void);             /*!< Pend Supervisor Call Handler */
     void (* SysTick_Handler_Vect)(void);            /*!< System Tick Timer Handler    */
-    void (* StartLogic0_IRQHandler_Vect)(void);     /*!< GPIO0.0  Wakeup IRQ Handler  */
-    void (* StartLogic1_IRQHandler_Vect)(void);     /*!< GPIO0.1  Wakeup IRQ Handler  */
-    void (* StartLogic2_IRQHandler_Vect)(void);     /*!< GPIO0.2  Wakeup IRQ Handler  */
-    void (* StartLogic3_IRQHandler_Vect)(void);     /*!< GPIO0.3  Wakeup IRQ Handler  */
-    void (* StartLogic4_IRQHandler_Vect)(void);     /*!< GPIO0.4  Wakeup IRQ Handler  */
-    void (* StartLogic5_IRQHandler_Vect)(void);     /*!< GPIO0.5  Wakeup IRQ Handler  */
-    void (* StartLogic6_IRQHandler_Vect)(void);     /*!< GPIO0.6  Wakeup IRQ Handler  */
-    void (* StartLogic7_IRQHandler_Vect)(void);     /*!< GPIO0.7  Wakeup IRQ Handler  */
-    void (* StartLogic8_IRQHandler_Vect)(void);     /*!< GPIO0.8  Wakeup IRQ Handler  */
-    void (* StartLogic9_IRQHandler_Vect)(void);     /*!< GPIO0.9  Wakeup IRQ Handler  */
-    void (* StartLogic10_IRQHandler_Vect)(void);    /*!< GPIO0.10 Wakeup IRQ Handler  */
-    void (* StartLogic11_IRQHandler_Vect)(void);    /*!< GPIO0.11 Wakeup IRQ Handler  */
-    void (* StartLogic12_IRQHandler_Vect)(void);    /*!< GPIO1.0  Wakeup IRQ Handler  */
+    void (* WAKEUP0_IRQHandler_Vect)(void);         /*!< GPIO0.0  Wakeup IRQ Handler  */
+    void (* WAKEUP1_IRQHandler_Vect)(void);         /*!< GPIO0.1  Wakeup IRQ Handler  */
+    void (* WAKEUP2_IRQHandler_Vect)(void);         /*!< GPIO0.2  Wakeup IRQ Handler  */
+    void (* WAKEUP3_IRQHandler_Vect)(void);         /*!< GPIO0.3  Wakeup IRQ Handler  */
+    void (* WAKEUP4_IRQHandler_Vect)(void);         /*!< GPIO0.4  Wakeup IRQ Handler  */
+    void (* WAKEUP5_IRQHandler_Vect)(void);         /*!< GPIO0.5  Wakeup IRQ Handler  */
+    void (* WAKEUP6_IRQHandler_Vect)(void);         /*!< GPIO0.6  Wakeup IRQ Handler  */
+    void (* WAKEUP7_IRQHandler_Vect)(void);         /*!< GPIO0.7  Wakeup IRQ Handler  */
+    void (* WAKEUP8_IRQHandler_Vect)(void);         /*!< GPIO0.8  Wakeup IRQ Handler  */
+    void (* WAKEUP9_IRQHandler_Vect)(void);         /*!< GPIO0.9  Wakeup IRQ Handler  */
+    void (* WAKEUP10_IRQHandler_Vect)(void);        /*!< GPIO0.10 Wakeup IRQ Handler  */
+    void (* WAKEUP11_IRQHandler_Vect)(void);        /*!< GPIO0.11 Wakeup IRQ Handler  */
+    void (* WAKEUP12_IRQHandler_Vect)(void);        /*!< GPIO1.0  Wakeup IRQ Handler  */
 #if defined(LPC11CXX)  /* CAN parts only */
     void (* CAN_IRQHandler_Vect)(void);             /*!< CAN IRQ Handler              */
 #else
@@ -159,44 +159,44 @@ extern void SysTick_Handler(void);
   * @{
   */
 
-/*! @brief Start Logic Input 0 (GPIO0.0) IRQ Handler */
-extern void StartLogic0_IRQHandler(void);
+/*! @brief Wakeup input 0 ("Start Logic" on GPIO0.0) IRQ handler */
+extern void WAKEUP0_IRQHandler(void);
 
-/*! @brief Start Logic Input 1 (GPIO 0.1) IRQ Handler */
-extern void StartLogic1_IRQHandler(void);
+/*! @brief Wakeup Input 1 ("Start Logic" on GPIO 0.1) IRQ Handler */
+extern void WAKEUP1_IRQHandler(void);
 
-/*! @brief Start Logic Input 2 (GPIO0.2) IRQ Handler */
-extern void StartLogic2_IRQHandler(void);
+/*! @brief Wakeup Input 2 ("Start Logic" on GPIO0.2) IRQ Handler */
+extern void WAKEUP2_IRQHandler(void);
 
-/*! @brief Start Logic Input 3 (GPIO0.3) IRQ Handler */
-extern void StartLogic3_IRQHandler(void);
+/*! @brief Wakeup Input 3 ("Start Logic" on GPIO0.3) IRQ Handler */
+extern void WAKEUP3_IRQHandler(void);
 
-/*! @brief Start Logic Input 4 (GPIO0.4) IRQ Handler */
-extern void StartLogic4_IRQHandler(void);
+/*! @brief Wakeup Input 4 ("Start Logic" on GPIO0.4) IRQ Handler */
+extern void WAKEUP4_IRQHandler(void);
 
-/*! @brief Start Logic Input 5 (GPIO0.5) IRQ Handler */
-extern void StartLogic5_IRQHandler(void);
+/*! @brief Wakeup Input 5 ("Start Logic" on GPIO0.5) IRQ Handler */
+extern void WAKEUP5_IRQHandler(void);
 
-/*! @brief Start Logic Input 6 (GPIO0.6) IRQ Handler */
-extern void StartLogic6_IRQHandler(void);
+/*! @brief Wakeup Input 6 ("Start Logic" on GPIO0.6) IRQ Handler */
+extern void WAKEUP6_IRQHandler(void);
 
-/*! @brief Start Logic Input 7 (GPIO0.7) IRQ Handler */
-extern void StartLogic7_IRQHandler(void);
+/*! @brief Wakeup Input 7 ("Start Logic" on GPIO0.7) IRQ Handler */
+extern void WAKEUP7_IRQHandler(void);
 
-/*! @brief Start Logic Input 8 (GPIO0.8) IRQ Handler */
-extern void StartLogic8_IRQHandler(void);
+/*! @brief Wakeup Input 8 ("Start Logic" on GPIO0.8) IRQ Handler */
+extern void WAKEUP8_IRQHandler(void);
 
-/*! @brief Start Logic Input 9 (GPIO 0.9) IRQ Handler */
-extern void StartLogic9_IRQHandler(void);
+/*! @brief Wakeup Input 9 ("Start Logic" on GPIO 0.9) IRQ Handler */
+extern void WAKEUP9_IRQHandler(void);
 
-/*! @brief Start Logic Input 10 (GPIO0.10) IRQ Handler */
-extern void StartLogic10_IRQHandler(void);
+/*! @brief Wakeup Input 10 ("Start Logic" on GPIO0.10) IRQ Handler */
+extern void WAKEUP10_IRQHandler(void);
 
-/*! @brief Start Logic Input 11 (GPIO0.11) IRQ Handler */
-extern void StartLogic11_IRQHandler(void);
+/*! @brief Wakeup Input 11 ("Start Logic" on GPIO0.11) IRQ Handler */
+extern void WAKEUP11_IRQHandler(void);
 
-/*! @brief Start Logic Input 12 (GPIO1.0) IRQ Handler */
-extern void StartLogic12_IRQHandler(void);
+/*! @brief Wakeup Input 12 ("Start Logic" on GPIO1.0) IRQ Handler */
+extern void WAKEUP12_IRQHandler(void);
 
 #if defined(LPC11CXX)  /* CAN parts only */
 extern void CAN_IRQHandler(void);

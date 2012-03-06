@@ -4,11 +4,13 @@
  * @author   Tymm Twillman
  * @date     1. January 2012
  *****************************************************************************
- * @section intro Introduction
+ * @section Introduction
  *
  * This is a low-level library for using LPC11xx / LPC11Cxx / LPC11XXL
  * series microcontrollers.  It is meant to be used with the 2.x Cortex-M0
  * CMSIS files from ARM.
+ *
+ * @section Overview
  *
  * The library consists of a core MCU header file for low-level MCU definitions
  * (IRQ numbers, peripheral register layouts, peripheral bit definitions),
@@ -17,16 +19,76 @@
  * and code for interfacing with each of the LPC11xx on-chip peripherals,
  * and link scripts for linking programs for the assorted LPC11xx
  * microcontrollers.
+ * @section Layout
+ * <pre>
+ * LPC11xx_Device_Lib_v1.2/
+ *    Makefile      -- Top-level makefile for building docs or the library
  *
- * @section todo To Do
+ *    docs/         -- Doxygen-generated documentation of the library
+ *
+ *    example/      -- Example firmware source for using assorted peripherals /
+ *                      library features
+ *
+ *    inc/          -- Top-level include directory
+ *      doxy_mainpage.h  -- Source of this documentation file
+ *      lpc11xx/         -- Header files for lpc11xx peripherals & functions
+ *        adc.h               -- Analog to Digital Converter interface
+ *        crp.h               -- Code Read Protection interface
+ *        ct16b.h             -- 16-bit Counter / Timer interface
+ *        ct32b.h             -- 32-bit Counter / Timer interface
+ *        flash.h             -- Flash Controller interface
+ *        gpio.h              -- General Purpose I/O interface
+ *        i2c.h               -- I2C Controller interface
+ *        iap.h               -- Flash programming interface
+ *        iocon.h             -- IO Configuration interface
+ *        isr_vector.h        -- Interrupt Service Routine structure
+ *        pmu.h               -- Power Management Unit interface
+ *        ssp.h               -- Synchronous Serial Peripheral (/SPI) interface
+ *        syscon.h            -- System Configuration Block interface
+ *        uart.h              -- UART interface
+ *        wdt.h               -- Watchdog Timer interface
+ *      lpc11xx.h        -- Base header file for using lpc11xx microcontrollers
+ *      lpclib_assert.h  -- Header file for "assert" debugging of the library
+ *      system_lpc11xx.h -- Header file with interface to low-level chip
+ *                           (power-up, clocking) functions
+ *
+ *    link_scripts/ -- Linker scripts
+ *      (contains assorted link scripts for different CPU models)
+ *
+ *    lpc11xx.mk    -- Make include file for simple inclusion of the library
+ *                      build into user projects
+ *
+ *    src/          -- 'C' source files
+ *      Makefile         -- Make file for building the library objects
+ *      lpc11xx_crp.c    -- Code Read Protection storage
+ *      lpc11xx_crt0.c   -- CPU initialization / libc start-up code
+ *      lpc11xx_iap.c    -- Flash programming functions
+ *      lpc11xx_pll.c    -- PLL interface functions
+ *      lpclib_assert.c  -- Assert function
+ *      system_lpc11xx.c -- CMSIS-required system functions (SystemInit, SystemCoreClockUpdate)
+ * </pre>
+ *
+ * @section Design Goals
+ *
+ * The library is an attempt to give a level of abstraction and ease of use
+ * to the low-level hardware, while staying as light-weight as possible.
+ * Efforts were made also to match CMSIS coding standards (thus the use
+ * of CamelCase and excessive enums).  Some decisions were more difficult
+ * than others (e.g. using uint32_t for bitmasks vs. typedefs that might provide
+ * a more clear path to find the documentation for bit meanings).
+ *
+ *
+ * @section ToDo To Do
  *
  * Across Files
- * - doxygen prettification, improve doxygen layout
- * - find best sizes of integers for passing small bitmasks & ints around
+ * - verify correctness of documentation, parameters.
  * - correct compilation issues
  *
  * adc.h
- * - Masks (multiple ADC inputs) abstraction ?
+ * - Masks (multiple ADC inputs) abstraction ? ADC_ChannelMask_AD0 ...
+ * - IT naming (IT??? Intr? Irq?)
+ * - EnableInterruptMask (not channels)?
+ * - Enable/Disable vs SetInterruptMask
  *
  * can.h
  * - Create
@@ -50,28 +112,37 @@
  *
  * iap.h
  * iocon.h
+ * - Capitalization stuff
+ * - layout of doxygen stuff...
+ *
  * isr_vector.h
  *
  * lpc11xx.h
- * - Wakeup / Start IRQ numbering
+ * - Wakeup / Start IRQ numbering?
  *
  * lpclib_assert.h
  * pmu.h
  * ssp.h
+ * - IT naming (IT??? Intr? Irq?)
  *
  * syscon.h
  * - Analog power control bits (type naming, function naming, better docs)
+ * - Wakeup / StartLogic naming?
  *
  * system_lpc11xx.c
  * - Set up separate PSP/MSP stack pointers???
  * system_lpc11xx.h
  *
  * uart.h
- * - AutoBaud IT's
+ * - IT naming (IT??? Intr? Irq?)
  *
  * power_profiles.h
+ * - Complete
  *
  * wdt.h
+ *
+ * linker files
+ * - change StartLogic refs to WAKEUP
  *****************************************************************************
  * @section License License
  *

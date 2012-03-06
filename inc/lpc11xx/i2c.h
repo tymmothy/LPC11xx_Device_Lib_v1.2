@@ -10,7 +10,7 @@
  *
  * @note
  * This file does not handle the following necessary steps for I2C use:
- * - The I2C (AHB/APB/VPB) bus clock line must be enabled
+ * - The I2C controller's (AHB or APB/VPB) bus clock line must be enabled
  * - In many cases, IO Pins must be configured for I2C use in the
  *   (IOCON/PINCONFIG) block
  * - For interrupt use, an interrupt handler must be declared and
@@ -137,176 +137,192 @@ typedef enum {
   */
 
 /** @brief Enable an I2C controller.
-  * @param  I2C         The I2C controller
-  * @return             None.
+  * @param[in]  i2c          A pointer to the I2C controller instance
   */
-__INLINE static void I2C_Enable(I2C_Type *I2C)
+__INLINE static void I2C_Enable(I2C_Type *i2c)
 {
-    I2C->CONSET = I2C_I2EN;
+    i2c->CONSET = I2C_I2EN;
 }
 
 /** @brief Disable an I2C controller.
-  * @param  I2C         The I2C controller
-  * @return             None.
+  * @param[in]  i2c          A pointer to the I2C controller instance
   */
-__INLINE static void I2C_Disable(I2C_Type *I2C)
+__INLINE static void I2C_Disable(I2C_Type *i2c)
 {
-    I2C->CONCLR = I2C_I2EN;
+    i2c->CONCLR = I2C_I2EN;
 }
 
 /** @brief Test whether an I2C controller is enabled.
-  * @param  I2C         The I2C controller
-  * @return             1 if the I2C interface is enabled, 0 otherwise.
+  * @param[in]  i2c          A pointer to the I2C controller instance
+  * @return                  1 if the I2C interface is enabled, 0 otherwise.
   */
-__INLINE static unsigned int I2C_IsEnabled(I2C_Type *I2C)
+__INLINE static unsigned int I2C_IsEnabled(I2C_Type *i2c)
 {
-    return (I2C->CONSET & I2C_I2EN) ? 1:0;
+    return (i2c->CONSET & I2C_I2EN) ? 1:0;
 }
 
 /** @brief Get the status (current state) of an I2C controller.
-  * @param  I2C         The I2C controller
-  * @return             The current state of the I2C controller.
+  * @param[in]  i2c          A pointer to the I2C controller instance
+  * @return                  The current state of the I2C controller.
   */
-__INLINE static unsigned int I2C_GetStatus(I2C_Type *I2C)
+__INLINE static unsigned int I2C_GetStatus(I2C_Type *i2c)
 {
-    return I2C->STAT;
+    return i2c->STAT;
 }
 
 /** @brief Set one of the slave addresses of an I2C controller.
-  * @param  I2C         The I2C controller
-  * @param  ANum        The number [0-3] of the slave address to set
-  * @param  Addr        The address to assign
-  * @param  IgnMask     Bits in the address to ignore when matching the address
-  * @return             None.
+  * @param[in]  i2c          A pointer to the I2C controller instance
+  * @param[in]  addr_index   The number [0-3] of the slave address to set
+  * @param[in]  addr         The address to assign (0 - 127)
+  * @param[in]  ign_mask     Mask of bits in the address to ignore when checking for an address match
   */
-__INLINE static void I2C_Slave_SetAddress(I2C_Type *I2C, unsigned int AddrNum, uint8_t Addr, uint8_t IgnMask)
+__INLINE static void I2C_Slave_SetAddress(I2C_Type *i2c, unsigned int addr_index,
+                                          unsigned int addr, uint8_t ign_mask)
 {
-    lpclib_assert(AddrNum <= 3);
+    lpclib_assert(addr_index <= 3);
+    lpclib_assert(addr <= 127);
 
-    if (AddrNum == 0) {
-        I2C->ADR0 = Addr;
+    if (addr_index == 0) {
+        i2c->ADR0 = (addr << 1);
     } else {
-        ((uint32_t *)(&(I2C->ADR1)))[AddrNum - 1] = Addr;
+        ((uint32_t *)(&(i2c->ADR1)))[addr_index - 1] = (addr << 1);
     }
 
-    ((uint32_t *)(&(I2C->MASK0)))[AddrNum] = IgnMask & I2C_MASK_Mask;
+    ((uint32_t *)(&(i2c->MASK0)))[addr_index] = (ign_mask << 1) & I2C_MASK_Mask;
+}
+
+/** @brief Get one of the slave addresses of an I2C controller.
+  * @param[in]  i2c          A pointer to the I2C controller instance
+  * @param[in]  addr_index   The number [0-3] of the slave address to set
+  * @return                  The I2C controller slave address for given address index.
+  */
+__INLINE static unsigned int I2C_Slave_SetAddress(I2C_Type *i2c, unsigned int addr_index)
+{
+    lpclib_assert(addr_index <= 3);
+
+    if (addr_index == 0) {
+        return (i2c->ADR0 >> 1);
+    } else {
+        return ((((uint32_t *)(&(i2c->ADR1)))[addr_index - 1]) >> 1);
+    }
 }
 
 /** @brief Set the duty cycle of an I2C controller.
-  * @param  I2C         The I2C controller
-  * @param  High        The number of clock cycles in an I2C cycle for which SCL is high
-  * @param  Low         The number of clock cycles in an I2C cycle for which SCL is low
-  * @return             None.
+  * @param[in]  i2c          A pointer to the I2C controller instance
+  * @param[in]  high_cycles  The number of clock cycles in an I2C cycle for which SCL is high (0-255)
+  * @param[in]  low_cycles   The number of clock cycles in an I2C cycle for which SCL is low (0-255)
   */
-__INLINE static void I2C_Master_SetDutyCycle(I2C_Type *I2C, uint8_t HighCycles, uint8_t LowCycles)
+__INLINE static void I2C_Master_SetDutyCycle(I2C_Type *i2c,
+                                             unsigned int high_cycles,
+                                             unsigned int low_cycles)
 {
-    I2C->SCLH = HighCycles;
-    I2C->SCLL = LowCycles;
+    lpclib_assert(high_cycles <= 255);
+    lpclib_assert(low_cycles <= 255);
+
+    i2c->SCLH = high_cycles;
+    i2c->SCLL = low_cycles;
 }
 
 /** @brief Enable reception of General Call messages on an I2C controller.
-  * @return             None.
+  * @param[in]  i2c          A pointer to the I2C controller instance
   */
-__INLINE static void I2C_Slave_EnableGeneralCall(I2C_Type *I2C)
+__INLINE static void I2C_Slave_EnableGeneralCall(I2C_Type *i2c)
 {
-    I2C->ADR0 |= I2C_GC;
+    i2c->ADR0 |= I2C_GC;
 }
 
 /** @brief Disable reception of General Call messages on an I2C controller.
-  * @return             None.
+  * @param[in]  i2c          A pointer to the I2C controller instance
   */
-__INLINE static void I2C_Slave_DisableGeneralCall(I2C_Type *I2C)
+__INLINE static void I2C_Slave_DisableGeneralCall(I2C_Type *i2c)
 {
-    I2C->ADR0 |= I2C_GC;
+    i2c->ADR0 &= ~I2C_GC;
 }
 
 /** @brief Test whether reception of General Call messages is enabled on an I2C controller.
-  * @return             1 if GC message reception is enabled, 0 otherwise.
+  * @param[in]  i2c          A pointer to the I2C controller instance
+  * @return                  1 if GC message reception is enabled, 0 otherwise.
   */
-
-__INLINE static unsigned int I2C_Slave_GeneralCallIsEnabled(I2C_Type *I2C)
+__INLINE static unsigned int I2C_Slave_GeneralCallIsEnabled(I2C_Type *i2c)
 {
-    return (I2C->ADR0 & I2C_GC) ? 1:0;
+    return (i2c->ADR0 & I2C_GC) ? 1:0;
 }
 
 /** @brief Send a START condition on an I2C controller (initiate a transfer).
-  * @return             None.
+  * @param[in]  i2c          A pointer to the I2C controller instance
   */
-__INLINE static void I2C_Master_SendStart(I2C_Type *I2C)
+__INLINE static void I2C_Master_SendStart(I2C_Type *i2c)
 {
-    I2C->CONSET = I2C_STA;
+    i2c->CONSET = I2C_STA;
 }
 
 /** @brief Send a STOP condition on an I2C controller (conclude a transfer).
-  * @return             None.
+  * @param[in]  i2c          A pointer to the I2C controller instance
   */
-__INLINE static void I2C_Master_SendStop(I2C_Type *I2C)
+__INLINE static void I2C_Master_SendStop(I2C_Type *i2c)
 {
-    I2C->CONSET = I2C_STO;
+    i2c->CONSET = I2C_STO;
 }
 
 /** @brief Queue a byte for sending via the I2C controller.
-  * @param  I2C         The I2C Controller
-  * @param  b           The byte to send
-  * @return             None.
+  * @param[in]  i2c          A pointer to the I2C controller instance
+  * @param[in]  b           The byte to send
   *
   * @note This doesn't initiate any transfers, just loads the next byte
   *       to be sent via the I2C controller.
   */
-__INLINE static void I2C_SendByte(I2C_Type *I2C, uint8_t b)
+__INLINE static void I2C_Send(I2C_Type *i2c, uint8_t b)
 {
-    I2C->DAT = b;
+    i2c->DAT = b;
 }
 
-/** @brief Read the last received byte from the I2C controller.
-  * @param  I2C         The I2C Controller
-  * @return             The last byte received.
-  *
-  * @note This doesn't initiate any transfers, just returns the last byte
-  *       that the I2C controller received.
+/** @brief Get the last byte that was received by the I2C controller.
+  * @param[in]  i2c          A pointer to the I2C controller instance
+  * @return                  The last byte received by the I2C controller.
   */
-__INLINE static uint8_t I2C_RecvByte(I2C_Type *I2C)
+__INLINE static uint8_t I2C_Recv(I2C_Type *i2c)
 {
-    return I2C->DAT;
+    return i2c->DAT;
 }
 
 /** @brief Test whether an I2C controller has any interrupts pending.
-  * @param  I2C         The I2C controller
-  * @return             1 if the I2C controller has interrupts pending, 0 otherwise.
+  * @param[in]  i2c          A pointer to the I2C controller instance
+  * @return                  1 if the I2C controller has interrupts pending, 0 otherwise.
   */
-__INLINE static unsigned int I2C_ITIsPending(I2C_Type *I2C)
+__INLINE static unsigned int I2C_ITIsPending(I2C_Type *i2c)
 {
-    return (I2C->STAT & I2C_SI) ? 1:0;
+    return (i2c->STAT & I2C_SI) ? 1:0;
 }
 
 /** @brief Test whether an I2C controller is currently busy.
-  * @param  I2C         The I2C controller
-  * @return             1 if the I2C controller is busy, 0 otherwise.
+  * @param[in]  i2c          A pointer to the I2C controller instance
+  * @return                  1 if the I2C controller is busy, 0 otherwise.
   *
   * @note  The I2C controller is considered to be busy when the interrupt
   *        flag is not set.
   */
-__INLINE static unsigned int I2C_IsBusy(I2C_Type *I2C)
+__INLINE static unsigned int I2C_IsBusy(I2C_Type *i2c)
 {
-    return (I2C->STAT & I2C_SI) == 0;
+    return (i2c->STAT & I2C_SI) == 0;
 }
 
 /** @brief Enable monitor mode on an I2C controller.
-  * @param  I2C         The I2C controller
-  * @return             None.
+  * @param[in]  i2c          A pointer to the I2C controller instance
+  * @param[in]  disable_scl  If non-zero: disable SCL line
+  * @param[in]  match_all    If non-zero: match all addresses
   */
-__INLINE static void I2C_EnableMonitor(I2C_Type *I2C, unsigned int disableSCL, unsigned int matchAll)
+__INLINE static void I2C_EnableMonitor(I2C_Type *i2c, unsigned int disable_scl, unsigned int match_all)
 {
-    I2C->MMCTRL |= I2C_MM_ENA | (disableSCL ? I2C_ENA_SCL : 0) | (matchAll ? I2C_MATCH_ALL : 0);
+    i2c->MMCTRL |= I2C_MM_ENA | (disable_scl ? I2C_ENA_SCL : 0) | (match_all ? I2C_MATCH_ALL : 0);
 }
 
 /** @brief Test whether monitor mode is enabled on an I2C controller.
-  * @param  I2C         The I2C controller
-  * @return             1 if monitor mode is enabled, 0 otherwise.
+  * @param[in]  i2c          A pointer to the I2C controller instance
+  * @return                  1 if monitor mode is enabled, 0 otherwise.
   */
-__INLINE static unsigned int I2C_MonitorIsEnabled(I2C_Type *I2C)
+__INLINE static unsigned int I2C_MonitorIsEnabled(I2C_Type *i2c)
 {
-    return (I2C->MMCTRL & I2C_MM_ENA) ? 1:0;
+    return (i2c->MMCTRL & I2C_MM_ENA) ? 1:0;
 }
 
 /**

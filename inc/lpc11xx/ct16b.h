@@ -1,9 +1,9 @@
 /**************************************************************************//**
  * @file     ct16b.h
- * @brief   16 Bit Counter/Timer Interface Header for NXP LPC Microcontrollers
+ * @brief    16 Bit Counter/Timer Interface Header for NXP LPC Microcontrollers
  * @version  V1.0
  * @author   Tymm Twillman
- * @date     1. January 2012
+ * @date     January 2012
  ******************************************************************************
  * @section Overview
  * This file gives a basic interface to NXP LPC CT16B Counter / Timer
@@ -19,7 +19,7 @@
  *
  * @note
  * This file does not handle the following necessary steps for CT16B use:
- * - The CT16B's (AHB/APB/VPB) bus clock line must be enabled
+ * - The CT16B's (AHB or APB/VPB) bus clock line must be enabled
  * - (if using Match or Capture pins) IO Pins must be set up
  * - For interrupt use, an interrupt handler must be declared and
  *   the CT16B's interrupt line must be enabled in the microcontroller's
@@ -92,21 +92,21 @@ extern "C" {
   */
 
 #if ! (defined(LPC11XX) || defined(LPC11CXX))
-# define CT16B_IT_Mask                       (0xff)        /*!< All valid bits in interrupt reg  */
+# define CT16B_Interrupt_Mask                (0xff)        /*!< All valid bits in interrupt reg  */
 #else
-# define CT16B_IT_Mask                       (0x1f)        /*!< All valid bits in interrupt reg  */
+# define CT16B_Interrupt_Mask                (0x1f)        /*!< All valid bits in interrupt reg  */
 #endif
 
-#define CT16B_IT_MR0                        (1 << 0)       /*!< Match on match register 0        */
-#define CT16B_IT_MR1                        (1 << 1)       /*!< Match on match register 1        */
-#define CT16B_IT_MR2                        (1 << 2)       /*!< Match on match register 2        */
-#define CT16B_IT_MR3                        (1 << 3)       /*!< Match on match register 3        */
-#define CT16B_IT_CR0                        (1 << 4)       /*!< Trigger of Capture Input 0       */
+#define CT16B_InterruptMask_MR0              (1 << 0)       /*!< Match on match register 0       */
+#define CT16B_InterruptMask_MR1              (1 << 1)       /*!< Match on match register 1       */
+#define CT16B_InterruptMask_MR2              (1 << 2)       /*!< Match on match register 2       */
+#define CT16B_InterruptMask_MR3              (1 << 3)       /*!< Match on match register 3       */
+#define CT16B_InterruptMask_CR0              (1 << 4)       /*!< Trigger of Capture Input 0      */
 
-#if ! (defined(LPC11XX) || defined(LPC11CXX))
-# define CT16B_IT_CR1                       (1 << 5)       /*!< Trigger of capture input 1       */
-# define CT16B_IT_CR2                       (1 << 6)       /*!< Trigger of capture input 2       */
-# define CT16B_IT_CR3                       (1 << 7)       /*!< Trigger of capture input 3       */
+#if ! (defined(LPC11XX) || defined(LPC11CXX)) /* Not on LPC11xx/LPC11Cxx */
+# define CT16B_InterruptMask_CR1             (1 << 5)       /*!< Trigger of capture input 1      */
+# define CT16B_InterruptMask_CR2             (1 << 6)       /*!< Trigger of capture input 2      */
+# define CT16B_InterruptMask_CR3             (1 << 7)       /*!< Trigger of capture input 3      */
 #endif
 
 /*! @brief Number of timer match channels supported */
@@ -121,27 +121,26 @@ extern "C" {
 
 /** @} */
 
-/** @defgroup CT16B_Match_Config_Types CT16B Actions to Take on a Match
+/** @defgroup CT16B_Match_Config_Types CT16B Match Action Settings
   * @{
   */
 
-/* Note: These are actions per match register.  Actions can be ORed together. */
-#define CT16B_MatchConfigMask_Mask          (0x07)         /*!< All valid match Control bits     */
+/* Note: These are actions per match channel.  Actions can be ORed together. */
+#define CT16B_MatchConfigMask_Mask          (0x07)         /*!< All valid match config bits      */
 
 #define CT16B_MatchConfigMask_None          (0)            /*!< Do nothing on match              */
 #define CT16B_MatchConfigMask_Interrupt     (1 << 0)       /*!< Generate IRQ on match            */
 #define CT16B_MatchConfigMask_Reset         (1 << 1)       /*!< Reset the timer/counter on match */
 #define CT16B_MatchConfigMask_Stop          (1 << 2)       /*!< Stop the timer/counter on match  */
 
-typedef uint32_t CT16B_MatchConfigMask_Type;
 /** @} */
 
-/** @defgroup CT16B_Capture_Control_Types CT16B External Capture Settings
+/** @defgroup CT16B_Capture_Config_Types CT16B External Capture Settings
   * @{
   */
 
 /* Note: These are settings per capture control register.  Actions can be ORed together. */
-#define CT16B_CaptureConfigMask_Mask         (0x07)        /*!< All valid capture control bits   */
+#define CT16B_CaptureConfigMask_Mask         (0x07)        /*!< All valid capture config bits    */
 
 #define CT16B_CaptureConfigMask_None         (0)           /*!< Do not monitor capture pin       */
 #define CT16B_CaptureConfigMask_RisingEdges  (1 << 0)      /*!< Capture count on rising edges    */
@@ -150,11 +149,11 @@ typedef uint32_t CT16B_MatchConfigMask_Type;
 
 /** @} */
 
-/** @defgroup CT16B_Ext_Match_Control_Types CT16B External Match Output Controls
+/** @defgroup CT16B_Ext_Match_Config_Types CT16B External Match Output Settings
   * @{
   */
 
-/*! @brief CT16B external match control actions; one action per external match output */
+/*! @brief CT16B configuration bits for external output channels on matches */
 #define CT16B_ExtMatchConfigMask_Mask       (0x03)         /*!< All valid ext match config bits  */
 
 #define CT16B_ExtMatchConfigMask_None       (0)            /*!< No output on timer/ctr match     */
@@ -196,131 +195,124 @@ typedef enum {
   */
 
 /** @brief Enable a CT16B counter/timer.
-  * @param Timer        A pointer to the CT16B instance
-  * @return             None.
+  * @param[in]  timer        A pointer to the CT16B instance
   */
-__INLINE static void CT16B_Enable(CT16B_Type *Timer)
+__INLINE static void CT16B_Enable(CT16B_Type *timer)
 {
-    Timer->TCR |= CT16B_CE;
+    timer->TCR |= CT16B_CE;
 }
 
 /** @brief Disable a CT16B counter/timer.
-  * @param Timer        A pointer to the CT16B instance
-  * @return             None.
+  * @param[in]  timer        A pointer to the CT16B instance
   */
-__INLINE static void CT16B_Disable(CT16B_Type *Timer)
+__INLINE static void CT16B_Disable(CT16B_Type *timer)
 {
-    Timer->TCR &= ~CT16B_CE;
+    timer->TCR &= ~CT16B_CE;
 }
 
 /** @brief Test whether a CT16B counter/timer is enabled.
-  * @param Timer        A pointer to the CT16B instance
-  * @return             1 if the timer/counter is enabled, 0 otherwise.
+  * @param[in] timer        A pointer to the CT16B instance
+  * @return                 1 if the timer/counter is enabled, 0 otherwise.
   */
-__INLINE static unsigned int CT16B_IsEnabled(CT16B_Type *Timer)
+__INLINE static unsigned int CT16B_IsEnabled(CT16B_Type *timer)
 {
-    return (Timer->TCR & CT16B_CE) ? 1:0;
+    return (timer->TCR & CT16B_CE) ? 1:0;
 }
 
 /** @brief Set the timing/counting mode of a CT16B counter/timer.
-  * @param Timer        A pointer to the CT16B instance
-  * @param Mode         The new timing / counting mode
-  * @return             None.
+  * @param[in]  timer        A pointer to the CT16B instance
+  * @param[in]  mode         The new timing / counting mode
   */
-__INLINE static void CT16B_SetMode(CT16B_Type *Timer, CT16B_Mode_Type Mode)
+__INLINE static void CT16B_SetMode(CT16B_Type *timer, CT16B_Mode_Type mode)
 {
-    lpclib_assert(CT16B_IS_MODE(Mode));
+    lpclib_assert(CT16B_IS_MODE(mode));
 
-    Timer->CTCR = Mode;
+    timer->CTCR = mode;
 }
 
 /** @brief Get the current timing/counting mode of a CT16B counter/timer.
-  * @param Timer        A pointer to the CT16B instance
-  * @return             The current timing/counting mode.
+  * @param[in]  timer        A pointer to the CT16B instance
+  * @return                  The current timing/counting mode.
   *
   * @sa CT16B_SetMode
   */
-__INLINE static CT16B_Mode_Type CT16B_GetMode(CT16B_Type *Timer)
+__INLINE static CT16B_Mode_Type CT16B_GetMode(CT16B_Type *timer)
 {
-    return Timer->CTCR;
+    return timer->CTCR;
 }
 
 /** @brief Assert reset on a CT16B counter/timer.
-  * @param Timer        A pointer to the CT16B instance
-  * @return             None.
+  * @param[in]  timer        A pointer to the CT16B instance
   *
   * @note
   * The counter/timer will stay in reset until cleared.
   *
   * @sa CT16B_DeassertReset
   */
-__INLINE static void CT16B_AssertReset(CT16B_Type *Timer)
+__INLINE static void CT16B_AssertReset(CT16B_Type *timer)
 {
-    Timer->TCR |= CT16B_CR;
+    timer->TCR |= CT16B_CR;
 }
 
 /** @brief Clear the reset condition of a CT16B counter/timer.
-  * @param Timer        A pointer to the CT16B instance
-  * @return             None.
+  * @param[in]  timer        A pointer to the CT16B instance
   *
   * @sa CT16B_AssertReset
   */
-__INLINE static void CT16B_DeassertReset(CT16B_Type *Timer)
+__INLINE static void CT16B_ClearReset(CT16B_Type *timer)
 {
-    Timer->TCR &= ~CT16B_CR;
+    timer->TCR &= ~CT16B_CR;
 }
 
 /** @brief Test whether a CT16B counter/timer is being held in reset.
-  * @return             1 if the CT16B is being held in reset, 0 otherwise.
+  * @param[in]  timer        A pointer to the CT16B instance
+  * @return                  1 if the CT16B is being held in reset, 0 otherwise.
   */
-__INLINE static unsigned int CT16B_ResetIsAsserted(CT16B_Type *Timer)
+__INLINE static unsigned int CT16B_ResetIsAsserted(CT16B_Type *timer)
 {
-    return (Timer->TCR & CT16B_CR) ? 1:0;
+    return (timer->TCR & CT16B_CR) ? 1:0;
 }
 
 /** @brief Get a bitmask of interrupts pending on a CT16B counter/timer.
-  * @param Timer        A pointer to the CT16B instance
-  * @return             A bitmask of pending interrupts.
+  * @param[in]  timer        A pointer to the CT16B instance
+  * @return                  A bitmask of pending interrupts.
   */
-__INLINE static uint32_t CT16B_GetPendingIT(CT16B_Type *Timer)
+__INLINE static uint32_t CT16B_GetPendingInteruptMask(CT16B_Type *timer)
 {
-    return Timer->IR;
+    return timer->IR;
 }
 
 /** @brief Clear pending interrupts on a CT16B counter/timer.
-  * @param Timer        A pointer to the CT16B instance
-  * @param IT           A bitmask of interrupts to clear
-  * @return             None.
+  * @param[in]  timer        A pointer to the CT16B instance
+  * @param[in]  it_mask      A bitmask of interrupts to clear
   */
-__INLINE static void CT16B_ClearPendingIT(CT16B_Type *Timer, uint32_t IT)
+__INLINE static void CT16B_ClearPendingInterruptMask(CT16B_Type *timer, uint32_t it_mask)
 {
-    lpclib_assert((IT & ~CT16B_IT_Mask) == 0);
-    Timer->IR = IT;
+    lpclib_assert((it_mask & ~CT16B_Interrupt_Mask) == 0);
+    timer->IR = it_mask;
 }
 
 /** @brief Set a CT16B counter/timer's count value.
-  * @param Timer        A pointer to the CT16B instance
-  * @param Count        The new count value
-  * @return             None.
+  * @param[in]  timer        A pointer to the CT16B instance
+  * @param[in]  count        The new count value (0-65535)
   */
-__INLINE static void CT16B_SetCount(CT16B_Type *Timer, uint16_t Count)
+__INLINE static void CT16B_SetCount(CT16B_Type *timer, uint32_t count)
 {
-    Timer->TC = Count;
+    timer->TC = count;
 }
 
 /** @brief Get a CT16B counter/timer's current count value.
-  * @param Timer        A pointer to the CT16B instance
-  * @return             The current count value.
+  * @param[in]  timer        A pointer to the CT16B instance
+  * @return                  The current count value (0-65535).
   */
-__INLINE static uint16_t CT16B_GetCount(CT16B_Type *Timer)
+__INLINE static uint32_t CT16B_GetCount(CT16B_Type *timer)
 {
-    return Timer->TC;
+    return timer->TC;
 }
 
 /** @brief Set the prescaler value of a CT16B counter/timer.
-  * @param Timer        A pointer to the CT16B instance
-  * @param Prescaler    The new prescaler value (0 - 65535).
-  * @return             None.
+  * @param[in]  timer        A pointer to the CT16B instance
+  * @param[in]  prescaler    The new prescaler value (0 - 65535).
   *
   * @note
   * The prescaler of a timer is the # of input clocks or counts before
@@ -331,167 +323,163 @@ __INLINE static uint16_t CT16B_GetCount(CT16B_Type *Timer)
   * PCLK; 1 means every 2 PCLKS and so on -- unlike many other interfaces
   * in this library, this one is 0-based.
   */
-__INLINE static void CT16B_SetPrescaler(CT16B_Type *Timer, uint16_t Prescaler)
+__INLINE static void CT16B_SetPrescaler(CT16B_Type *timer, uint32_t prescaler)
 {
-    Timer->PR = Prescaler;
+    timer->PR = prescaler;
 }
 
 /** @brief Get a CT16B counter/timer's current prescaler value.
-  * @param Timer        A pointer to the CT16B instance
-  * @return             The current prescaler value.
+  * @param[in]  timer        A pointer to the CT16B instance
+  * @return                  The current prescaler value (0-65535).
   *
   * @sa CT16B_SetPrescaler
   */
-__INLINE static uint16_t CT16B_GetPrescaler(CT16B_Type *Timer)
+__INLINE static uint32_t CT16B_GetPrescaler(CT16B_Type *timer)
 {
-    return Timer->PR;
+    return timer->PR;
 }
 
 /** @brief Set a CT16B counter/timer's prescaler count value.
-  * @param Timer        A pointer to the CT16B instance
-  * @param Count        The new prescaler count value
-  * @return             None.
+  * @param[in]  timer        A pointer to the CT16B instance
+  * @param[in]  count        The new prescaler count value (0-65535)
   *
   * @note
   * This sets the number of prescaler "ticks" thus far on the way to the
   * next count increment.
   */
-__INLINE static void CT16B_SetPrescalerCount(CT16B_Type *Timer, uint16_t Count)
+__INLINE static void CT16B_SetPrescalerCount(CT16B_Type *timer, uint32_t count)
 {
-    Timer->PC = Count;
+    timer->PC = count;
 }
 
 /** @brief Get a CT16B counter/timer's current prescaler count value.
-  * @param Timer        A pointer to the CT16B instance
-  * @return             The current prescaler count value.
+  * @param[in]  timer        A pointer to the CT16B instance
+  * @return                  The current prescaler count value (0-65535).
   *
   * @sa CT16B_SetPrescalerCount
   */
-__INLINE static uint16_t CT16B_GetPrescalerCount(CT16B_Type *Timer)
+__INLINE static uint32_t CT16B_GetPrescalerCount(CT16B_Type *timer)
 {
-    return Timer->PC;
+    return timer->PC;
 }
 
 /** @brief Set the actions that will happen on a CT16B match channel being triggered.
-  * @param Timer        A pointer to the CT16B instance
-  * @param Channel      A match channel # on the CT16B
-  * @param Control      A bitmask of actions to take on a match
-  * @return             None.
+  * @param[in]  timer        A pointer to the CT16B instance
+  * @param[in]  channel      A match channel # on the CT16B
+  * @param[in]  config_mask  A bitmask of actions to take on a match
   */
-__INLINE static void CT16B_SetConfigForMatchChannel(CT16B_Type *Timer, unsigned int Channel,
-                                                    CT16B_MatchConfigMask_Type Config)
+__INLINE static void CT16B_SetConfigForMatchChannel(CT16B_Type *timer, unsigned int channel,
+                                                    uint32_t config_mask)
 {
-    lpclib_assert(Channel < CT16B_NUM_MATCH_CHANNELS);
-    lpclib_assert((Config & ~CT16B_MatchConfigMask_Mask) == 0);
+    lpclib_assert(channel < CT16B_NUM_MATCH_CHANNELS);
+    lpclib_assert((config_mask & ~CT16B_MatchConfigMask_Mask) == 0);
 
-    Timer->MCR = (Timer->MCR & ~(CT16B_MatchConfigMask_Mask << (Channel * 3)))
-                                 | (Config << (Channel * 3));
+    timer->MCR = (timer->MCR & ~(CT16B_MatchConfigMask_Mask << (channel * 3)))
+                                 | (config_mask << (channel * 3));
 }
 
-/** @brief Get the actions that will happen on a CT16B match channel being triggered.
-  * @param Timer        A pointer to the CT16B instance
-  * @param Channel      A match channel # on the CT16B
-  * @return             A bitmask of actions taken on a match.
+/** @brief Get a bitmask of actions that will happen on a CT16B match channel being triggered.
+  * @param[in]  timer        A pointer to the CT16B instance
+  * @param[in]  channel      A match channel # on the CT16B
+  * @return                  A bitmask of actions taken on a match.
   */
-__INLINE static CT16B_MatchConfigMask_Type CT16B_GetConfigForMatchChannel(CT16B_Type *Timer, unsigned int Channel)
+__INLINE static uint32_t CT16B_GetConfigForMatchChannel(CT16B_Type *timer, unsigned int channel)
 {
-    lpclib_assert(Channel < CT16B_NUM_MATCH_CHANNELS);
+    lpclib_assert(channel < CT16B_NUM_MATCH_CHANNELS);
 
-    return (Timer->MCR >> (Channel * 3)) & CT16B_MatchConfigMask_Mask;
+    return (timer->MCR >> (channel * 3)) & CT16B_MatchConfigMask_Mask;
 }
 
 /** @brief Set the match value on the specified match channel of a CT16B counter/timer.
-  * @param Timer        A pointer to the CT16B instance
-  * @param Channel      A match channel # on the CT16B
-  * @param Count        The new match value
-  * @return             None.
+  * @param[in]  timer        A pointer to the CT16B instance
+  * @param[in]  channel      A match channel # on the CT16B
+  * @param[in]  count        The new match value (0-65535)
   */
-__INLINE static void CT16B_SetCountForMatchChannel(CT16B_Type *Timer, unsigned int Channel, uint16_t Count)
+__INLINE static void CT16B_SetCountForMatchChannel(CT16B_Type *timer, unsigned int channel,
+                                                   uint32_t count)
 {
-    lpclib_assert(Channel < CT16B_NUM_MATCH_CHANNELS);
+    lpclib_assert(channel < CT16B_NUM_MATCH_CHANNELS);
 
-    ((__IO uint32_t *)&Timer->MR0)[Channel] = Count;
+    ((__IO uint32_t *)&timer->MR0)[channel] = count;
 }
 
 /** @brief Get the match value on the specified match channel of a CT16B counter/timer.
-  * @param Timer        A pointer to the CT16B instance
-  * @param Channel      A match channel # on the CT16B
-  * @return             The current match value on the channel.
+  * @param[in]  timer        A pointer to the CT16B instance
+  * @param[in]  channel      A match channel # on the CT16B
+  * @return                  The current match value on the channel (0-65535).
   */
-__INLINE static uint16_t CT16B_GetCountForMatchChannel(CT16B_Type *Timer, unsigned int Channel)
+__INLINE static uint32_t CT16B_GetCountForMatchChannel(CT16B_Type *timer, unsigned int channel)
 {
-    lpclib_assert(Channel < CT16B_NUM_MATCH_CHANNELS);
+    lpclib_assert(channel < CT16B_NUM_MATCH_CHANNELS);
 
-    return ((__IO uint32_t *)&Timer->MR0)[Channel];
+    return ((__IO uint32_t *)&timer->MR0)[channel];
 }
 
 /** @brief Set the function of the external match line for a channel of a CT16B counter/timer.
-  * @param Timer        A pointer to the CT16B instance
-  * @param Channel      A match channel # on the CT16B
-  * @param Control      The new function of the channel's external match line
-  * @return             None.
+  * @param[in]  timer        A pointer to the CT16B instance
+  * @param[in]  channel      A match channel # on the CT16B
+  * @param[in]  config_mask  A bitmask of configuration bits for the external match line
   *
+  * @note
   * Note that regardless of whether a pin is configured for external match duty,
-  * tthe external match bit reflects the state of the external match value.
+  * the external match bit reflects the state of the external match value.
   */
-__INLINE static void CT16B_SetConfigForExtMatchChannel(CT16B_Type *Timer, unsigned int Channel,
-                                                        CT16B_ExtMatchConfigMask_Type Config)
+__INLINE static void CT16B_SetConfigForExtMatchChannel(CT16B_Type *timer, unsigned int channel,
+                                                       uint32_t config_mask)
 {
-    lpclib_assert(Channel < CT16B_NUM_MATCH_CHANNELS);
-    lpclib_assert((Config & ~CT16B_ExtMatchConfigMask_Mask) == 0);
+    lpclib_assert(channel < CT16B_NUM_MATCH_CHANNELS);
+    lpclib_assert((config_mask & ~CT16B_ExtMatchConfigMask_Mask) == 0);
 
-    Timer->EMR = (Timer->EMR & ~(CT16B_ExtMatchConfigMask_Mask << ((Channel * 2) + 4)))
-                                 | (Config << ((Channel * 2) + 4));
+    timer->EMR = (timer->EMR & ~(CT16B_ExtMatchConfigMask_Mask << ((channel * 2) + 4)))
+                                 | (config_mask << ((channel * 2) + 4));
 }
 
 /** @brief Get the current function of the ext match line for a channel of a CT16B counter/timer.
-  * @param Timer        A pointer to the CT16B instance
-  * @param Channel      A match channel # on the CT16B
-  * @return             The current function of the channel's external match line.
+  * @param[in]  timer        A pointer to the CT16B instance
+  * @param[in]  channel      A match channel # on the CT16B
+  * @return                  The current function of the channel's external match line.
   */
-__INLINE static CT16B_ExtMatchConfigMask_Type CT16B_GetConfigForExtMatchChannel(CT16B_Type *Timer,
-                                                                             unsigned int Channel)
+__INLINE static uint32_t CT16B_GetConfigForExtMatchChannel(CT16B_Type *timer, unsigned int channel)
 {
-    lpclib_assert(Channel < CT16B_NUM_MATCH_CHANNELS);
+    lpclib_assert(channel < CT16B_NUM_MATCH_CHANNELS);
 
-    return (Timer->EMR >> ((Channel * 2) + 4)) & CT16B_ExtMatchConfigMask_Mask;
+    return (timer->EMR >> ((channel * 2) + 4)) & CT16B_ExtMatchConfigMask_Mask;
 }
 
 /** @brief Set the ext match bit value for the specified channel of a CT16B counter/timer.
-  * @param Timer        A pointer to the CT16B instance
-  * @param Channel      A match channel # on the CT16B
-  * @param Value        Non-zero: sets the external match bit, zero: clears the bit
-  * @return             None.
+  * @param[in]  timer        A pointer to the CT16B instance
+  * @param[in]  channel      A match channel # on the CT16B
+  * @param[in]  value        Non-zero: sets the external match bit, zero: clears the bit
   */
 
-__INLINE static void CT16B_SetBitValueForExtMatchChannel(CT16B_Type *Timer, unsigned int Channel,
-                                                 unsigned int Value)
+__INLINE static void CT16B_SetBitValueForExtMatchChannel(CT16B_Type *timer, unsigned int channel,
+                                                         unsigned int value)
 {
-    lpclib_assert(Channel < CT16B_NUM_MATCH_CHANNELS);
+    lpclib_assert(channel < CT16B_NUM_MATCH_CHANNELS);
 
-    if (Value) {
-        Timer->EMR |= (1 << Channel);
+    if (value) {
+        timer->EMR |= (1 << channel);
     } else {
-        Timer->EMR &= ~(1 << Channel);
+        timer->EMR &= ~(1 << channel);
     }
 }
 
 /** @brief Get the ext match bit value for the specified channel of a CT16B counter/timer.
-  * @param Timer        A pointer to the CT16B instance
-  * @param Channel      A match channel # on the CT16B
-  * @return             The external match bit value for the specified channel.
+  * @param[in]  timer        A pointer to the CT16B instance
+  * @param[in]  channel      A match channel # on the CT16B
+  * @return                  The external match bit value for the specified channel.
   */
-__INLINE static unsigned int CT16B_GetBitValueForExtMatchChannel(CT16B_Type *Timer, unsigned int Channel)
+__INLINE static unsigned int CT16B_GetBitValueForExtMatchChannel(CT16B_Type *timer,
+                                                                 unsigned int channel)
 {
-    lpclib_assert(Channel < CT16B_NUM_MATCH_CHANNELS);
+    lpclib_assert(channel < CT16B_NUM_MATCH_CHANNELS);
 
-    return (Timer->EMR & (1 << Channel)) ? 1:0;
+    return (timer->EMR & (1 << channel)) ? 1:0;
 }
 
-/** @brief Enable PWM operation on a match channel of a CT16B counter/timer.
-  * @param Timer        A pointer to the CT16B instance
-  * @param Channel      A match channel # on the CT16B
-  * @return             None.
+/** @brief Enable PWM mode on a match channel of a CT16B counter/timer.
+  * @param[in]  timer        A pointer to the CT16B instance
+  * @param[in]  channel      A match channel # on the CT16B
   *
   * @note
   * - When enabled, a match will set the PWM output high.  When the count is reset to 0,
@@ -499,81 +487,79 @@ __INLINE static unsigned int CT16B_GetBitValueForExtMatchChannel(CT16B_Type *Tim
   * - There can be 3 match channels per CT16B used as PWM channels; the fourth is used
   *   to set the PWM cycle length.
   */
-__INLINE static void CT16B_EnablePWMChannel(CT16B_Type *Timer, unsigned int Channel)
+__INLINE static void CT16B_EnablePWMForMatchChannel(CT16B_Type *timer, unsigned int channel)
 {
-    lpclib_assert(Channel <= CT16B_NUM_MATCH_CHANNELS);
+    lpclib_assert(channel <= CT16B_NUM_MATCH_CHANNELS);
 
-    Timer->PWMC |= (1 << Channel);
+    timer->PWMC |= (1 << channel);
 }
 
 /** @brief Disable PWM mode on a match channel of a CT16B counter/timer.
-  * @param Timer        A pointer to the CT16B instance
-  * @param Channel      A match channel # on the CT16B
-  * @return             None.
+  * @param[in]  timer        A pointer to the CT16B instance
+  * @param[in]  channel      A match channel # on the CT16B
   *
   * @sa CT16B_EnableChannelPWM
   */
-__INLINE static void CT16B_DisablePWMChannel(CT16B_Type *Timer, unsigned int Channel)
+__INLINE static void CT16B_DisablePWMForMatchChannel(CT16B_Type *timer, unsigned int channel)
 {
-    lpclib_assert(Channel < CT16B_NUM_MATCH_CHANNELS);
+    lpclib_assert(channel < CT16B_NUM_MATCH_CHANNELS);
 
-    Timer->PWMC &= ~(1 << Channel);
+    timer->PWMC &= ~(1 << channel);
 }
 
-/** @brief Test whether a match channel on a CT16B counter/timer is configured for PWM.
-  * @param Timer        A pointer to the CT16B instance
-  * @param Channel      A match channel # on the CT16B
-  * @return             1 if the channel is configured for PWM operation, 0 otherwise.
+/** @brief Test whether PWM mode is enabled on a match channel of a CT16B counter/timer.
+  * @param[in]  timer        A pointer to the CT16B instance
+  * @param[in]  channel      A match channel # on the CT16B
+  * @return                  1 if the channel is configured for PWM operation, 0 otherwise.
   *
   * @sa CT16B_EnableChannelPWM
   */
-__INLINE static unsigned int CT16B_PWMChannelIsEnabled(CT16B_Type *Timer, unsigned int Channel)
+__INLINE static unsigned int CT16B_PWMIsEnabledForMatchChannel(CT16B_Type *timer, unsigned int channel)
 {
-    lpclib_assert(Channel < CT16B_NUM_MATCH_CHANNELS);
+    lpclib_assert(channel < CT16B_NUM_MATCH_CHANNELS);
 
-    return (Timer->PWMC & (1 << Channel)) ? 1:0;
+    return (timer->PWMC & (1 << channel)) ? 1:0;
 }
 
 /** @brief Configure a capture channel on a CT16B counter/timer.
-  * @param Timer        A pointer to the CT16B instance
-  * @param Channel      A capture channel # on the CT16B
-  * @param Config       A bitmask of configuration bits for the specified channel
-  * @return             None.
+  * @param[in]  timer        A pointer to the CT16B instance
+  * @param[in]  channel      A capture channel # on the CT16B
+  * @param[in]  config_mask  A bitmask of configuration bits for the specified channel
   *
-  * MUST be CT16B_CaptureControl_None if counter mode is selected on timer.
+  * MUST be CT16B_CaptureConfig_None if counter mode is selected on timer.
   */
-__INLINE static void CT16B_SetConfigForCaptureChannel(CT16B_Type *Timer, unsigned int Channel,
-                                                      CT16B_CaptureConfigMask_Type Config)
+__INLINE static void CT16B_SetConfigForCaptureChannel(CT16B_Type *timer, unsigned int channel,
+                                                      uint32_t config_mask)
 {
-    lpclib_assert(Channel < CT16B_NUM_CAPTURE_CHANNELS);
-    lpclib_assert((Config & ~CT16B_CaptureConfigMask_Mask) == 0);
+    lpclib_assert(channel < CT16B_NUM_CAPTURE_CHANNELS);
+    lpclib_assert((config_mask & ~CT16B_CaptureConfigMask_Mask) == 0);
 
-    Timer->CCR = (Timer->CCR & ~(CT16B_CaptureConfigMask_Mask << (3 * Channel)))
-                  | (Config << (3 * Channel));
+    timer->CCR = (timer->CCR & ~(CT16B_CaptureConfigMask_Mask << (3 * channel)))
+                  | (config_mask << (3 * channel));
 }
 
 /** @brief Get the current configuration bits for a capture channel on a CT16B counter/timer.
-  * @param Timer        A pointer to the CT16B instance
-  * @param Channel      A capture channel # on the CT16B
-  * @return             A bitmask of configuration bits for the specified channel.
+  * @param[in]  timer        A pointer to the CT16B instance
+  * @param[in]  channel      A capture channel # on the CT16B
+  * @return                  A bitmask of configuration bits for the specified channel.
   */
-__INLINE static uint32_t CT16B_GetConfigForCaptureChannel(CT16B_Type *Timer, unsigned int Channel)
+__INLINE static uint32_t CT16B_GetConfigForCaptureChannel(CT16B_Type *timer, unsigned int channel)
 {
-    lpclib_assert(Channel < CT16B_NUM_CAPTURE_CHANNELS);
+    lpclib_assert(channel < CT16B_NUM_CAPTURE_CHANNELS);
 
-    return ((Timer->CCR >> (3 * Channel)) & CT16B_CaptureConfig_Mask);
+    return ((timer->CCR >> (3 * channel)) & CT16B_CaptureConfig_Mask);
 }
 
 /** @brief Get the count value on a capture channel on a CT16B counter/timer.
-  * @param Timer        A pointer to the CT16B instance
-  * @param Channel      A capture channel # on the CT16B
-  * @return             The channel's captured count value.
+  * @param[in]  timer        A pointer to the CT16B instance
+  * @param[in]  channel      A capture channel # on the CT16B
+  * @return                  The channel's captured count value.
   */
-__INLINE static uint16_t CT16B_GetCountForCaptureChannel(CT16B_Type *Timer, unsigned int Channel)
+__INLINE static uint32_t CT16B_GetCountForCaptureChannel(CT16B_Type *timer, unsigned int channel)
 {
-    lpclib_assert(Channel < CT16B_NUM_CAPTURE_CHANNELS);
+    lpclib_assert(channel < CT16B_NUM_CAPTURE_CHANNELS);
 
-    return (&(Timer->CR0))[Channel];
+    return (&(timer->CR0))[channel];
 }
 
 /**

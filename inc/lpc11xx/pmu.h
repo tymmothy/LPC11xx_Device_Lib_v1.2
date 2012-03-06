@@ -69,64 +69,60 @@ extern "C" {
   * @{
   */
 
-/** @brief  Enable Deep Power Down Mode
-  * @return None.
+/** @brief Enable deep power down mode.
   */
 __INLINE static void PMU_EnableDeepPowerDown(void)
 {
     PMU->PCON |= PMU_DPDEN;
 }
 
-/** @brief  Disable Deep Power Down Mode
-  * @return None.
+/** @brief Disable deep power down mode.
   */
 __INLINE static void PMU_DisableDeepPowerDown(void)
 {
     PMU->PCON &= ~PMU_DPDEN;
 }
 
-/** @brief  Determine Whether Deep Power Down Mode is Enabled
-  * @return 1 if DPD Mode is enabled, 0 otherwise
+/** @brief Test whether deep power down mode is enabled.
+  * @return                  1 if deep power down mode is enabled, 0 otherwise.
   */
 __INLINE static unsigned int PMU_DeepPowerDownIsEnabled(void)
 {
     return (PMU->PCON & PMU_DPDEN) ? 1:0;
 }
 
-/** @brief  Test whether the chip is in sleep mode
-  * @return 1 if the CPU is in sleep mode, 0 otherwise.
+/** @brief Test whether the chip is in sleep mode.
+  * @return                  1 if the chip is in sleep mode, 0 otherwise.
   */
 __INLINE static unsigned int PMU_IsInSleepMode(void)
 {
     return (PMU->PCON & PMU_SLEEPFLAG) ? 1:0;
 }
 
-/** @brief  Test whether the chip is in deep power down mode
-  * @return 1 if the CPU is in deep power down mode, 0 otherwise.
+/** @brief Test whether the chip is in deep power down mode.
+  * @return                  1 if the chip is in deep power down mode, 0 otherwise.
   */
 __INLINE static unsigned int PMU_IsInDeepPowerDownMode(void)
 {
     return (PMU->PCON & PMU_DPDFLAG) ? 1:0;
 }
 
-/** @brief  Enable Hysteresis on the Wakeup Pin
-  * @return None.
+/** @brief Enable hysteresis on the deep-powerdown wakeup pin.
   */
 __INLINE static void PMU_EnableWakeupHysteresis(void)
 {
     PMU->GPREG4 |= PMU_WAKEUPHYS;
 }
 
-/** @brief  Disable Hysteresis on the Wakeup Pin
-  * @return None.
+/** @brief Disable hysteresis on the deep-powerdown wakeup pin.
   */
 __INLINE static void PMU_DisableWakeupHysteresis(void)
 {
     PMU->GPREG4 &= ~PMU_WAKEUPHYS;
 }
 
-/** @brief Test whether hysteresis is enabled on the wakeup pin
-  * @return 1 if hysteresis is enabled on the wakeup pin, 0 otherwise.
+/** @brief Test whether hysteresis is enabled on the deep-powerdown wakeup pin.
+  * @return                  1 if hysteresis is enabled, 0 otherwise.
   */
 __INLINE static unsigned int PMU_WakeupHysteresisIsEnabled(void)
 {
