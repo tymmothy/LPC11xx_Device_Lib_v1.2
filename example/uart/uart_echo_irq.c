@@ -10,6 +10,7 @@
  * buffers.
  *
  ******************************************************************************
+ * @section License
  * Copyright (c) 2012, Timothy Twillman
  * All rights reserved.
  *
