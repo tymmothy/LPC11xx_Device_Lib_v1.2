@@ -19,7 +19,7 @@
  *   the UART's interrupt line must be enabled in the microcontroller's
  *   interrupt controller.
  ******************************************************************************
- * @section License License
+ * @section License
  * Licensed under a Simplified BSD License:
  *
  * Copyright (c) 2012, Timothy Twillman
@@ -249,10 +249,10 @@ typedef enum {
   * @{
   */
 
-#define UART_AutobaudIT_Mask           (0x0300)            /*!< Mask of all autobaud int bits    */
+#define UART_AutobaudInterrupt_Mask     (0x0300)           /*!< Mask of all autobaud int bits    */
 
-#define UART_AutobaudIT_Complete       (1 << 8)            /*!< Autobaud completed interrupt     */
-#define UART_AutobaudIT_Timeout        (1 << 9)            /*!< Autobaud timed out interrupt     */
+#define UART_AutobaudInterrupt_Complete (1 << 8)           /*!< Autobaud completed interrupt     */
+#define UART_AutobaudInterrupt_Timeout  (1 << 9)           /*!< Autobaud timed out interrupt     */
 
 /*! @brief Type for passing UART autobaud interrupt pending bits */
 typedef uint32_t UART_AutobaudIT_Type;

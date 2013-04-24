@@ -12,7 +12,7 @@
  * called), and the variables SystemCoreClock and SystemAHBClock which give
  * the CPU core clock and AHB bus clock speed respectively.
  ******************************************************************************
- * @section License License
+ * @section License
  * Licensed under a Simplified BSD License:
  *
  * Copyright (c) 2012, Timothy Twillman

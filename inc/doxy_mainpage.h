@@ -102,6 +102,7 @@
  * flash.h
  *
  * gpio.h
+ * - Masks (esp. wrt sense)... ...ForMaskedPins? ForPin? these are kinda gross.
  * - Multiple pins abstraction ?
  * - Interrupts (sense) abstraction ?
  * - Set/GetPinDirections ?
@@ -113,21 +114,13 @@
  * iap.h
  * iocon.h
  * - Capitalization stuff
- * - layout of doxygen stuff...
  *
  * isr_vector.h
- *
  * lpc11xx.h
- * - Wakeup / Start IRQ numbering?
- *
  * lpclib_assert.h
  * pmu.h
  * ssp.h
- * - IT naming (IT??? Intr? Irq?)
- *
  * syscon.h
- * - Analog power control bits (type naming, function naming, better docs)
- * - Wakeup / StartLogic naming?
  *
  * system_lpc11xx.c
  * - Set up separate PSP/MSP stack pointers???
@@ -144,7 +137,7 @@
  * linker files
  * - change StartLogic refs to WAKEUP
  *****************************************************************************
- * @section License License
+ * @section License
  *
  * Copyright (c) 2012, Timothy Twillman
  * All rights reserved.

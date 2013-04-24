@@ -16,7 +16,7 @@
  * - The WDT's (AHB or APB/VPB) bus clock must be enabled.
  * - The WDT's input clock must be set and its divider configured.
  ******************************************************************************
- * @section License License
+ * @section License
  * Licensed under a Simplified BSD License:
  *
  * Copyright (c) 2012, Timothy Twillman

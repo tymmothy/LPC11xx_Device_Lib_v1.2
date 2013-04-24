@@ -16,7 +16,7 @@
  *  - System power down / wake settings
  *  - Reading LPC11xx device ID's
  ******************************************************************************
- * @section License License
+ * @section License
  * Licensed under a Simplified BSD License:
  *
  * Copyright (c) 2012, Timothy Twillman
