@@ -9,9 +9,9 @@
 #
 # Make environment variables that this file needs:
 #
-#     CROSS_COMPILE (defaults to arm-eabi-)
+#     CROSS_COMPILE (defaults to arm-none-eabi-)
 #       This is the compiler prefix.  e.g. using the default, gcc for the
-#       CPU is expected to be named "arm-eabi-gcc" and so on...)
+#       CPU is expected to be named "arm-none-eabi-gcc" and so on...)
 #
 #     MODEL (no default value; must be explicitly set)
 #       This is the CPU model that the project is compiling for.
@@ -46,7 +46,7 @@ endif # ifeq ("$(LPC11XXLIB_DIR)","")
 # Required GMake environment variables
 
 # Set the architecture name & compiler / linker / etc. cross compile prefix.
-CROSS_COMPILE   := $(if $(CROSS_COMPILE),$(CROSS_COMPILE),arm-eabi-)
+CROSS_COMPILE   := $(if $(CROSS_COMPILE),$(CROSS_COMPILE),arm-none-eabi-)
 CPU             := $(if $(CPU),$(CPU),cortex-m0)
 
 # If making the library, make sure that the necessary options have been set on
