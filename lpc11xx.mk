@@ -75,7 +75,7 @@ override LPC11XX_MACHINE_FLAGS   += -mlittle-endian -mlong-calls -msoft-float \
 
 # Set compiler / linker flags for the library...
 
-LPC11XX_OPTIMIZE  =  -O2
+LPC11XX_OPTIMIZE  =  -g
 LPC11XX_WARN      =  -Wall -Wextra
 LPC11XX_INCLUDE   += -I$(LPC11XXLIB_DIR)/inc -I$(LPC11XXLIB_DIR)/CMSIS_2_10/CMSIS/Include
 LPC11XX_CFLAGS    += $(LPC11XXLIB_FLAGS) $(LPC11XX_MACHINE_FLAGS) $(LPC11XX_INCLUDE) \
