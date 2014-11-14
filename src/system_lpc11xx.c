@@ -129,7 +129,7 @@ static inline void SysPLLInit(void)
 #endif
 
     /* Make sure the PLL is powered */
-    SYSCON_EnableAnalogPowerLines(SYSCON_PowerMode_Run, SYSCON_AnalogPowerLine_SysPLL);
+    SYSCON_EnableAnalogPowerLinesForMode(SYSCON_PowerMode_Run, SYSCON_AnalogPowerLine_SysPLL);
     while (!SYSCON_SysPLLIsLocked());
 
     /* Set the Main Clock to use the System PLL's Output as its source */
@@ -240,7 +240,7 @@ void SystemInit(void)
 # else
     SYSCON_SetSysOscFreqRange(SYSCON_SysOscFreqRange_15_25);
 # endif
-    SYSCON_EnableAnalogPowerLines(SYSCON_PowerMode_Run, SYSCON_AnalogPowerLine_SysOsc);
+    SYSCON_EnableAnalogPowerLinesForMode(SYSCON_PowerMode_Run, SYSCON_AnalogPowerLine_SysOsc);
 #endif
 
     /* Brief delay to let the system stabilize a little */
