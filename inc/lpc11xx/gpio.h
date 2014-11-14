@@ -127,18 +127,18 @@ typedef enum {
   * @{
   */
 
-#define GPIO_PinMask_0       (1 << 0)      /*!< GPIO Pin 0                       */
-#define GPIO_PinMask_1       (1 << 1)      /*!< GPIO Pin 1                       */
-#define GPIO_PinMask_2       (1 << 2)      /*!< GPIO Pin 2                       */
-#define GPIO_PinMask_3       (1 << 3)      /*!< GPIO Pin 3                       */
-#define GPIO_PinMask_4       (1 << 4)      /*!< GPIO Pin 4                       */
-#define GPIO_PinMask_5       (1 << 5)      /*!< GPIO Pin 5                       */
-#define GPIO_PinMask_6       (1 << 6)      /*!< GPIO Pin 6                       */
-#define GPIO_PinMask_7       (1 << 7)      /*!< GPIO Pin 7                       */
-#define GPIO_PinMask_8       (1 << 8)      /*!< GPIO Pin 8                       */
-#define GPIO_PinMask_9       (1 << 9)      /*!< GPIO Pin 9                       */
-#define GPIO_PinMask_10      (1 << 10)     /*!< GPIO Pin 10                      */
-#define GPIO_PinMask_11      (1 << 11)     /*!< GPIO Pin 11                      */
+#define GPIO_Pin_0    (1 << 0)      /*!< GPIO Pin 0                       */
+#define GPIO_Pin_1    (1 << 1)      /*!< GPIO Pin 1                       */
+#define GPIO_Pin_2    (1 << 2)      /*!< GPIO Pin 2                       */
+#define GPIO_Pin_3    (1 << 3)      /*!< GPIO Pin 3                       */
+#define GPIO_Pin_4    (1 << 4)      /*!< GPIO Pin 4                       */
+#define GPIO_Pin_5    (1 << 5)      /*!< GPIO Pin 5                       */
+#define GPIO_Pin_6    (1 << 6)      /*!< GPIO Pin 6                       */
+#define GPIO_Pin_7    (1 << 7)      /*!< GPIO Pin 7                       */
+#define GPIO_Pin_8    (1 << 8)      /*!< GPIO Pin 8                       */
+#define GPIO_Pin_9    (1 << 9)      /*!< GPIO Pin 9                       */
+#define GPIO_Pin_10   (1 << 10)     /*!< GPIO Pin 10                      */
+#define GPIO_Pin_11   (1 << 11)     /*!< GPIO Pin 11                      */
 
 /*! @brief Mask of no GPIO pins */
 #define GPIO_PinMask_NONE    (0x0000)
@@ -172,7 +172,7 @@ __INLINE static void GPIO_WritePort(GPIO_Type *gpio, uint32_t pin_values)
 {
     lpclib_assert((pin_values & ~GPIO_Pin_Mask) == 0);
 
-    GPIO->DATA = pin_values;
+    gpio->DATA = pin_values;
 }
 
 /** @brief Read the logic state of all pins of a GPIO port.
@@ -181,7 +181,7 @@ __INLINE static void GPIO_WritePort(GPIO_Type *gpio, uint32_t pin_values)
   */
 __INLINE static uint32_t GPIO_ReadPort(GPIO_Type *gpio)
 {
-    return GPIO->DATA;
+    return gpio->DATA;
 }
 
 /** @brief Write the given bits to the specified pins of a GPIO port.
@@ -196,12 +196,12 @@ __INLINE static uint32_t GPIO_ReadPort(GPIO_Type *gpio)
   * on the GPIO port will be set low, and pin 4 will be set high (dependent
   * of course on the data direction settings of the port)
   */
-__INLINE static void GPIO_WriteMaskedPins(GPIO_Type *gpio, uint32_t pin_mask, uint32_t pin_values)
+__INLINE static void GPIO_WritePins(GPIO_Type *gpio, uint32_t pin_mask, uint32_t pin_values)
 {
     lpclib_assert((pin_mask & ~GPIO_Pin_Mask) == 0);
     lpclib_assert((pin_values & ~GPIO_Pin_Mask) == 0);
 
-    GPIO->SELDATA[pin_mask] = pin_values;
+    gpio->SELDATA[pin_mask] = pin_values;
 }
 
 /** @brief Read the logic state of the specified pins of a GPIO port.
@@ -212,33 +212,33 @@ __INLINE static void GPIO_WriteMaskedPins(GPIO_Type *gpio, uint32_t pin_mask, ui
   * @note
   * - Only pins specified in the mask will have valid entries in the returned value.
   */
-__INLINE static uint32_t GPIO_ReadMaskedPins(GPIO_Type *gpio, uint32_t pin_mask)
+__INLINE static uint32_t GPIO_ReadPins(GPIO_Type *gpio, uint32_t pin_mask)
 {
     lpclib_assert((pin_mask & ~GPIO_Pin_Mask) == 0);
 
-    return GPIO->SELDATA[pin_mask];
+    return gpio->SELDATA[pin_mask];
 }
 
 /** @brief Set the state of the specified pins of a GPIO port to high.
   * @param[in]  gpio         A pointer to a GPIO instance
   * @param[in]  pin_mask     A bitmask of GPIO pins
   */
-__INLINE static void GPIO_SetMaskedPinsHigh(GPIO_Type *gpio, uint32_t pin_mask)
+__INLINE static void GPIO_SetPinsHigh(GPIO_Type *gpio, uint32_t pin_mask)
 {
     lpclib_assert((pin_mask & ~GPIO_Pin_Mask) == 0);
 
-    GPIO->SELDATA[pin_mask] = pin_mask;
+    gpio->SELDATA[pin_mask] = pin_mask;
 }
 
 /** @brief Set the state of the specified pins of a GPIO port to low.
   * @param[in]  gpio         A pointer to a GPIO instance
   * @param[in]  pin_mask     A bitmask of GPIO pins
   */
-__INLINE static void GPIO_SetMaskedPinsLow(GPIO_Type *gpio, uint32_t pin_mask)
+__INLINE static void GPIO_SetPinsLow(GPIO_Type *gpio, uint32_t pin_mask)
 {
     lpclib_assert((pin_mask & ~GPIO_Pin_Mask) == 0);
 
-    GPIO->SELDATA[pin_mask] = 0;
+    gpio->SELDATA[pin_mask] = 0;
 }
 
 /** @brief Set the directions of the specified pins of a GPIO port.
@@ -246,16 +246,16 @@ __INLINE static void GPIO_SetMaskedPinsLow(GPIO_Type *gpio, uint32_t pin_mask)
   * @param[in]  pin_mask     A bitmask of GPIO pins
   * @param[in]  direction    The direction to set for the specified pins
   */
-__INLINE static void GPIO_SetMaskedPinDirections(GPIO_Type *gpio, uint32_t pin_mask,
+__INLINE static void GPIO_SetPinDirections(GPIO_Type *gpio, uint32_t pin_mask,
                                            GPIO_DirectionType direction)
 {
     lpclib_assert((pin_mask & ~GPIO_Pin_Mask) == 0);
     lpclib_assert(GPIO_IS_DIRECTION_TYPE(direction));
 
     if (direction) {
-        GPIO->DIR |= pin_mask;
+        gpio->DIR |= pin_mask;
     } else {
-        GPIO->DIR &= ~pin_mask;
+        gpio->DIR &= ~pin_mask;
     }
 }
 
@@ -263,11 +263,11 @@ __INLINE static void GPIO_SetMaskedPinDirections(GPIO_Type *gpio, uint32_t pin_m
   * @param[in]  gpio         A pointer to a GPIO instance
   * @param[in]  pin_mask     A bitmask of GPIO pins
   */
-__INLINE static void GPIO_InvertMaskedPins(GPIO_Type *gpio, uint32_t pin_mask)
+__INLINE static void GPIO_InvertPins(GPIO_Type *gpio, uint32_t pin_mask)
 {
     lpclib_assert((pin_mask & ~GPIO_Pin_Mask) == 0);
 
-    GPIO->SELDATA[pin_mask] ^= pin_mask;
+    gpio->SELDATA[pin_mask] ^= pin_mask;
 }
 
 /** @brief Set the logic state of a single pin of a GPIO port to high.
@@ -278,7 +278,7 @@ __INLINE static void GPIO_SetPinHigh(GPIO_Type *gpio, unsigned int pin)
 {
     lpclib_assert(pin < GPIO_NUM_PINS);
 
-    GPIO->SELDATA[1 << pin] = (1 << pin);
+    gpio->SELDATA[1 << pin] = (1 << pin);
 }
 
 /** @brief Set the logic state of a single pin of a GPIO port to low.
@@ -289,7 +289,7 @@ __INLINE static void GPIO_SetPinLow(GPIO_Type *gpio, unsigned int pin)
 {
     lpclib_assert(pin < GPIO_NUM_PINS);
 
-    GPIO->SELDATA[1 << pin] = 0;
+    gpio->SELDATA[1 << pin] = 0;
 }
 
 /** @brief Invert the logic state of a single pin of a GPIO port.
@@ -300,7 +300,7 @@ __INLINE static void GPIO_InvertPin(GPIO_Type *gpio, unsigned int pin)
 {
     lpclib_assert(pin < GPIO_NUM_PINS);
 
-    GPIO->SELDATA[1 << pin] ^= (1 << pin);
+    gpio->SELDATA[1 << pin] ^= (1 << pin);
 }
 
 /** @brief Set the direction of a single pin of a GPIO port.
@@ -314,9 +314,9 @@ __INLINE static void GPIO_SetPinDirection(GPIO_Type *gpio, unsigned int pin, GPI
     lpclib_assert(GPIO_IS_DIRECTION_TYPE(direction));
 
     if (direction) {
-        GPIO->DIR |= (1 << pin);
+        gpio->DIR |= (1 << pin);
     } else {
-        GPIO->DIR &= ~(1 << pin);
+        gpio->DIR &= ~(1 << pin);
     }
 }
 
@@ -329,7 +329,7 @@ __INLINE static uint16_t GPIO_GetPinDirection(GPIO_Type *gpio, unsigned int pin)
 {
     lpclib_assert(pin < GPIO_NUM_PINS);
 
-    return (GPIO->DIR & (1 << pin)) ? GPIO_Direction_In:GPIO_Direction_Out;
+    return (gpio->DIR & (1 << pin)) ? GPIO_Direction_In:GPIO_Direction_Out;
 }
 
 /** @brief Set the sensing configuration for the specified pins of a GPIO port.
@@ -337,28 +337,28 @@ __INLINE static uint16_t GPIO_GetPinDirection(GPIO_Type *gpio, unsigned int pin)
   * @param[in]  pin_mask     A bitmask of GPIO pins
   * @param[in]  sense        The new sensing setting for the specified pins
   */
-__INLINE static void GPIO_SetSenseConfigForMaskedPins(GPIO_Type *gpio, uint32_t pin_mask,
+__INLINE static void GPIO_SetSenseConfigForPins(GPIO_Type *gpio, uint32_t pin_mask,
                                              GPIO_Sense_Type sense)
 {
     lpclib_assert((pin_mask & ~GPIO_Pin_Mask) == 0);
     lpclib_assert(GPIO_IS_SENSE_TYPE(sense));
 
     if (sense == GPIO_Sense_BothEdges) {
-        GPIO->IBE |= pin_mask;
+        gpio->IBE |= pin_mask;
     } else {
-        GPIO->IBE &= ~pin_mask;
+        gpio->IBE &= ~pin_mask;
     }
 
     if ((sense == GPIO_Sense_Low) || (sense == GPIO_Sense_High)) {
-        GPIO->IS |= pin_mask;
+        gpio->IS |= pin_mask;
     } else {
-        GPIO->IS &= ~pin_mask;
+        gpio->IS &= ~pin_mask;
     }
 
     if ((sense == GPIO_Sense_RisingEdge) || (sense == GPIO_Sense_High)) {
-        GPIO->IEV |= pin_mask;
+        gpio->IEV |= pin_mask;
     } else {
-        GPIO->IEV &= ~pin_mask;
+        gpio->IEV &= ~pin_mask;
     }
 }
 
@@ -367,7 +367,7 @@ __INLINE static void GPIO_SetSenseConfigForMaskedPins(GPIO_Type *gpio, uint32_t 
   * @param[in]  pin          A GPIO pin number (0 - 11)
   * @return                  The current sensing setting of the pin.
   */
-__INLINE static GPIO_SenseType GPIO_GetPinSenseConfig(GPIO_Type *gpio, unsigned int pin)
+__INLINE static GPIO_Sense_Type GPIO_GetPinSenseConfig(GPIO_Type *gpio, unsigned int pin)
 {
     uint32_t pin_mask;
 
@@ -376,16 +376,16 @@ __INLINE static GPIO_SenseType GPIO_GetPinSenseConfig(GPIO_Type *gpio, unsigned 
 
     pin_mask = (1 << pin);
 
-    if (GPIO->IS & pin_mask) {
-        if (GPIO->IEV & pin_mask) {
+    if (gpio->IS & pin_mask) {
+        if (gpio->IEV & pin_mask) {
             return GPIO_Sense_High;
         } else {
             return GPIO_Sense_Low;
         }
     } else {
-        if (GPIO->IBE & pin_mask) {
+        if (gpio->IBE & pin_mask) {
             return GPIO_Sense_BothEdges;
-        } else if (GPIO->IEV & pin_mask) {
+        } else if (gpio->IEV & pin_mask) {
             return GPIO_Sense_RisingEdge;
         } else {
             return GPIO_Sense_FallingEdge;
@@ -397,22 +397,22 @@ __INLINE static GPIO_SenseType GPIO_GetPinSenseConfig(GPIO_Type *gpio, unsigned 
   * @param[in]  gpio         A pointer to a GPIO instance
   * @param[in]  pin_mask     A bitmask of GPIO pins
   */
-__INLINE static void GPIO_EnableInterruptsForMaskedPins(GPIO_Type *gpio, uint32_t pin_mask)
+__INLINE static void GPIO_EnableInterruptsForPins(GPIO_Type *gpio, uint32_t pin_mask)
 {
-    lpclib_assert((Pins & ~GPIO_Pin_Mask) == 0);
+    lpclib_assert((pin_mask & ~GPIO_Pin_Mask) == 0);
 
-    GPIO->IE |= pin_mask;
+    gpio->IE |= pin_mask;
 }
 
 /** @brief Disable sense interrupts for the specified pins of a GPIO port.
   * @param[in]  gpio         A pointer to a GPIO instance
   * @param[in]  pin_mask     A bitmask of GPIO pins
   */
-__INLINE static void GPIO_DisableInterruptsForMaskedPins(GPIO_Type *gpio, uint32_t pin_mask)
+__INLINE static void GPIO_DisableInterruptsForPins(GPIO_Type *gpio, uint32_t pin_mask)
 {
-    lpclib_assert((pins & ~GPIO_Pin_Mask) == 0);
+    lpclib_assert((pin_mask & ~GPIO_Pin_Mask) == 0);
 
-    GPIO->IE &= ~pin_mask;
+    gpio->IE &= ~pin_mask;
 }
 
 /** @brief Get the raw interrupt states for the specified pins of a GPIO port.
@@ -426,7 +426,7 @@ __INLINE static void GPIO_DisableInterruptsForMaskedPins(GPIO_Type *gpio, uint32
   */
 __INLINE static uint32_t GPIO_GetRawInterruptsMask(GPIO_Type *gpio)
 {
-    return GPIO->RIS;
+    return gpio->RIS;
 }
 
 /** @brief Get the pending sense interrupt states for the specified pins of a GPIO port.
@@ -439,18 +439,18 @@ __INLINE static uint32_t GPIO_GetRawInterruptsMask(GPIO_Type *gpio)
   */
 __INLINE static uint32_t GPIO_GetPendingInterruptsMask(GPIO_Type *gpio)
 {
-    return GPIO->MIS;
+    return gpio->MIS;
 }
 
 /** @brief Clear pending edge-triggered sense interrupts for the specified pins of a GPIO port.
   * @param[in]  gpio         A pointer to a GPIO instance
   * @param[in]  pin_mask     A bitmask of GPIO pins
   */
-__INLINE static void GPIO_ClearPendingInterruptsForMaskedPins(GPIO_Type *gpio, uint32_t pin_mask)
+__INLINE static void GPIO_ClearPendingInterruptsForPins(GPIO_Type *gpio, uint32_t pin_mask)
 {
     lpclib_assert((pin_mask & ~GPIO_Pin_Mask) == 0);
 
-    GPIO->IC |= pin_mask;
+    gpio->IC |= pin_mask;
 
     /* Prevent spurious interrupts if clearing in ISR */
     __asm__ __volatile__ ("    nop\n    nop\n");
@@ -464,7 +464,7 @@ __INLINE static void GPIO_ClearPendingInterruptsForPin(GPIO_Type *gpio, unsigned
 {
     lpclib_assert(pin < GPIO_NUM_PINS);
 
-    GPIO->IC |= (1 << pin);
+    gpio->IC |= (1 << pin);
 
     /* Prevent spurious interrupts if clearing in ISR */
     __asm__ __volatile__ ("    nop\n    nop\n");
