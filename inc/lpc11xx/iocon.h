@@ -494,7 +494,7 @@ __INLINE static void IOCON_SetPinConfig(IOCON_PinConfig_Type config, IOCON_Mode_
     uint16_t pin = config & 0xff;
 
 
-    lpclib_assert(IOCON_IS_PIO_PIN(pin));
+    lpclib_assert(IOCON_IS_PIN(pin));
     lpclib_assert(IOCON_IS_FUNCTION(config >> 8));
     lpclib_assert(IOCON_IS_MODE(mode));
 
@@ -608,7 +608,7 @@ __INLINE static void IOCON_DisablePinAnalogMode(IOCON_Pin_Type pin)
   * @param[in]  pin          An IOCON pin number (ADC input pins only)
   * @return                  1 if AD mode is enabled on the pin, 0 otherwise.
   */
-__INLINE static void IOCON_EnablePinAnalogMode(IOCON_Pin_Type pin)
+__INLINE static int IOCON_PinAnalogModeIsEnabled(IOCON_Pin_Type pin)
 {
    lpclib_assert(IOCON_IS_AD_PIN(pin));
 
