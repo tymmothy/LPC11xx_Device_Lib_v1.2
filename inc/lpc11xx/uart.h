@@ -168,8 +168,8 @@ typedef enum {
 } UART_WordLength_Type;
 
 /*! @brief Macro to test whether parameter is a valid Word Length value */
-#define UART_IS_WORDSIZE(WORDSIZE) (((WORDSIZE) >= UART_WordLength_5b) \
-                                    && ((WORDSIZE) <= UART_WordLength_8b))
+#define UART_IS_WORDLENGTH(WORDLENGTH) (((WORDLENGTH) >= UART_WordLength_5b) \
+                                    && ((WORDLENGTH) <= UART_WordLength_8b))
 
 /** @} */
 
@@ -249,10 +249,10 @@ typedef enum {
   * @{
   */
 
-#define UART_AutobaudInterrupt_Mask     (0x0300)           /*!< Mask of all autobaud int bits    */
+#define UART_AutobaudIT_Mask     (0x0300)           /*!< Mask of all autobaud int bits    */
 
-#define UART_AutobaudInterrupt_Complete (1 << 8)           /*!< Autobaud completed interrupt     */
-#define UART_AutobaudInterrupt_Timeout  (1 << 9)           /*!< Autobaud timed out interrupt     */
+#define UART_AutobaudIT_Complete (1 << 8)           /*!< Autobaud completed interrupt     */
+#define UART_AutobaudIT_Timeout  (1 << 9)           /*!< Autobaud timed out interrupt     */
 
 /*! @brief Type for passing UART autobaud interrupt pending bits */
 typedef uint32_t UART_AutobaudIT_Type;
@@ -324,7 +324,7 @@ __INLINE static void UART_Send(UART_Type *uart, uint8_t b)
   * @param[in]  uart         A pointer to the UART instance
   * @param[in]  it_mask      A bitmask of the interrupts to enable
   */
-__INLINE static void UART_EnableMaskedInterrupts(UART_Type *uart, uint32_t it_mask)
+__INLINE static void UART_EnableInterrupts(UART_Type *uart, uint32_t it_mask)
 {
     lpclib_assert((it_mask & ~UART_Interrupt_Mask) == 0);
 
@@ -335,7 +335,7 @@ __INLINE static void UART_EnableMaskedInterrupts(UART_Type *uart, uint32_t it_ma
   * @param[in]  uart         A pointer to the UART instance
   * @param[in]  it_mask      A bitmask of the interrupts to disable
   */
-__INLINE static void UART_DisableMaskedInterrupts(UART_Type *uart, uint32_t it_mask)
+__INLINE static void UART_DisableInterrupts(UART_Type *uart, uint32_t it_mask)
 {
     lpclib_assert((it_mask & ~UART_Interrupt_Mask) == 0);
 
@@ -346,7 +346,7 @@ __INLINE static void UART_DisableMaskedInterrupts(UART_Type *uart, uint32_t it_m
   * @param[in]  uart         A pointer to the UART instance
   * @return                  A bitmask of enabled UART interrupts.
   */
-__INLINE static UART_InterruptMask_Type UART_GetEnabledInterruptMask(UART_Type *uart)
+__INLINE static uint32_t UART_GetEnabledInterruptMask(UART_Type *uart)
 {
     return uart->IER;
 }
@@ -368,7 +368,7 @@ __INLINE static void UART_SetWordLength(UART_Type *uart, UART_WordLength_Type le
 {
     lpclib_assert(UART_IS_WORDLENGTH(length));
 
-    uart->LCR = (uart->LCR & ~UART_WORDLEN_Mask) | (length - 5);
+    uart->LCR = (uart->LCR & ~UART_WORDLEN_Mask) | (length);
 }
 
 /** @brief Get the current word length setting for bytes sent/received via an UART.
@@ -739,7 +739,7 @@ __INLINE static void UART_EndAutobaud(UART_Type *uart)
   *
   * @sa UART_BeginAutobaud
   */
-__INLINE static void UART_AutobaudIsRunning(UART_Type *uart)
+__INLINE static int UART_AutobaudIsRunning(UART_Type *uart)
 {
     return (uart->ACR & UART_AUTOBAUD) ? 1:0;
 }
@@ -968,9 +968,9 @@ __INLINE static unsigned int UART_RS485AutoAddressDetectIsEnabled(UART_Type *uar
 __INLINE static void UART_SetRS485DirControlPin(UART_Type *uart,
                                                 UART_RS485DirControlPin_Type pin)
 {
-    lpclib_assert(UART_IS_RS485DIRCONTROLPIN(pin);
+    lpclib_assert(UART_IS_RS485DIRCONTROLPIN(pin));
 
-    uart->RS485CTRL = (UART_RS485CTRL & ~UART_DIRSEL) | pin;
+    uart->RS485CTRL = (uart->RS485CTRL & ~UART_DIRSEL) | pin;
 }
 
 /** @brief Get the pin used for direction control in RS485 mode on an UART.
@@ -1040,9 +1040,9 @@ __INLINE static UART_RS485DirControlPolarity_Type UART_GetRS485DirControlPolarit
   */
 __INLINE static void UART_SetRS485Address(UART_Type *uart, unsigned int addr)
 {
-    lpclib_assert(Address <= 255);
+    lpclib_assert(addr <= 255);
 
-    uart->RS485ADRMATCH = addr;
+    uart->ADRMATCH = addr;
 }
 
 /** @brief Get the polarity of the RS485 direction control pin on an UART.
@@ -1051,7 +1051,7 @@ __INLINE static void UART_SetRS485Address(UART_Type *uart, unsigned int addr)
   */
 __INLINE static unsigned int UART_GetRS485Address(UART_Type *uart)
 {
-    return uart->RS485ADRMATCH;
+    return uart->ADRMATCH;
 }
 
 /** @brief Set the RS485 direction pin delay on an UART.

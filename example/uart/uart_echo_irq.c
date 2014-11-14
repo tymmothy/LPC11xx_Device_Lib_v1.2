@@ -59,6 +59,9 @@
 # define BAUD 38400
 #endif
 
+/* # of bytes in UART FIFO */
+#define TX_FIFO_SIZE (16)
+
 
 /* File Local Variables -----------------------------------------------------*/
 
@@ -83,12 +86,13 @@ void UART0_IRQHandler(void)
 {
     uint16_t tmp;
     int bindex;
+    int tx_fifo_free;
     UART_Type *uart = UART0;
 
 
     /* Get the next pending UART interrupt ID and act on it */
-    while ((tmp = UART_GetPendingITID(uart)) != UART_ITID_None) {
-        if (tmp == UART_ITID_RxDataAvailable) {
+    while ((tmp = UART_GetPendingInterruptID(uart)) != UART_InterruptID_None) {
+        if (tmp == UART_InterruptID_RxDataAvailable) {
             /* UART has character(s) waiting... Read one. */
             tmp = UART_Recv(uart);
 
@@ -105,7 +109,7 @@ void UART0_IRQHandler(void)
                 tmp = rx_buffer[rx_buffer_start] = tmp;
                 rx_buffer_start = bindex;
             }
-        } else if (tmp == UART_ITID_TxEmpty) {
+        } else if (tmp == UART_InterruptID_TxEmpty) {
             tx_fifo_free = TX_FIFO_SIZE;
 
             while (tx_buffer_start != tx_buffer_end) {
@@ -126,7 +130,7 @@ void UART0_IRQHandler(void)
                 /* Otherwise disable Tx interrupts until more characters are
                  *  put in the buffer.
                  */
-                UART_DisableIT(uart, UART_IT_TxData);
+                UART_DisableInterrupts(uart, UART_Interrupt_TxData);
             }
         }
     }
@@ -169,7 +173,7 @@ void buffered_uart_putchar(uint8_t c)
     tx_buffer_start = bindex;
 
     /* Make sure the UART's Tx IRQ is enabled */
-    UART_EnableIT(UART0, UART_IT_TxData);
+    UART_EnableInterrupts(UART0, UART_Interrupt_TxData);
 }
 
 
@@ -280,7 +284,7 @@ void init_uart(UART_Type *uart, uint32_t baud)
     }
 
     /* UART needs a read to start the interrupt juices flowing... */
-    UART_GetPendingITID(uart);
+    UART_GetPendingInterruptID(uart);
 }
 
 
@@ -314,7 +318,7 @@ int main(void)
     GPIO_WritePins(GPIO3, GPIO_Pin_5, GPIO_Pin_5);
 
     /* Enable UART Rx, Tx IRQ's */
-    UART_EnableIT(uart, UART_IT_RxData);
+    UART_EnableInterrupts(uart, UART_Interrupt_RxData);
 
     /* Set pin to LOW */
     GPIO_WritePins(GPIO3, GPIO_Pin_5, 0);
