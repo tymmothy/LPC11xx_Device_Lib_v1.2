@@ -60,15 +60,14 @@ ifeq ($(filter liblpc11xx.a, $(MAKECMDGOALS)),liblpc11xx.a)
   ifeq ("$(F_CPU)","")
     $(error "F_CPU not defined.  Please set this to the target system clock speed (e.g. F_CPU=60000000L)")
   endif
-  
-  ifeq ("$(HSE_Val)","")
-    $(error "HSE_Val not defined.  Please set this to the High Speed External oscillator speed (e.g. HSE_Val=12000000L)")
-  endif
 endif
 
 # For the lpc1100 device library's use
-LPC11XXLIB_FLAGS := -D$(LPC11XX_MODEL) -DF_CPU=$(F_CPU) -DHSE_Val=$(HSE_Val) \
-                    -DLPCLIB_DEBUG
+LPC11XXLIB_FLAGS := -D$(LPC11XX_MODEL) -DF_CPU=$(F_CPU) -DLPCLIB_DEBUG
+
+ifneq ("$(HSE_Val)","")
+  LPC11XXLIB_FLAGS += -DHSE_Val=$(HSE_Val)
+endif
 
 # CPU machine flags
 override LPC11XX_MACHINE_FLAGS   += -mlittle-endian -mlong-calls -msoft-float \
